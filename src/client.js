@@ -8,7 +8,6 @@ const LATEST='4.9.15.0';
 const SITE='site.html#pick';
 const PHONE='8 (499) 111-25-50';
 const XSVG='<svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1L1 9" stroke="#333"/></svg>';
-const CHEV='<svg width="9" height="9" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="#333" fill="none"/></svg>';
 const ARROW='<svg width="18" height="10" viewBox="0 0 18 10"><path d="M1 5h15m-4-4l4 4-4 4" stroke="#8f9093" fill="none"/></svg>';
 const SPIN='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.8" stroke="#ecd9a8" stroke-width="1.6"/><path d="M7 1.2a5.8 5.8 0 0 1 5.8 5.8" stroke="#8a6400" stroke-width="1.6"/></svg>';
 
@@ -48,7 +47,7 @@ const PICK_RECS = {
 const S = {
   net:'avail', files:'found', dlOut:'ok', outcome:'ok',
   flags:{auto:'dialog', min:'yes', cancel:'ask', help:'errors'},
-  autoCheck:true, backup:true, restartNow:false, keepPart:true
+  autoCheck:true, backup:true, restartNow:false, keepPart:true, sel:SRV
 };
 let CUR=null, BTNS=[], ONX=null, tDl=null, tRs=null, tChk=null, galSel=null;
 
@@ -73,7 +72,7 @@ function reset(){
   });
   S.build = CH[S.cur]?.b || '1268000';
   S.log = baseLog();
-  CUR=null; draw();
+  S.sel=SRV; CUR=null; renderPanel(); draw();
 }
 
 /* ---------- помощники разметки ---------- */
@@ -315,22 +314,54 @@ function drawProgress(){
   renderParent();
 }
 
+// значок «нужно внимание» на кнопке — как в макете Figma (icon24/warning)
+const WARN_IMG='<img src="__ASSET:warning__" width="24" height="24" alt="">';
 function renderParent(){
   $('pVer').textContent = S.busy ? '—' : S.cur;
   $('pBuild').textContent = S.busy ? '—' : S.build;
   const st=netState(), b=$('updBtn');
-  let html='Обновление ПО', hot=false;
-  if(st==='dl'){ const p=Math.floor(S.dl.done/S.dl.total*100); html=S.dl.state==='paused'?'Обновление ПО · пауза':S.dl.state==='fail'?'Обновление ПО · ошибка':`Обновление ПО · ${p}% <span class="mini"><i style="width:${p}%"></i></span>`; hot=S.dl.state!=='run'; }
-  else if(st==='ready'){ html='<span class="dot"></span>Установить обновление'; hot=true; }
+  let html='Обновление ПО', title='';
+  if(st==='dl'){ const p=Math.floor(S.dl.done/S.dl.total*100);
+    if(S.dl.state==='run') html=`Обновление ПО<span class="pct">${p}%</span><span class="mini"><i style="width:${p}%"></i></span>`;
+    else { html=WARN_IMG+(S.dl.state==='paused'?'Обновление ПО · пауза':'Обновление ПО · ошибка'); title=S.dl.state==='paused'?'Загрузка приостановлена — нет связи':'Загрузка обновления не удалась'; } }
+  else if(st==='ready'){ html=WARN_IMG+'Установить обновление'; title=`${S.ready.target} загружено и готово к установке`; }
   else if(st==='busy'){ html='Сервер обновляется…'; }
-  else if(st==='avail'||st==='old'||st==='space'){ html='<span class="dot"></span>Обновление ПО'; hot=true; }
-  b.innerHTML = html+`<span class="chev">${CHEV}</span>`;
-  b.classList.toggle('hot',hot); b.disabled = st==='busy';
+  else if(st==='avail'||st==='old'||st==='space'){ html=WARN_IMG+'Обновление ПО'; title=`Доступно обновление до ${LATEST}`; }
+  b.innerHTML = html; b.title = title; b.disabled = st==='busy';
   const ban=$('pBanner');
   ban.hidden=!S.busy;
   if(S.busy) ban.innerHTML=`${SPIN}<span><b>${SRV} перезапускается для ${S.busy.kind==='install'?'установки обновления':'возврата прошлой версии'}</b> · около 5 минут. ${lnk('openRestart','Подробнее')}</span>`;
-  $('pHealth').querySelectorAll('b').forEach((x,i)=>{ x.className=S.busy?'n':'g'; x.textContent=S.busy?'нет связи':['OK','OK','50 / 50'][i]; });
+  renderHealth();
   if(!$('menu').hidden) renderMenu();
+}
+
+/* ---------- правая панель: сервер или клиент, выбранный в списке слева ---------- */
+const isClient = () => !/^VMS-/.test(S.sel);
+function renderHealth(){
+  const net = (S.net==='offline') ? ['нет сети','neg'] : ['OK','pos'];
+  const items = isClient()
+    ? [['Загрузка CPU:','1.0%','pos'],['Облако:','н/д','na'],['Сеть:','OK','pos'],['Сервера:','OK','pos'],['Скрипты:','Ошибка','neg'],['Пользователи:','OK','pos']]
+    : S.busy && S.sel===SRV
+      ? [['Загрузка CPU:','н/д','na'],['Облако:','н/д','na'],['Диски:','н/д','na'],['Камеры:','н/д','na'],['База данных:','н/д','na'],['Сеть:','н/д','na']]
+      : [['Загрузка CPU:','1.0%','pos'],['Облако:','н/д','na'],['Диски:','OK','pos'],['Камеры:','50 / 50','pos'],['База данных:','OK','pos'],['Сеть:',...net]];
+  $('pHealth').innerHTML = items.map(([l,v,k])=>`<span>${l}</span><b class="${k}">${v}</b>`).join('');
+}
+const qSel = (l,v) => `<div class="qrow"><span>${l}</span><div class="qf sel">${v}</div></div>`;
+const qTxt = (l,v) => `<div class="qrow"><span>${l}</span><div class="qf">${v}</div></div>`;
+function renderPanel(){
+  $('pTitle').textContent = `Настройки - Admin - ${S.sel}`;
+  document.querySelectorAll('#srvList [data-srv]').forEach(x=>x.classList.toggle('on', x.dataset.srv===S.sel));
+  $('pRestart').hidden = isClient();
+  $('pSetT').textContent = isClient() ? 'Настройки рабочей станции' : 'Настройки сервера';
+  $('pSet').innerHTML = isClient()
+    ? qSel('Автоматический вход под пользователем:','не использовать')+qSel('Оконный режим:','Полноэкранный')
+      +qSel('Устройство воспроизведения звука:','по умолчанию')+qSel('Устройство аудиозахвата:','по умолчанию')
+      +qSel('Допустимый период бездействия:','30 мин')+'<div class="qrow"><span>Выход из системы при бездействии:</span><span class="qchk"></span></div>'
+      +qTxt('Сохранять скриншоты в:','Рабочий стол / Новая папка')+'<div class="qrow"><button type="button" class="qbtn">Обзор...</button></div>'
+      +qSel('Язык:','по умолчанию')
+    : qTxt('Имя сервера:',S.sel)+qSel('Язык:','Русский')
+      +qTxt('Сохранять скриншоты в:','D:\\TRASSIR\\Release\\shots')+'<div class="qrow"><button type="button" class="qbtn">Обзор...</button></div>';
+  renderParent();
 }
 function chipFor(st){
   if(st==='dl') return S.dl.state==='paused'?'<span class="chip w">Пауза — нет связи</span>':S.dl.state==='fail'?'<span class="chip w">Загрузка не удалась</span>':`<span class="chip run">Загрузка ${Math.floor(S.dl.done/S.dl.total*100)}%</span>`;
@@ -426,6 +457,7 @@ function finishRs(){
 
 /* ================= события ================= */
 $('updBtn').addEventListener('click',e=>{ e.stopPropagation(); toggleMenu(); });
+$('srvList').addEventListener('click',e=>{ const b=e.target.closest('[data-srv]'); if(!b) return; S.sel=b.dataset.srv; closeMenu(); renderPanel(); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.umenu-w')) closeMenu(); });
 $('menu').addEventListener('click',e=>{
   const c=e.target.closest('[data-ck]'); if(c){ S[c.dataset.ck]=!S[c.dataset.ck]; renderMenu(); return; }
@@ -474,8 +506,8 @@ function scen(net,extra){ S.net=net; $('sNet').value=net; S.files='found'; $('sF
 function frozenDl(src,pct,state){ const total=src==='net'?SIZE_NET:1300; S.dl={src,target:LATEST,total,done:total*pct,state,frozen:true}; }
 const GAL = [
   {g:'Меню «Обновление ПО»', items:[
-    {t:'Доступно обновление', s:'Оранжевая кнопка, «Доступна 4.9.15.0»', run:()=>{ scen('avail'); toggleMenu(); }},
-    {t:'Последняя версия', s:'Кнопка без подсветки', run:()=>{ scen('latest'); toggleMenu(); }},
+    {t:'Доступно обновление', s:'Значок ⚠ на кнопке, «Доступна 4.9.15.0»', run:()=>{ scen('avail'); toggleMenu(); }},
+    {t:'Последняя версия', s:'Кнопка без значка', run:()=>{ scen('latest'); toggleMenu(); }},
     {t:'Нет доступа к сети', s:'Проверить актуальность нельзя', run:()=>{ scen('offline'); toggleMenu(); }},
     {t:'Идёт загрузка', s:'Проценты на кнопке и в меню', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); toggleMenu(); }}]},
   {g:'A. Обновление по сети', items:[

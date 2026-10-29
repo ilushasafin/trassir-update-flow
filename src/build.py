@@ -4,6 +4,8 @@
 как в его modals.html: копий руками нет, прототип не меняется.
 Запуск: python3 update-flow/src/build.py
 """
+import base64
+import re
 from pathlib import Path
 
 SRC = Path(__file__).resolve().parent
@@ -19,5 +21,7 @@ html = ((SRC / 'client.html').read_text(encoding='utf-8')
         .replace('/*__UCSS__*/', (SRC / 'client.css').read_text(encoding='utf-8'))
         .replace('/*__ICONS__*/', icons)
         .replace('/*__UJS__*/', (SRC / 'client.js').read_text(encoding='utf-8')))
+# иконки из макета Figma (src/assets/*.svg) встраиваются как data URI: __ASSET:имя__
+html = re.sub(r'__ASSET:([\w-]+)__', lambda m: 'data:image/svg+xml;base64,' + base64.b64encode((SRC / 'assets' / f'{m.group(1)}.svg').read_bytes()).decode(), html)
 OUT.write_text(html, encoding='utf-8')
 print(f'Собрано: {OUT} ({OUT.stat().st_size // 1024} КБ)')

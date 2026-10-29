@@ -8,6 +8,13 @@
   --chip-ok-bg:#e3f3e7; --chip-ok:#23743a; --chip-n-bg:#eceef1; --chip-n:#5d6169; --chip-w-bg:#fff1d6; --chip-w:#8a5a00;
   --box-info:#eef2fb; --box-info-bd:#c9d3ee; --box-warn:#fff7e3; --box-warn-bd:#efd69a; --box-err:#fdf0f2; --box-err-bd:#efc0c9;
   --u-gap:12px; --u-txt:12px;
+  /* правая панель настроек — по макету Figma (VMS | QT new, 361:438). Размеры ниже — в px макета, панель уменьшается целиком */
+  --qz:.7;                                  /* масштаб: шрифт макета 17 px → 12 px, как в остальном прототипе */
+  --pri-600:#36497c;                        /* рамка панели под вкладками (primary/600) */
+  --grp-bd:#d5d5d6;                         /* рамка групп «Индикаторы здоровья», «Настройки…» (neutral/200) */
+  --pos:#158d2d; --neg:#c02f2f; --na:#8f9093; /* значения индикаторов: positive/base, negative/base, neutral/500 */
+  --chk-bd:#1f2126;                         /* рамка чекбокса (neutral/900) */
+  --q-txt:17px; --q-row:29px; --q-btn:36px; --q-icon:24px;
 }
 .u-page .lnk{color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .u-page .lnk:hover{color:#2f437c}
@@ -15,7 +22,7 @@
 /* ---------- сцена и родительское окно ---------- */
 .stage{position:fixed;top:0;bottom:0;right:0;left:0}
 .gal-on .stage{left:var(--gal-w)}
-.upw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(980px,calc(100% - 32px));height:min(660px,calc(100% - 32px));
+.upw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1140px,calc(100% - 32px));height:min(700px,calc(100% - 32px));
   display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 18px 50px rgba(20,30,50,.28),0 2px 8px rgba(20,30,50,.12)}
 .upw-b{flex:1;min-height:0;display:flex;gap:6px;margin:6px 6px 0}
 .usrv{flex:none;width:210px;background:#fff;border:.7px solid var(--bd);display:flex;flex-direction:column;overflow:auto}
@@ -23,42 +30,63 @@
 .usrv button{border:0;background:none;text-align:left;padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
 .usrv button:hover{background:var(--hover)}
 .usrv button.on{background:var(--sel)}
-.umain{flex:1;min-width:0;background:#fff;border:.7px solid var(--bd);padding:10px 16px 12px;display:flex;flex-direction:column;position:relative}
-.utabs{display:flex;gap:14px;align-items:flex-end;padding-bottom:6px;border-bottom:1px solid var(--pri);font-size:12px}
-.utabs b{color:var(--pri);font-weight:600}
-.utabs span{color:var(--pri)}
-.utabs .r{margin-left:auto;color:var(--txt);font-weight:600}
-.uver{display:flex;gap:24px;align-items:flex-start;margin-top:14px;flex-wrap:wrap}
-.uver-t{display:grid;grid-template-columns:auto auto;gap:6px 10px;font-size:12px;align-items:baseline}
-.uver-t b{font-weight:600}
-.uver-b{display:flex;gap:8px;flex-wrap:wrap}
+.upw-f{flex:none;display:flex;justify-content:flex-end;padding:6px}
+
+/* ---------- правая панель (макет Figma, px макета × --qz) ---------- */
+.umain{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
+.qp{zoom:var(--qz);flex:1;min-height:0;display:flex;flex-direction:column;font-size:var(--q-txt);color:var(--txt);line-height:normal}
+.qtabs{flex:none;display:flex;align-items:flex-end;gap:2px;position:relative}
+.qtab{padding:10px 24px;border:1px solid var(--pri-200);border-bottom:0;border-radius:16px 16px 0 0;background:var(--pri-50);color:var(--pri);font-weight:700;margin-bottom:-1px;position:relative;cursor:default}
+.qtab.on{background:#fff;border-color:var(--pri-600);z-index:1}
+.qnews{margin-left:auto;align-self:center;font-weight:700;color:#000;padding-right:14px}
+.qbody{flex:1;min-height:0;overflow:auto;background:#fff;border:1px solid var(--pri-600);padding:34px 22px 22px;display:flex;flex-direction:column}
+.qtop{display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap}
+.qver{display:grid;grid-template-columns:auto auto;column-gap:13px;row-gap:14px;white-space:nowrap}
+.qver .r{text-align:right}
+.qver b{font-weight:700}
+.qbtns{display:flex;gap:11px;flex-wrap:wrap;margin-top:14px}
+.qbtn{height:var(--q-btn);padding:0 16px;border:1px solid var(--btn-bd);background:var(--btn-grad);color:var(--black);display:inline-flex;align-items:center;justify-content:center;gap:2px;font-size:var(--q-txt);line-height:20px;white-space:nowrap;cursor:pointer}
+.qbtn:hover{background:var(--btn-grad-hover);border-color:#8d97b5}
+.qbtn:active{background:#dfe2e8}
+.qbtn:disabled{color:#9a9ca2;cursor:default;background:var(--btn-grad);border-color:#c9cacc}
+.qbtn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+.qbtn img{flex:none;width:var(--q-icon);height:var(--q-icon)}
+.qbtn[hidden]{display:none}
 .umenu-w{position:relative}
-.uupd .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none}
-.uupd.hot{background:var(--hot-bg);border-color:var(--hot-bd)}
-.uupd .mini{width:46px;height:5px;background:var(--pbar-bg);border-radius:3px;overflow:hidden;flex:none}
+.uupd .pct{font-variant-numeric:tabular-nums;color:var(--pri);margin-left:6px}
+.uupd .mini{width:64px;height:7px;margin-left:8px;background:var(--pbar-bg);border-radius:4px;overflow:hidden;flex:none}
 .uupd .mini i{display:block;height:100%;background:var(--pbar-fill)}
-.uupd .chev{display:grid}
-.umenu{position:absolute;left:0;top:calc(100% + 2px);z-index:30;width:370px;background:#fff;border:1px solid #b9bcc3;box-shadow:0 6px 18px rgba(20,30,50,.18);padding:4px 0}
+.qgroups{display:grid;grid-template-columns:minmax(0,476fr) minmax(0,731fr);gap:28px;margin-top:86px}
+.qgrp{margin:0;min-width:0;min-height:410px;border:1px solid var(--grp-bd);background:#fff;padding:20px 18px 22px}
+.qgrp legend{padding:0 0 0 0;margin-left:-9px;background:#fff;font-size:var(--q-txt)}
+.qhealth{display:grid;grid-template-columns:147px 91px 147px auto;row-gap:9px;padding:6px 0 0 4px;white-space:nowrap}
+.qhealth b{font-weight:700}
+.qhealth .pos{color:var(--pos)} .qhealth .neg{color:var(--neg)} .qhealth .na{color:var(--na)}
+.qform{display:grid;gap:11px;padding-top:0}
+.qrow{display:grid;grid-template-columns:minmax(200px,360px) minmax(180px,334px);align-items:center;min-height:var(--q-row)}
+.qf{height:var(--q-row);border:1px solid var(--btn-bd);background:#fff;padding:0 24px 0 4px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;color:var(--black)}
+.qf.sel{background:#fff url("__ASSET:select__") right -1px top -1px/20px 29px no-repeat}
+.qchk{width:20px;height:20px;border:1px solid var(--chk-bd);background:#fff}
+.qrow .qbtn{grid-column:2;justify-self:end;width:162px;margin-top:-2px}
+.qbk{display:flex;gap:13px;margin-top:15px}
+.ubanner{display:flex;gap:10px;align-items:center;margin:-16px 0 18px;padding:10px 14px;background:var(--box-warn);border:1px solid var(--box-warn-bd);color:#5f4100}
+.ubanner[hidden]{display:none}
+.ubanner svg{animation:spin 1s linear infinite;flex:none;width:20px;height:20px}
+
+/* меню «Обновление ПО» живёт внутри уменьшенной панели — размеры тоже в px макета */
+.umenu{position:absolute;left:0;top:calc(100% + 3px);z-index:30;width:530px;background:#fff;border:1px solid #b9bcc3;box-shadow:0 8px 26px rgba(20,30,50,.18);padding:6px 0}
 .umenu[hidden]{display:none}
-.umenu .mi{display:flex;align-items:center;gap:10px;width:100%;height:34px;padding:0 14px;border:0;background:none;text-align:left;font-size:12px;cursor:pointer}
+.umenu .mi{display:flex;align-items:center;gap:14px;width:100%;height:48px;padding:0 20px;border:0;background:none;text-align:left;font-size:var(--q-txt);cursor:pointer}
 .umenu .mi:hover,.umenu .mi:focus-visible{background:var(--hover);outline:0}
-.umenu .mi .chip{margin-left:auto}
-.umenu .msub{display:flex;align-items:center;gap:8px;padding:2px 14px 8px 28px;color:var(--grey);font-size:11px;cursor:pointer}
-.umenu .sep{height:1px;background:var(--cell-bd);margin:4px 0}
+.umenu .mi .chip{margin-left:auto;height:28px;padding:0 13px;border-radius:14px;font-size:15px}
+.umenu .msub{display:flex;align-items:center;gap:11px;padding:2px 20px 12px 40px;color:var(--grey);font-size:15px;cursor:pointer}
+.umenu .msub .ck{grid-template-columns:20px minmax(0,1fr);gap:11px}
+.umenu .msub .cb{width:20px;height:20px}
+.umenu .sep{height:1px;background:var(--cell-bd);margin:6px 0}
 .chip{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 9px;border-radius:10px;font-size:10.5px;font-weight:500;white-space:nowrap;background:var(--chip-n-bg);color:var(--chip-n)}
 .chip.ok{background:var(--chip-ok-bg);color:var(--chip-ok)}
 .chip.w{background:var(--chip-w-bg);color:var(--chip-w)}
 .chip.run{background:var(--pri-50);color:var(--pri)}
-.uhealth{margin:14px 0 0;border:1px solid var(--cell-bd);padding:6px 14px 10px;width:300px;display:grid;gap:6px;font-size:12px}
-.uhealth legend{padding:0 4px;color:#333}
-.uhealth div{display:grid;grid-template-columns:110px auto}
-.uhealth .g{color:var(--st-ok);font-weight:600}
-.uhealth .n{color:var(--grey);font-weight:500}
-.ubk{margin-top:auto;display:flex;gap:8px;justify-content:flex-end}
-.upw-f{flex:none;display:flex;justify-content:flex-end;padding:6px}
-.ubanner{display:flex;gap:8px;align-items:center;margin-top:10px;padding:8px 12px;background:var(--box-warn);border:1px solid var(--box-warn-bd);font-size:12px;color:#5f4100}
-.ubanner[hidden]{display:none}
-.ubanner svg{animation:spin 1s linear infinite;flex:none}
 
 /* ---------- окно обновления ---------- */
 .ubg{position:absolute;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(20,26,40,.16)}

@@ -27,38 +27,45 @@
 
 <div class="stage" id="stage">
   <div class="pw upw" id="pw">
-    <div class="tbar"><div class="ttl">Настройки - Admin - VMS-DEMOSTAND-1</div>
+    <div class="tbar"><div class="ttl" id="pTitle">Настройки - Admin - VMS-DEMOSTAND-1</div>
       <div class="wctl"><button class="wbtn" type="button" aria-label="Свернуть"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 5.5h8" stroke="#333"/></svg></button><button class="wbtn" type="button" aria-label="Развернуть"><svg width="10" height="10" viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="#333"/></svg></button><button class="wbtn close" type="button" aria-label="Закрыть"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1L1 9" stroke="#333"/></svg></button></div>
     </div>
     <div class="upw-b">
-      <nav class="usrv" aria-label="Серверы">
+      <nav class="usrv" aria-label="Серверы" id="srvList">
         <div class="usrv-h">Все сервера</div>
-        <button type="button">Клиент</button>
-        <button type="button">admin@admin.ru</button>
-        <button type="button" class="on" id="srvMain">VMS-DEMOSTAND-1</button>
-        <button type="button">VMS-DEMOSTAND-2</button>
-        <button type="button">VMS-DEMOSTAND-3</button>
+        <button type="button" data-srv="Клиент">Клиент</button>
+        <button type="button" data-srv="admin@admin.ru">admin@admin.ru</button>
+        <button type="button" data-srv="VMS-DEMOSTAND-1" class="on">VMS-DEMOSTAND-1</button>
+        <button type="button" data-srv="VMS-DEMOSTAND-2">VMS-DEMOSTAND-2</button>
+        <button type="button" data-srv="VMS-DEMOSTAND-3">VMS-DEMOSTAND-3</button>
       </nav>
+      <!-- правая панель — по макету Figma 0wSTs8LIKyjRW7N4P9IX4k / 361:438; размеры в px макета, вся панель уменьшается через zoom (--qz) -->
       <div class="umain">
-        <div class="utabs"><b>Настройка</b><span>Справка</span><span class="r">Новости</span></div>
-        <div class="ubanner" id="pBanner" hidden></div>
-        <div class="uver">
-          <div class="uver-t"><span>Версия ПО:</span><b id="pVer"></b><span>Сборка:</span><span id="pBuild"></span></div>
-          <div class="uver-b">
-            <div class="umenu-w">
-              <button type="button" class="btn uupd" id="updBtn" aria-haspopup="menu" aria-expanded="false"></button>
-              <div class="umenu" id="menu" role="menu" hidden></div>
+        <div class="qp">
+          <div class="qtabs"><span class="qtab on">Настройка</span><span class="qtab">Справка</span><b class="qnews">Новости</b></div>
+          <div class="qbody">
+            <div class="ubanner" id="pBanner" hidden></div>
+            <div class="qtop">
+              <div class="qver"><span>Версия ПО:</span><b id="pVer"></b><span class="r">Сборка:</span><span id="pBuild"></span></div>
+              <div class="qbtns">
+                <div class="umenu-w">
+                  <button type="button" class="qbtn uupd" id="updBtn" aria-haspopup="menu" aria-expanded="false"></button>
+                  <div class="umenu" id="menu" role="menu" hidden></div>
+                </div>
+                <button type="button" class="qbtn"><img src="__ASSET:qube__" width="24" height="24" alt="">Журналы &amp; дампы падений...</button>
+                <button type="button" class="qbtn" id="pRestart">Перезагрузка</button>
+              </div>
             </div>
-            <button type="button" class="btn">Журналы &amp; дампы падений…</button>
-            <button type="button" class="btn">Перезагрузка</button>
+            <div class="qgroups">
+              <fieldset class="qgrp"><legend>Индикаторы здоровья</legend><div class="qhealth" id="pHealth"></div></fieldset>
+              <fieldset class="qgrp"><legend id="pSetT"></legend><div class="qform" id="pSet"></div></fieldset>
+            </div>
+            <div class="qbk">
+              <button type="button" class="qbtn"><img src="__ASSET:arrow-down__" width="24" height="24" alt="">Сохранить бэкап</button>
+              <button type="button" class="qbtn"><img src="__ASSET:warning__" width="24" height="24" alt="">Восстановить бэкап</button>
+            </div>
           </div>
         </div>
-        <fieldset class="uhealth" id="pHealth"><legend>Индикаторы здоровья</legend>
-          <div><span>Диски:</span><b class="g">OK</b></div>
-          <div><span>База данных:</span><b class="g">OK</b></div>
-          <div><span>Камеры:</span><b class="g">50 / 50</b></div>
-        </fieldset>
-        <div class="ubk"><button type="button" class="btn">Сохранить бэкап</button><button type="button" class="btn">Восстановить бэкап</button></div>
       </div>
     </div>
     <div class="upw-f"><button type="button" class="btn">Закрыть</button></div>
