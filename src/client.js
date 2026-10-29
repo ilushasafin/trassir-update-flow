@@ -26,7 +26,7 @@ const SIZE_NET = 1300; // МБ, ServicePack сервера
 const SPEED = 4.3;     // МБ/с — для оценки «осталось»; сама загрузка в демо ускорена
 const FILES = [
   {n:'Trassir-4.9.15.0-1321840-64-Release-sp.pack', v:'4.9.15.0', mb:1300, where:'Загрузки', ok:true, tag:'Рекомендуем: последняя версия'},
-  {n:'Trassir (1).pack', v:'4.9.15.0', mb:1300, where:'Рабочий стол', ok:true, tag:'Имя изменено — версию определили по содержимому файла'},
+  {n:'Trassir (1).pack', v:'4.9.15.0', mb:1300, where:'Рабочий стол', ok:true, tag:'Имя изменено', tip:'Версию определили по содержимому файла — название не важно.'},
   {n:'Trassir-4.9.14.0-1319665-64-Release-sp.pack', v:'4.9.14.0', mb:1290, where:'Загрузки', ok:true, tag:'Подходит, но есть версия новее'},
   {n:'Trassir-4.9.15.0-1321840-64-Release-client-sp.pack', mb:693, where:'Загрузки', err:'Не подходит: обновление для TRASSIR Client, а это сервер'},
   {n:'Trassir-4.9.15.0-1321844-LITE', mb:2300, where:'USB-накопитель (E:)', err:'Не подходит: для регистраторов MiniNVR на TRASSIR OS'}
@@ -77,9 +77,12 @@ function reset(){
 
 /* ---------- помощники разметки ---------- */
 const ICO = k => ICON[k==='ok'?'ok':k==='warn'?'warn':k==='err'?'err':'info'];
-const sh = (k,title,text) => `<div class="sh">${ICO(k)}<div><b>${title}</b>${text?`<p>${text}</p>`:''}</div></div>`;
+// пояснения второго плана — в подсказку по иконке ⓘ, чтобы не нагружать окно (просьба 29.10.2026)
+// span, а не button: подсказка бывает внутри строки-кнопки (список файлов), а кнопки нельзя вкладывать друг в друга
+const hint = t => `<span class="hi" tabindex="0" role="img" data-tip="${esc(t)}" aria-label="Подсказка: ${esc(t)}">${ICON.info}</span>`;
+const sh = (k,title,text,tip) => `<div class="sh">${ICO(k)}<div><b>${title}${tip?hint(tip):''}</b>${text?`<p>${text}</p>`:''}</div></div>`;
 const box = (k,html) => `<div class="ubox ${k}">${html}</div>`;
-const ck = (key,label,sub) => `<label class="ck"><button type="button" class="cb" role="checkbox" aria-checked="${!!S[key]}" data-ck="${key}">${ICON.check}</button><span>${label}${sub?`<small>${sub}</small>`:''}</span></label>`;
+const ck = (key,label,sub) => `<label class="ck"><button type="button" class="cb" role="checkbox" aria-checked="${!!S[key]}" data-ck="${key}">${ICON.check}</button><span>${label}${sub?hint(sub):''}</span></label>`;
 const lnk = (act,t) => `<a class="lnk" data-act="${act}" tabindex="0">${t}</a>`;
 const site = t => `<a class="lnk" href="${SITE}" target="_blank">${t||'Открыть страницу загрузок ↗'}</a>`;
 const ul = a => `<ul class="chg">${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
@@ -146,11 +149,10 @@ const WIN = {
       return {t:T, left:autoRow(),
         body:sh('warn',`Сразу до ${LATEST} обновиться нельзя`,`Установлена ${S.cur}. Обновлять нужно по порядку: ${ch.length} шага, по одной ветке за раз.`)
           +`<div class="ways">
-            <div class="way rec"><b>Обновить по шагам</b><span class="fine">Можно удалённо, настройки и архив сохранятся</span>
+            <div class="way rec"><b>Обновить по шагам${hint('Можно удалённо, настройки и архив сохранятся. После каждого шага сервер перезапустится — снова откройте «Обновление по сети», и мы предложим следующий.')}</b>
               <ol>${ch.map((v,i)=>`<li>${i===0?`<b>${v}</b> — сейчас`:v}</li>`).join('')}</ol>
-              <span class="fine">После каждого шага сервер перезапустится. Снова откройте «Обновление по сети» — предложим следующий.</span>
               ${br(ch[0])==='4.7'?`<span class="fine" style="color:var(--warn)">На 4.7 меняется формат базы данных — <a class="lnk" href="#" onclick="return false">прочитайте инструкцию</a>.</span>`:''}</div>
-            <div class="way"><b>Переустановить ПО</b><span class="fine">Сразу ${LATEST} одним шагом. Нужен доступ к компьютеру, на котором стоит сервер</span>
+            <div class="way"><b>Переустановить ПО${hint(`Сразу ${LATEST} одним шагом. Нужен доступ к компьютеру, на котором стоит сервер.`)}</b>
               ${site('Скачать установщик на сайте ↗')}</div></div>`+opts(),
         btns:[{t:'Отмена',act:close},{t:`Загрузить шаг 1 — ${ch[0]}`,pri:1,act:()=>startDl('net',ch[0],SIZE_NET)}]};
     }
@@ -160,9 +162,9 @@ const WIN = {
       <ol class="recs"><li>Удалите старые скриншоты и экспортированные видео: «Настройки сервера» → «Скриншоты».</li><li>Или загрузите обновление на архивный диск — места там достаточно.</li></ol>
       <div class="row"><button type="button" class="btn" data-act="toArchive">Загружать на архивный диск</button><button type="button" class="btn" data-act="recheck">Проверить снова</button></div>`) : '';
     return {t:T, left:autoRow(),
-      body:sh('info',`Доступно обновление до ${LATEST}`,`Установлена ${S.cur} · загрузка ${mb(SIZE_NET)}`)
+      body:sh('info',`Доступно обновление до ${LATEST}`,`Установлена ${S.cur} · загрузка ${mb(SIZE_NET)}`, S.flags.min==='yes'?'Загрузка идёт в фоне — с TRASSIR можно работать как обычно.':'')
         +`<div><div class="sec-h">Что изменилось</div>${ul(CH[LATEST].items)}<div style="margin-top:6px">${lnk('changes',`Полный список изменений — ${list.length} ${list.length===1?'версия':'версии'} после ${S.cur}`)}</div></div>`
-        +space+opts()+(S.flags.min==='yes'?'<p class="fine">Загрузка идёт в фоне — с TRASSIR можно работать как обычно.</p>':''),
+        +space+opts(),
       btns:[{t:'Отмена',act:close},{t:'Загрузить обновление',pri:1,dis:st==='space',act:()=>startDl('net',LATEST,SIZE_NET)}]};
   },
 
@@ -177,7 +179,7 @@ const WIN = {
       btns:[{t:'Отмена',act:close},{t:'Искать снова',pri:1,act:()=>{ S.files='found'; $('sFiles').value='found'; open('file','found'); }}]};
     const all=[...S.extra,...FILES], f=all[S.fileSel]||all[0];
     const rows=all.map((x,i)=>`<button type="button" class="frow${i===S.fileSel?' on':''}${x.err?' bad':''}" data-fsel="${i}" role="radio" aria-checked="${i===S.fileSel}">
-        <span class="rd"></span><span><span class="fn">${esc(x.n)}</span><br><span class="fm">${x.where}${x.v?' · версия '+x.v:''}</span><br>${x.err?`<span class="fe">${x.err}</span>`:`<span class="fo">${x.tag}</span>`}</span><span class="sz">${mb(x.mb)}</span></button>`).join('');
+        <span class="rd"></span><span><span class="fn">${esc(x.n)}</span><br><span class="fm">${x.where}${x.v?' · версия '+x.v:''}</span><br>${x.err?`<span class="fe">${x.err}</span>`:`<span class="fo">${x.tag}</span>${x.tip?hint(x.tip):''}`}</span><span class="sz">${mb(x.mb)}</span></button>`).join('');
     let detail='';
     if(f.err && f.kind) detail=box('err',`<b>${f.err}</b><ol class="recs">${PICK_RECS[f.kind].map(r=>`<li>${r}</li>`).join('')}</ol>${f.kind==='older'?`<div>${lnk('log','Открыть журнал обновлений')}</div>`:''}${f.kind!=='older'?`<div>${site('Скачать файл заново ↗')}</div>`:''}`);
     else if(f.err) detail=box('warn',`<span>${f.err}. Выберите файл с отметкой «Рекомендуем» или ${site('скачайте нужный ↗')}</span>`);
@@ -192,11 +194,11 @@ const WIN = {
   dl(st){
     const d=S.dl, pct=Math.floor(d.done/d.total*100);
     const T=d.src==='net'?'Загрузка обновления':'Передача файла на сервер';
-    const head=`<div class="dlh"><span style="color:var(--txt)">${d.src==='net'?'Загружаем':'Передаём'} ${d.target}</span><span>${pct}%</span></div>`;
+    const dlTip = (d.src==='net'?'Скачиваем с сервера обновлений TRASSIR.':`Передаём файл с этого компьютера на ${SRV}.`)+' '+(S.restartNow?'Сразу после загрузки сервер перезапустится и установит обновление.':'После загрузки предложим перезапустить сервер.')+(S.flags.min==='yes'?' Окно можно закрыть и продолжать работать — прогресс виден на кнопке «Обновление ПО».':'');
+    const head=`<div class="dlh"><span style="color:var(--txt)">${d.src==='net'?'Загружаем':'Передаём'} ${d.target}${hint(dlTip)}</span><span>${pct}%</span></div>`;
     const bar=k=>`<div class="pbar ${k||''}"><i style="width:${pct}%"></i></div>`;
     if(st==='paused') return {t:T, x:minimize,
-      body:sh('warn','Связь с сервером прервалась',`Загружено ${mb(d.done)} из ${mb(d.total)} — эта часть сохранится. Как только связь восстановится, загрузка продолжится с того же места.`)+bar('paused')
-        +`<p class="fine">Повторяем попытку каждые 30 секунд.</p>`,
+      body:sh('warn','Связь с сервером прервалась',`Загружено ${mb(d.done)} из ${mb(d.total)} — эта часть сохранится. Как только связь восстановится, загрузка продолжится с того же места.`,'Повторяем попытку каждые 30 секунд.')+bar('paused'),
       btns:[{t:'Отменить загрузку',act:askCancel},{t:'Повторить сейчас',pri:1,act:resumeDl}]};
     if(st==='cancel') return {t:T, x:()=>open('dl',S.cancelFrom||'run'),
       body:sh('warn','Отменить загрузку?',`Загружено ${mb(d.done)} из ${mb(d.total)}.`)
@@ -208,9 +210,7 @@ const WIN = {
       btns:[{t:'Обновить из файла',act:()=>{ S.dl=null; openFile(); }},{t:'Повторить загрузку',pri:1,act:()=>{ S.dl.state='run'; S.dl.failed=true; S.dl.frozen=false; open('dl','run'); tickDl(); }}]};
     const remain=d.total-d.done;
     return {t:T, x:S.flags.min==='yes'?minimize:null,
-      body:head+bar()+`<div class="dlm"><span>${mb(d.done)} из ${mb(d.total)}</span><span>Осталось ${left(remain)}</span></div>`
-        +`<p>${d.src==='net'?'Скачиваем с сервера обновлений TRASSIR.':`Передаём файл с этого компьютера на ${SRV}.`} ${S.restartNow?'Сразу после загрузки сервер перезапустится и установит обновление.':'После загрузки предложим перезапустить сервер.'}</p>`
-        +(S.flags.min==='yes'?'<p class="fine">Окно можно закрыть и продолжать работать — прогресс виден на кнопке «Обновление ПО».</p>':''),
+      body:head+bar()+`<div class="dlm"><span>${mb(d.done)} из ${mb(d.total)}</span><span>Осталось ${left(remain)}</span></div>`,
       btns:[...(S.flags.min==='yes'?[{t:'Свернуть',act:minimize}]:[]),{t:'Отменить загрузку',act:askCancel}]};
   },
 
@@ -234,8 +234,7 @@ const WIN = {
 
   done(st){
     if(st==='rolled') return {t:'Прошлая версия возвращена',
-      body:sh('ok',`${SRV} снова на версии ${S.cur}`,`Настройки восстановлены из бэкапа от ${S.rbFrom}. Сервер работает, камеры: 50 из 50.`)
-        +`<p class="fine">Изменения настроек, сделанные после обновления, не сохранились. Обновиться снова можно в любой момент.</p>`+help(false),
+      body:sh('ok',`${SRV} снова на версии ${S.cur}`,`Настройки восстановлены из бэкапа от ${S.rbFrom}. Сервер работает, камеры: 50 из 50.`,'Изменения настроек, сделанные после обновления, не сохранились. Обновиться снова можно в любой момент.')+help(false),
       btns:[{t:'Журнал обновлений',act:()=>open('log','table')},{t:'Готово',pri:1,act:close}]};
     if(st==='fail') return {t:'Обновление не установилось',
       body:sh('err',`${S.failTo} не установилась — сервер вернулся на ${S.cur}`,'Сервер не запустился с новой версией, поэтому мы автоматически вернули прошлую и восстановили настройки из бэкапа. Сервер работает как раньше.')
@@ -282,7 +281,7 @@ const WIN = {
       left:`<button type="button" class="btn" data-act="export">${S.exported?'Сохранено в «Загрузки» ✓':'Сохранить для техподдержки'}</button>`,
       body:`<table class="ulog"><thead><tr><th>Дата и время</th><th>Действие</th><th>Версия</th><th>Результат</th><th>Пользователь</th><th></th></tr></thead><tbody>
         ${S.log.map(r=>`<tr><td class="v">${r.t}</td><td>${r.a}</td><td class="v">${r.from?`${r.from} → ${r.to}`:r.to}</td>
-          <td><span class="res">${r.ok?ICON.ok:ICON.err}<span>${r.ok?'Успешно':'Ошибка'}${r.why?`<span class="why">${r.why}</span>`:''}${r.ok&&r.bk===false&&r.a!=='Установка'?'<span class="why">Без бэкапа</span>':''}</span></span></td>
+          <td><span class="res">${r.ok?ICON.ok:ICON.err}<span>${r.ok?'Успешно':'Ошибка'}${r.why?hint(r.why):''}${r.ok&&r.bk===false&&r.a!=='Установка'?'<span class="why">Без бэкапа</span>':''}</span></span></td>
           <td>${r.who}</td><td>${canRb(r)?`<button type="button" class="btn" data-act="rollback">Вернуть ${r.from}</button>`:''}</td></tr>`).join('')}
         </tbody></table><p class="more">Показаны последние ${S.log.length} записей. ${lnk('noop','Показать все')}</p>`,
       btns:[{t:'Закрыть',pri:1,act:close}]};
@@ -293,6 +292,7 @@ const WIN = {
 function open(key,st){ CUR={key,st}; closeMenu(); draw(); }
 function close(){ CUR=null; draw(); }
 function draw(){
+  hideTip();
   const bg=$('dlgBg');
   if(!CUR){ bg.classList.remove('show'); bg.innerHTML=''; renderParent(); return; }
   const w=WIN[CUR.key](CUR.st);
@@ -460,6 +460,7 @@ $('updBtn').addEventListener('click',e=>{ e.stopPropagation(); toggleMenu(); });
 $('srvList').addEventListener('click',e=>{ const b=e.target.closest('[data-srv]'); if(!b) return; S.sel=b.dataset.srv; closeMenu(); renderPanel(); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.umenu-w')) closeMenu(); });
 $('menu').addEventListener('click',e=>{
+  if(e.target.closest('.hi')){ e.preventDefault(); return; }
   const c=e.target.closest('[data-ck]'); if(c){ S[c.dataset.ck]=!S[c.dataset.ck]; renderMenu(); return; }
   const m=e.target.closest('[data-m]'); if(!m) return; closeMenu();
   ({net:openNet, file:openFile, changes:()=>open('changes',(S.net==='offline'||S.net==='nohost')?'offline':'list'), log:()=>open('log','table')})[m.dataset.m]();
@@ -478,6 +479,7 @@ const ACT = {
 };
 $('dlgBg').addEventListener('click',e=>{
   const t=e.target;
+  if(t.closest('.hi')){ e.preventDefault(); return; }
   const b=t.closest('[data-b]'); if(b&&!b.disabled){ BTNS[+b.dataset.b].act(); return; }
   if(t.closest('[data-x]')){ ONX(); return; }
   const c=t.closest('[data-ck]'); if(c){ S[c.dataset.ck]=!S[c.dataset.ck]; e.preventDefault(); draw(); return; }
@@ -489,6 +491,20 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){ if(!$('menu').hidden) closeMenu(); else if(CUR && !$('dlgBg').querySelector('[data-x]:disabled')) ONX(); }
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('a.lnk[data-act]')){ e.preventDefault(); e.target.click(); }
 });
+
+/* ---------- подсказки ⓘ ---------- */
+function showTip(el){
+  const tip=$('tip'); tip.textContent=el.dataset.tip; tip.classList.add('show');
+  const r=el.getBoundingClientRect(), w=tip.offsetWidth, h=tip.offsetHeight;
+  let x=Math.min(Math.max(8, r.left+r.width/2-w/2), innerWidth-w-8), y=r.bottom+6;
+  if(y+h>innerHeight-8) y=r.top-h-6;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+function hideTip(){ $('tip').classList.remove('show'); }
+document.addEventListener('pointerover',e=>{ const h=e.target.closest('[data-tip]'); if(h) showTip(h); });
+document.addEventListener('pointerout',e=>{ if(e.target.closest('[data-tip]')) hideTip(); });
+document.addEventListener('focusin',e=>{ if(e.target.matches('[data-tip]')) showTip(e.target); });
+document.addEventListener('focusout',e=>{ if(e.target.matches('[data-tip]')) hideTip(); });
 
 /* ---------- панель сценариев ---------- */
 const SEL = {sNet:'net', sFiles:'files', sDl:'dlOut', sOut:'outcome'};
