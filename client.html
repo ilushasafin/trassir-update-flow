@@ -720,7 +720,7 @@ body.ux #uxBtn,body.ux #dlgBtn{display:none}
   --u-gap:12px; --u-txt:12px;
   /* правая панель настроек — по макету Figma (VMS | QT new, 361:438). Размеры ниже — в px макета, панель уменьшается целиком */
   --qz:.7;                                  /* масштаб: шрифт макета 17 px → 12 px, как в остальном прототипе */
-  --pri-600:#36497c;                        /* рамка панели под вкладками (primary/600) */
+  --q-bd:var(--bd);                         /* обводки панели и вкладок — серые, как во всём интерфейсе (29.10: в макете синие primary/600 и primary/200 — слишком контрастно) */
   --grp-bd:#d5d5d6;                         /* рамка групп «Индикаторы здоровья», «Настройки…» (neutral/200) */
   --pos:#158d2d; --neg:#c02f2f; --na:#8f9093; /* значения индикаторов: positive/base, negative/base, neutral/500 */
   --chk-bd:#1f2126;                         /* рамка чекбокса (neutral/900) */
@@ -740,16 +740,24 @@ body.ux #uxBtn,body.ux #dlgBtn{display:none}
 .usrv button{border:0;background:none;text-align:left;padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
 .usrv button:hover{background:var(--hover)}
 .usrv button.on{background:var(--sel)}
+.usrv .lnm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* отметки в списке слева: «подарочек» — есть обновление (как в продукте сейчас), «обновляется…» — идёт установка */
+.usrv .lst{margin-left:auto;display:inline-flex;align-items:center;gap:4px;color:var(--amber);flex:none}
+.usrv button:has(.lst.busy){flex-wrap:wrap;row-gap:2px}
+.usrv .lst.busy{flex-basis:100%;margin-left:0;color:#8a6400;font-size:11px;font-weight:400} /* статус — второй строкой, чтобы имя сервера не обрезалось */
+.usrv .lst.busy svg{animation:spin 1s linear infinite}
+.usrv .gift{display:block}
 .upw-f{flex:none;display:flex;justify-content:flex-end;padding:6px}
 
 /* ---------- правая панель (макет Figma, px макета × --qz) ---------- */
 .umain{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
 .qp{zoom:var(--qz);flex:1;min-height:0;display:flex;flex-direction:column;font-size:var(--q-txt);color:var(--txt);line-height:normal}
 .qtabs{flex:none;display:flex;align-items:flex-end;gap:2px;position:relative}
-.qtab{padding:10px 24px;border:1px solid var(--pri-200);border-bottom:0;border-radius:16px 16px 0 0;background:var(--pri-50);color:var(--pri);font-weight:700;margin-bottom:-1px;position:relative;cursor:default}
-.qtab.on{background:#fff;border-color:var(--pri-600);z-index:1}
+.qtab{padding:10px 24px;border:1px solid var(--q-bd);border-bottom:0;border-radius:16px 16px 0 0;background:var(--pri-50);color:var(--pri);font-weight:700;margin-bottom:-1px;position:relative;cursor:default}
+.qtab.on{background:#fff;z-index:1}
+.qtab.on::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;background:#fff} /* активная вкладка сливается с панелью: линии под ней нет */
 .qnews{margin-left:auto;align-self:center;font-weight:700;color:#000;padding-right:14px}
-.qbody{flex:1;min-height:0;overflow:auto;background:#fff;border:1px solid var(--pri-600);padding:34px 22px 22px;display:flex;flex-direction:column}
+.qbody{flex:1;min-height:0;overflow:auto;background:#fff;border:1px solid var(--q-bd);padding:34px 22px 22px;display:flex;flex-direction:column}
 .qtop{display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap}
 .qver{display:grid;grid-template-columns:auto auto;column-gap:13px;row-gap:14px;white-space:nowrap}
 .qver .r{text-align:right}
@@ -763,9 +771,6 @@ body.ux #uxBtn,body.ux #dlgBtn{display:none}
 .qbtn img{flex:none;width:var(--q-icon);height:var(--q-icon)}
 .qbtn[hidden]{display:none}
 .umenu-w{position:relative}
-.uupd .pct{font-variant-numeric:tabular-nums;color:var(--pri);margin-left:6px}
-.uupd .mini{width:64px;height:7px;margin-left:8px;background:var(--pbar-bg);border-radius:4px;overflow:hidden;flex:none}
-.uupd .mini i{display:block;height:100%;background:var(--pbar-fill)}
 .qgroups{display:grid;grid-template-columns:minmax(0,476fr) minmax(0,731fr);gap:28px;margin-top:86px}
 .qgrp{margin:0;min-width:0;min-height:410px;border:1px solid var(--grp-bd);background:#fff;padding:20px 18px 22px}
 .qgrp legend{padding:0 0 0 0;margin-left:-9px;background:#fff;font-size:var(--q-txt)}
@@ -883,6 +888,9 @@ body.ux #uxBtn,body.ux #dlgBtn{display:none}
 .way .btn{align-self:flex-start;margin-top:auto}
 
 .vlist{display:grid;gap:12px}
+.exp-t::after{content:"";display:inline-block;width:5px;height:5px;margin:0 0 2px 6px;border-right:1.3px solid currentColor;border-bottom:1.3px solid currentColor;transform:rotate(45deg)}
+.exp-t.on::after{transform:rotate(-135deg);margin-bottom:-1px}
+.exp-b{margin-top:8px;padding:10px 12px;background:#f7f8fa;border:1px solid var(--cell-bd)}
 .ver-h{display:flex;align-items:center;gap:8px;margin-bottom:3px}
 .ver-h b{font-size:12.5px}
 .ver-h small{color:var(--grey)}
@@ -1063,13 +1071,52 @@ const VERS = Object.keys(CH); // от новых к старым
 const BR_LAST = {'4.7':'4.7.9.2','4.8':'4.8.3.5','4.9':LATEST};
 const SIZE_NET = 1300; // МБ, ServicePack сервера
 const SPEED = 4.3;     // МБ/с — для оценки «осталось»; сама загрузка в демо ускорена
-const FILES = [
+const FILES_SERVER = [
   {n:'Trassir-4.9.15.0-1321840-64-Release-sp.pack', v:'4.9.15.0', mb:1300, where:'Загрузки', ok:true, tag:'Рекомендуем: последняя версия'},
   {n:'Trassir (1).pack', v:'4.9.15.0', mb:1300, where:'Рабочий стол', ok:true, tag:'Имя изменено', tip:'Версию определили по содержимому файла — название не важно.'},
   {n:'Trassir-4.9.14.0-1319665-64-Release-sp.pack', v:'4.9.14.0', mb:1290, where:'Загрузки', ok:true, tag:'Подходит, но есть версия новее'},
   {n:'Trassir-4.9.15.0-1321840-64-Release-client-sp.pack', mb:693, where:'Загрузки', err:'Не подходит: обновление для TRASSIR Client, а это сервер'},
   {n:'Trassir-4.9.15.0-1321844-LITE', mb:2300, where:'USB-накопитель (E:)', err:'Не подходит: для регистраторов MiniNVR на TRASSIR OS'}
 ];
+const FILES_CLIENT = [
+  {n:'Trassir-4.9.15.0-1321840-64-Release-client-sp.pack', v:'4.9.15.0', mb:693, where:'Загрузки', ok:true, tag:'Рекомендуем: последняя версия'},
+  {n:'client-update.pack', v:'4.9.15.0', mb:693, where:'Рабочий стол', ok:true, tag:'Имя изменено', tip:'Версию определили по содержимому файла — название не важно.'},
+  {n:'Trassir-4.9.14.0-1319665-64-Release-client-sp.pack', v:'4.9.14.0', mb:688, where:'Загрузки', ok:true, tag:'Подходит, но есть версия новее'},
+  {n:'Trassir-4.9.15.0-1321840-64-Release-sp.pack', mb:1300, where:'Загрузки', err:'Не подходит: обновление для TRASSIR Server, а это клиент'},
+  {n:'Trassir-4.9.15.0-1321844-LITE', mb:2300, where:'USB-накопитель (E:)', err:'Не подходит: для регистраторов MiniNVR на TRASSIR OS'}
+];
+const FILES_ = () => S.sel===CLIENT||kindOf(S.sel)==='client' ? FILES_CLIENT : FILES_SERVER;
+/* Слова, которые зависят от того, что обновляем: сервер (обновление по сети с регистратора) или клиент на этом компьютере */
+function W(){
+  if(kindOf(S.sel)==='client') return {
+    client:true, size:693, Subj:'Этот компьютер', subjGen:'этого компьютера', Name:'TRASSIR Client', obj:'клиент', Obj:'Клиент',
+    backupTip:'Перед установкой — в папку настроек клиента на этом компьютере. Если после обновления что-то пойдёт не так, к нему можно вернуться',
+    restartLbl:'Перезапустить клиент и установить сразу после загрузки',
+    restartTip:'Клиент закроется и откроется снова — около минуты. Серверы продолжат работать, запись архива не прервётся',
+    restartBtn:'Перезапустить клиент и установить', downtime:'Клиент закроется и откроется снова — около минуты. Серверы продолжат работать, запись архива не прервётся.',
+    backupWhere:'в папку настроек клиента', netWhere:'«Параметры Windows» → «Сеть и Интернет»',
+    stepsHint:'Настройки клиента сохранятся. После каждого шага клиент перезапустится — снова откройте «Обновление по сети», и мы предложим следующий.',
+    reinstallHint:`Сразу ${LATEST} одним шагом. Установщик запускается на этом компьютере.`,
+    restarting:'Клиент закроется и откроется снова — это займёт около минуты. Серверы и запись архива это не затрагивает.',
+    works:'Клиент перезапущен и снова подключён к серверам.', worksBack:'Клиент работает, подключение к серверам восстановлено.',
+    brokeEx:'Например, не открываются раскладки или пропал звук.',
+    rbDowntime:'Клиент закроется примерно на минуту.', rbKeeps:'Серверы и архив это не затрагивает.'
+  };
+  return {
+    client:false, size:SIZE_NET, Subj:S.sel, subjGen:S.sel, Name:S.sel, obj:'сервер', Obj:'Сервер',
+    backupTip:'Перед установкой — на архивный диск. Если после обновления что-то пойдёт не так, к нему можно вернуться',
+    restartLbl:'Перезапустить сервер и установить сразу после загрузки',
+    restartTip:'Сервер будет недоступен около 5 минут, запись архива на это время остановится',
+    restartBtn:'Перезапустить сервер и установить', downtime:'Сервер перезапустится и будет недоступен около 5 минут. Запись архива на это время остановится.',
+    backupWhere:'на архивный диск', netWhere:'«Настройки сервера» → «Сетевые интерфейсы»',
+    stepsHint:'Можно удалённо, настройки и архив сохранятся. После каждого шага сервер перезапустится — снова откройте «Обновление по сети», и мы предложим следующий.',
+    reinstallHint:`Сразу ${LATEST} одним шагом. Нужен доступ к компьютеру, на котором стоит сервер.`,
+    restarting:`${S.sel} перезапускается и сейчас недоступен — это нормально. Займёт около 5 минут, окно можно закрыть.`,
+    works:`${S.sel} работает. Камеры: 50 из 50, диски и база данных в порядке.`, worksBack:'Сервер работает, камеры: 50 из 50.',
+    brokeEx:'Например, пропала камера или не запускается модуль.',
+    rbDowntime:'Сервер перезапустится и будет недоступен около 5 минут.', rbKeeps:'Архив сохранится.'
+  };
+}
 // «Обзор…» в демо выбирает по очереди файлы с ошибками, которые ловим до загрузки
 const PICKS = [
   {n:'trassir_4.9.15.zip', mb:1240, where:'Выбран вручную', err:'Это не файл обновления TRASSIR', kind:'format'},
@@ -1082,36 +1129,47 @@ const PICK_RECS = {
   older:['Обновлением нельзя вернуться на прошлую версию.','Вернуть предыдущую версию можно из журнала обновлений, если перед обновлением сохранялся бэкап.']
 };
 
-/* ---------- состояние ---------- */
+/* ---------- состояние ----------
+   Общее (сеть, сценарии, флаги, галочки) — в S. Своё у каждого элемента списка слева (версия, загрузка, установка, журнал) — в TS[имя];
+   S.cur, S.dl и т. п. читают и пишут TS[S.sel], поэтому окна всегда показывают выбранный сервер или клиент. */
 const S = {
   net:'avail', files:'found', dlOut:'ok', outcome:'ok',
   flags:{auto:'dialog', min:'yes', cancel:'ask', help:'errors'},
   autoCheck:true, backup:true, restartNow:false, keepPart:true, sel:SRV
 };
-let CUR=null, BTNS=[], ONX=null, tDl=null, tRs=null, tChk=null, galSel=null;
+const CLIENT='Клиент';
+const TKEYS=['cur','build','dl','ready','busy','log','checked','checking','extra','fileSel','pickN','cancelFrom','exported','rbFrom','failTo','moreCh'];
+let TS={};
+const kindOf = sel => /^VMS-/.test(sel) ? 'server' : 'client';
+function tsOf(sel){ if(!TS[sel]) TS[sel]=initTS(sel); return TS[sel]; }
+TKEYS.forEach(k=>Object.defineProperty(S,k,{get:()=>tsOf(S.sel)[k], set:v=>{ tsOf(S.sel)[k]=v; }, enumerable:true}));
+// выполнить код от имени другого элемента списка (фоновая загрузка или установка, пока пользователь смотрит другой)
+function inTarget(sel,fn){ const prev=S.sel; S.sel=sel; try{ return fn(); } finally{ S.sel=prev; } }
+let CUR=null, BTNS=[], ONX=null, tChk=null, galSel=null;
 
-function baseLog(){
+function initTS(sel){
+  const cur = S.net==='latest'?LATEST : S.net==='old'?'4.6.9.0' : '4.9.13.0';
+  return {cur, build:CH[cur]?.b||'1268000', checked:S.autoCheck||S.flags.auto==='off', checking:false,
+    dl:null, ready:null, busy:null, extra:[], fileSel:0, pickN:0, cancelFrom:null, exported:false, rbFrom:null, failTo:null, moreCh:0,
+    log:baseLog(kindOf(sel))};
+}
+function baseLog(kind){
+  const obj = kind==='client' ? 'Клиент' : 'Сервер', who = kind==='client' ? 'ilya.safin' : 'admin';
   const l=[
-    {t:'21.10.2026 10:02', a:'Обновление', from:'4.9.11.0', to:'4.9.13.0', ok:true, who:'admin', bk:true},
-    {t:'20.10.2026 18:47', a:'Обновление', from:'4.9.11.0', to:'4.9.13.0', ok:false, who:'admin', why:'Файл повреждён — не прошёл проверку подписи. Сервер остался на 4.9.11.0'},
-    {t:'02.09.2026 09:15', a:'Обновление', from:'4.9.10.0', to:'4.9.11.0', ok:true, who:'i.petrov', bk:true},
-    {t:'12.08.2026 22:05', a:'Обновление', from:'4.9.9.0', to:'4.9.10.0', ok:true, who:'admin', bk:true},
+    {t:'21.10.2026 10:02', a:'Обновление', from:'4.9.11.0', to:'4.9.13.0', ok:true, who, bk:true},
+    {t:'20.10.2026 18:47', a:'Обновление', from:'4.9.11.0', to:'4.9.13.0', ok:false, who, why:`Файл повреждён — не прошёл проверку подписи. ${obj} остался на 4.9.11.0`},
+    {t:'02.09.2026 09:15', a:'Обновление', from:'4.9.10.0', to:'4.9.11.0', ok:true, who:kind==='client'?who:'i.petrov', bk:true},
+    {t:'12.08.2026 22:05', a:'Обновление', from:'4.9.9.0', to:'4.9.10.0', ok:true, who, bk:true},
     {t:'22.11.2024 22:34', a:'Установка', to:'4.5.26.0', ok:true, who:'—'}
   ];
-  if(S.net==='latest') l.unshift({t:'28.10.2026 23:10', a:'Обновление', from:'4.9.13.0', to:LATEST, ok:true, who:'admin', bk:true});
-  if(S.net==='old') return [{t:'05.03.2025 12:40', a:'Обновление', from:'4.6.8.0', to:'4.6.9.0', ok:true, who:'admin', bk:false},{t:'22.11.2024 22:34', a:'Установка', to:'4.5.26.0', ok:true, who:'—'}];
+  if(S.net==='latest') l.unshift({t:'28.10.2026 23:10', a:'Обновление', from:'4.9.13.0', to:LATEST, ok:true, who, bk:true});
+  if(S.net==='old') return [{t:'05.03.2025 12:40', a:'Обновление', from:'4.6.8.0', to:'4.6.9.0', ok:true, who, bk:false},{t:'22.11.2024 22:34', a:'Установка', to:'4.5.26.0', ok:true, who:'—'}];
   return l;
 }
 function reset(){
-  clearTimeout(tDl); clearTimeout(tRs); clearTimeout(tChk);
-  Object.assign(S, {
-    cur: S.net==='latest'?LATEST : S.net==='old'?'4.6.9.0' : '4.9.13.0',
-    checked: S.autoCheck || S.flags.auto==='off', checking:false,
-    dl:null, ready:null, busy:null, extra:[], fileSel:0, moreCh:0, called:false, pickN:0, cancelFrom:null, exported:false
-  });
-  S.build = CH[S.cur]?.b || '1268000';
-  S.log = baseLog();
-  S.sel=SRV; CUR=null; renderPanel(); draw();
+  Object.values(TS).forEach(t=>{ clearTimeout(t._tDl); clearTimeout(t._tRs); }); clearTimeout(tChk);
+  TS={}; Object.assign(S, {called:false, back:[], exp:{}, sel:SRV}); tsOf(SRV); tsOf(CLIENT);
+  CUR=null; renderPanel(); draw();
 }
 
 /* ---------- помощники разметки ---------- */
@@ -1136,10 +1194,16 @@ function help(isErr){
   if(f==='always') return `<div class="helpl"><span><b>Нужна помощь специалиста?</b> Перезвоним в течение 15 минут в рабочее время.</span>${S.called?'<span class="chip ok">Заявка отправлена — специалист перезвонит</span>':'<button type="button" class="btn" data-act="callme">Связаться со специалистом</button>'}</div>`;
   return `<div class="helpl"><span>Не получается? Техподдержка TRASSIR: <b>${PHONE}</b>, пн–пт 9:00–18:00.</span><a class="lnk" href="#" onclick="return false">Все контакты ↗</a></div>`;
 }
+// список изменений по версиям — общий для окна «Список изменений» и разворота внутри окон
+const verList = vers => `<div class="vlist">${vers.map(v=>{
+  const tag = v===S.cur?'<span class="chip">Установлена</span>' : newer(v,S.cur)?'<span class="chip ok">Доступна</span>':'';
+  return `<div><div class="ver-h"><b>${v}</b><small>${CH[v].d}</small>${tag}</div>${ul(CH[v].items)}</div>`; }).join('')}</div>`;
+// ссылка, которая разворачивает содержимое прямо в этом окне (не открывает другое окно); состояние — в S.exp
+const exp = (key,label,html) => `<a class="lnk exp-t${S.exp[key]?' on':''}" data-act="exp" data-k="${key}" role="button" tabindex="0" aria-expanded="${!!S.exp[key]}">${S.exp[key]?'Свернуть':label}</a>${S.exp[key]?`<div class="exp-b">${html}</div>`:''}`;
 const autoRow = () => S.flags.auto==='dialog' ? ck('autoCheck','Проверять обновления автоматически') : '';
-const opts = () => `<div class="opts">${ck('backup','Сохранить бэкап настроек','Перед установкой — на архивный диск. Если после обновления что-то пойдёт не так, к нему можно вернуться')}
+const opts = () => `<div class="opts">${ck('backup','Сохранить бэкап настроек',W().backupTip)}
   ${S.backup?'':`<p class="fine" style="color:var(--warn);margin:-2px 0 0 22px">Без бэкапа вернуться к ${S.cur} не получится — только переустановкой.</p>`}
-  ${ck('restartNow','Перезапустить сервер и установить сразу после загрузки','Сервер будет недоступен около 5 минут, запись архива на это время остановится')}</div>`;
+  ${ck('restartNow',W().restartLbl,W().restartTip)}</div>`;
 
 /* ---------- сетевое состояние ---------- */
 function netState(){
@@ -1164,21 +1228,21 @@ const WIN = {
     const T='Обновление по сети';
     if(st==='checking') return {t:T, body:`<div class="sh">${ICON.spin}<div><b>Проверяем обновления…</b><p>Обращаемся к серверу обновлений TRASSIR.</p></div></div>`, btns:[{t:'Закрыть',act:close}]};
     if(st==='unchecked') return {t:T, left:autoRow(),
-      body:sh('info','Автоматическая проверка выключена',`${SRV} не обращается к серверу обновлений сам. Проверьте вручную, когда удобно.`),
+      body:sh('info','Автоматическая проверка выключена',`${W().Subj} не обращается к серверу обновлений сам. Проверьте вручную, когда удобно.`),
       btns:[{t:'Закрыть',act:close},{t:'Проверить сейчас',pri:1,act:check}]};
     if(st==='latest') return {t:T, left:autoRow(),
-      body:sh('ok',`Установлена последняя версия ${S.cur}`,'Проверено сегодня в 14:32.')+`<div>${lnk('changes','Что нового в этой версии')}</div>`,
+      body:sh('ok',`Установлена последняя версия ${S.cur}`,'Проверено сегодня в 14:32.')+(CH[S.cur]?`<div>${exp('whatsnew','Что нового в этой версии',ul(CH[S.cur].items))}</div>`:''),
       btns:[{t:'Проверить снова',act:check},{t:'Закрыть',pri:1,act:close}]};
     if(st==='offline') return {t:T, left:autoRow(),
-      body:sh('err','Нет доступа к сети',`${SRV} не подключён к интернету, поэтому проверить обновления нельзя.`)
+      body:sh('err','Нет доступа к сети',`${W().Subj} не подключён к интернету, поэтому проверить обновления нельзя.`)
         +`<div><div class="sec-h">Что можно сделать</div><ol class="recs">
-          <li><b>Восстановить подключение.</b> Проверьте кабель и настройки в «Настройки сервера» → «Сетевые интерфейсы»: адрес, шлюз и DNS. Затем нажмите «Проверить снова».</li>
+          <li><b>Восстановить подключение.</b> Проверьте кабель и настройки в ${W().netWhere}: адрес, шлюз и DNS. Затем нажмите «Проверить снова».</li>
           <li><b>Обновить из файла.</b> Скачайте файл обновления на любом компьютере с интернетом — страница загрузок подберёт нужный по версии — и загрузите его сюда. ${site()}</li></ol></div>`+help(true),
       btns:[{t:'Проверить снова',act:check},{t:'Обновить из файла',pri:1,act:()=>openFile()}]};
     if(st==='nohost') return {t:T, left:autoRow(),
-      body:sh('err','Не удаётся связаться с сервером обновлений',`Интернет есть, но ${SRV} не находит адрес updates.cloud.trassir.com — обычно не указан шлюз или DNS.`)
+      body:sh('err','Не удаётся связаться с сервером обновлений',`Интернет есть, но ${W().Subj} не находит адрес updates.cloud.trassir.com — обычно не указан шлюз или DNS.`)
         +`<div><div class="sec-h">Как исправить</div><ol class="recs">
-          <li>Откройте «Настройки сервера» → «Сетевые интерфейсы».</li>
+          <li>Откройте ${W().netWhere}.</li>
           <li>У интерфейса с доступом в интернет нажмите «Настроить» и заполните поля «Шлюз» и «DNS». Подойдут публичные DNS Яндекса <b>77.88.8.8</b> и <b>77.88.8.1</b>, за пределами России — Google <b>8.8.8.8</b>.</li>
           <li>Если не знаете адрес шлюза — уточните у системного администратора.</li></ol></div>`
         +`<p class="fine">Пока доступа нет, можно ${lnk('file','обновиться из файла')}.</p>`+help(true),
@@ -1188,23 +1252,27 @@ const WIN = {
       return {t:T, left:autoRow(),
         body:sh('warn',`Сразу до ${LATEST} обновиться нельзя`,`Установлена ${S.cur}. Обновлять нужно по порядку: ${ch.length} шага, по одной ветке за раз.`)
           +`<div class="ways">
-            <div class="way rec"><b>Обновить по шагам${hint('Можно удалённо, настройки и архив сохранятся. После каждого шага сервер перезапустится — снова откройте «Обновление по сети», и мы предложим следующий.')}</b>
+            <div class="way rec"><b>Обновить по шагам${hint(W().stepsHint)}</b>
               <ol>${ch.map((v,i)=>`<li>${i===0?`<b>${v}</b> — сейчас`:v}</li>`).join('')}</ol>
               ${br(ch[0])==='4.7'?`<span class="fine" style="color:var(--warn)">На 4.7 меняется формат базы данных — <a class="lnk" href="#" onclick="return false">прочитайте инструкцию</a>.</span>`:''}</div>
-            <div class="way"><b>Переустановить ПО${hint(`Сразу ${LATEST} одним шагом. Нужен доступ к компьютеру, на котором стоит сервер.`)}</b>
+            <div class="way"><b>Переустановить ПО${hint(W().reinstallHint)}</b>
               ${site('Скачать установщик на сайте ↗')}</div></div>`+opts(),
-        btns:[{t:'Отмена',act:close},{t:`Загрузить шаг 1 — ${ch[0]}`,pri:1,act:()=>startDl('net',ch[0],SIZE_NET)}]};
+        btns:[{t:'Отмена',act:close},{t:`Загрузить шаг 1 — ${ch[0]}`,pri:1,act:()=>startDl('net',ch[0],W().size)}]};
     }
     // avail / space
     const list=changesSince(S.cur);
-    const space = st==='space' ? box('err',`<b>Не хватает места на системном диске</b><span>Для загрузки и установки нужно 2,6 ГБ, свободно 1,1 ГБ. Проверили до загрузки, чтобы она не оборвалась на середине.</span>
-      <ol class="recs"><li>Удалите старые скриншоты и экспортированные видео: «Настройки сервера» → «Скриншоты».</li><li>Или загрузите обновление на архивный диск — места там достаточно.</li></ol>
-      <div class="row"><button type="button" class="btn" data-act="toArchive">Загружать на архивный диск</button><button type="button" class="btn" data-act="recheck">Проверить снова</button></div>`) : '';
+    const space = st!=='space' ? '' : W().client
+      ? box('err',`<b>Не хватает места на диске C:</b><span>Для загрузки и установки нужно 1,4 ГБ, свободно 0,6 ГБ. Проверили до загрузки, чтобы она не оборвалась на середине.</span>
+        <ol class="recs"><li>Удалите старые скриншоты и экспортированные видео — папка указана в «Настройки рабочей станции» → «Сохранять скриншоты в».</li><li>Очистите корзину и папку «Загрузки».</li></ol>
+        <div class="row"><button type="button" class="btn" data-act="recheck">Проверить снова</button></div>`)
+      : box('err',`<b>Не хватает места на системном диске</b><span>Для загрузки и установки нужно 2,6 ГБ, свободно 1,1 ГБ. Проверили до загрузки, чтобы она не оборвалась на середине.</span>
+        <ol class="recs"><li>Удалите старые скриншоты и экспортированные видео: «Настройки сервера» → «Скриншоты».</li><li>Или загрузите обновление на архивный диск — места там достаточно.</li></ol>
+        <div class="row"><button type="button" class="btn" data-act="toArchive">Загружать на архивный диск</button><button type="button" class="btn" data-act="recheck">Проверить снова</button></div>`);
     return {t:T, left:autoRow(),
-      body:sh('info',`Доступно обновление до ${LATEST}`,`Установлена ${S.cur} · загрузка ${mb(SIZE_NET)}`, S.flags.min==='yes'?'Загрузка идёт в фоне — с TRASSIR можно работать как обычно.':'')
-        +`<div><div class="sec-h">Что изменилось</div>${ul(CH[LATEST].items)}<div style="margin-top:6px">${lnk('changes',`Полный список изменений — ${list.length} ${list.length===1?'версия':'версии'} после ${S.cur}`)}</div></div>`
+      body:sh('info',`Доступно обновление до ${LATEST}`,`Установлена ${S.cur} · загрузка ${mb(W().size)}`, S.flags.min==='yes'?'Загрузка идёт в фоне — с TRASSIR можно работать как обычно.':'')
+        +`<div><div class="sec-h">Что изменилось</div>${S.exp.allch?'':ul(CH[LATEST].items)}${list.length>1?`<div style="margin-top:6px">${exp('allch',`Полный список изменений — ${list.length} версии после ${S.cur}`,verList(list))}</div>`:''}</div>`
         +space+opts(),
-      btns:[{t:'Отмена',act:close},{t:'Загрузить обновление',pri:1,dis:st==='space',act:()=>startDl('net',LATEST,SIZE_NET)}]};
+      btns:[{t:'Отмена',act:close},{t:'Загрузить обновление',pri:1,dis:st==='space',act:()=>startDl('net',LATEST,W().size)}]};
   },
 
   file(st){
@@ -1214,9 +1282,10 @@ const WIN = {
         +`<ol class="recs"><li>Скачайте файл на странице загрузок — она подберёт нужный по вашей версии ${S.cur}. ${site()}</li>
           <li>Положите файл в «Загрузки» или на флешку и нажмите «Искать снова».</li></ol>
           <p>Файл в другом месте? ${lnk('browse','Укажите его вручную')}.</p>`
-        +(S.net==='avail'||S.net==='space'?box('info',`<div class="row"><span>У ${SRV} есть интернет — обновиться можно без файла.</span><button type="button" class="btn" data-act="net">Обновление по сети</button></div>`):''),
+        +((S.net==='avail'||S.net==='space') && newer(LATEST,S.cur) && S.checked
+          ? box('info',`<div class="row"><span>Файл не нужен: по сети доступна <b>${LATEST}</b> · ${mb(W().size)}.</span><button type="button" class="btn" data-act="net">Обновиться по сети</button></div>`) : ''),
       btns:[{t:'Отмена',act:close},{t:'Искать снова',pri:1,act:()=>{ S.files='found'; $('sFiles').value='found'; open('file','found'); }}]};
-    const all=[...S.extra,...FILES], f=all[S.fileSel]||all[0];
+    const all=[...S.extra,...FILES_()], f=all[S.fileSel]||all[0];
     const rows=all.map((x,i)=>`<button type="button" class="frow${i===S.fileSel?' on':''}${x.err?' bad':''}" data-fsel="${i}" role="radio" aria-checked="${i===S.fileSel}">
         <span class="rd"></span><span><span class="fn">${esc(x.n)}</span><br><span class="fm">${x.where}${x.v?' · версия '+x.v:''}</span><br>${x.err?`<span class="fe">${x.err}</span>`:`<span class="fo">${x.tag}</span>${x.tip?hint(x.tip):''}`}</span><span class="sz">${mb(x.mb)}</span></button>`).join('');
     let detail='';
@@ -1225,7 +1294,7 @@ const WIN = {
     else detail=`<div class="flow"><span>Установлена <b>${S.cur}</b></span>${ARROW}<span>будет <b>${f.v}</b></span></div>`
       +(newer(LATEST,f.v)?box('warn',`<span>Есть версия новее — ${LATEST}. Её файл тоже в списке.</span>`):'')+opts();
     return {t:T,
-      body:`<div class="fsrc"><span>Нашли ${FILES.filter(x=>x.ok).length} подходящих файла на этом компьютере и флешке</span><button type="button" class="btn sm" data-act="browse">Обзор…</button></div>
+      body:`<div class="fsrc"><span>Нашли ${FILES_().filter(x=>x.ok).length} подходящих файла на этом компьютере и флешке</span><button type="button" class="btn sm" data-act="browse">Обзор…</button></div>
         <div class="files" role="radiogroup" aria-label="Файлы обновления">${rows}</div>`+detail,
       btns:[{t:'Отмена',act:close},{t:'Загрузить обновление',pri:1,dis:!!f.err,act:()=>startDl('file',f.v,f.mb)}]};
   },
@@ -1233,7 +1302,7 @@ const WIN = {
   dl(st){
     const d=S.dl, pct=Math.floor(d.done/d.total*100);
     const T=d.src==='net'?'Загрузка обновления':'Передача файла на сервер';
-    const dlTip = (d.src==='net'?'Скачиваем с сервера обновлений TRASSIR.':`Передаём файл с этого компьютера на ${SRV}.`)+' '+(S.restartNow?'Сразу после загрузки сервер перезапустится и установит обновление.':'После загрузки предложим перезапустить сервер.')+(S.flags.min==='yes'?' Окно можно закрыть и продолжать работать — прогресс виден на кнопке «Обновление ПО».':'');
+    const dlTip = (d.src==='net'?'Скачиваем с сервера обновлений TRASSIR.':`Передаём файл с этого компьютера на ${S.sel}.`)+' '+(S.restartNow?`Сразу после загрузки ${W().obj} перезапустится и установит обновление.`:`После загрузки предложим перезапустить ${W().obj}.`)+(S.flags.min==='yes'?' Окно можно закрыть и продолжать работать — прогресс виден в меню «Обновление ПО».':'');
     const head=`<div class="dlh"><span style="color:var(--txt)">${d.src==='net'?'Загружаем':'Передаём'} ${d.target}${hint(dlTip)}</span><span>${pct}%</span></div>`;
     const bar=k=>`<div class="pbar ${k||''}"><i style="width:${pct}%"></i></div>`;
     if(st==='paused') return {t:T, x:minimize,
@@ -1242,11 +1311,11 @@ const WIN = {
     if(st==='cancel') return {t:T, x:()=>open('dl',S.cancelFrom||'run'),
       body:sh('warn','Отменить загрузку?',`Загружено ${mb(d.done)} из ${mb(d.total)}.`)
         +`<div class="opts" style="border:0;padding:0">${ck('keepPart','Сохранить загруженную часть на 7 дней','Если начнёте загрузку снова, она продолжится с этого места. Потом файл удалится сам')}</div>`,
-      btns:[{t:'Продолжить загрузку',act:()=>{ S.dl.frozen=false; open('dl',S.cancelFrom||'run'); if(S.cancelFrom!=='paused') tickDl(); }},{t:'Отменить загрузку',pri:1,act:doCancel}]};
+      btns:[{t:'Продолжить загрузку',act:()=>{ S.dl.frozen=false; open('dl',S.cancelFrom||'run'); if(S.cancelFrom!=='paused') tickDl(S.sel); }},{t:'Отменить загрузку',pri:1,act:doCancel}]};
     if(st==='fail') return {t:T,
       body:sh('err','Загрузка обновления не удалась',`Связь с сервером обновлений обрывалась слишком часто. Загружено ${mb(d.done)} из ${mb(d.total)} — эта часть сохранена, повторная загрузка продолжится с неё.`)+bar('fail')
-        +`<ol class="recs"><li>Проверьте подключение ${SRV} к интернету и попробуйте ещё раз.</li><li>Если канал медленный или нестабильный, скачайте файл на другом компьютере и обновитесь из файла.</li></ol>`+help(true),
-      btns:[{t:'Обновить из файла',act:()=>{ S.dl=null; openFile(); }},{t:'Повторить загрузку',pri:1,act:()=>{ S.dl.state='run'; S.dl.failed=true; S.dl.frozen=false; open('dl','run'); tickDl(); }}]};
+        +`<ol class="recs"><li>Проверьте подключение ${W().subjGen} к интернету и попробуйте ещё раз.</li><li>Если канал медленный или нестабильный, скачайте файл на другом компьютере и обновитесь из файла.</li></ol>`+help(true),
+      btns:[{t:'Обновить из файла',act:()=>{ S.dl=null; openFile(); }},{t:'Повторить загрузку',pri:1,act:()=>{ S.dl.state='run'; S.dl.failed=true; S.dl.frozen=false; open('dl','run'); tickDl(S.sel); }}]};
     const remain=d.total-d.done;
     return {t:T, x:S.flags.min==='yes'?minimize:null,
       body:head+bar()+`<div class="dlm"><span>${mb(d.done)} из ${mb(d.total)}</span><span>Осталось ${left(remain)}</span></div>`,
@@ -1256,64 +1325,62 @@ const WIN = {
   ready(){
     const v=S.ready.target;
     return {t:'Обновление загружено',
-      body:sh('ok',`${v} готово к установке`,`Файл загружен на ${SRV}.`)
-        +box('info',`<ol class="recs" style="padding-left:16px"><li>Сервер перезапустится и будет недоступен около 5 минут. Запись архива на это время остановится.</li>
-          ${S.backup?`<li>Перед установкой сохраним бэкап настроек на архивный диск.</li><li>Если после обновления что-то пойдёт не так, вернуть ${S.cur} можно будет из журнала обновлений.</li>`:`<li>Бэкап настроек не сохранится — вернуть ${S.cur} после обновления не получится.</li>`}</ol>`),
-      btns:[{t:'Позже',act:close},{t:'Перезапустить сервер и установить',pri:1,act:()=>startRestart('install')}]};
+      body:sh('ok',`${v} готово к установке`,W().client?'Файл проверен и готов к установке.':`Файл загружен на ${S.sel}.`)
+        +box('info',`<ol class="recs" style="padding-left:16px"><li>${W().downtime}</li>
+          ${S.backup?`<li>Перед установкой сохраним бэкап настроек ${W().backupWhere}.</li><li>Если после обновления что-то пойдёт не так, вернуть ${S.cur} можно будет из журнала обновлений.</li>`:`<li>Бэкап настроек не сохранится — вернуть ${S.cur} после обновления не получится.</li>`}</ol>`),
+      btns:[{t:'Позже',act:close},{t:W().restartBtn,pri:1,act:()=>startRestart('install')}]};
   },
 
   restart(){
     const b=S.busy, steps=restartSteps();
     const T=b.kind==='install'?'Установка обновления':'Возврат прошлой версии';
     return {t:T,
-      body:`<div class="sh">${ICON.spin}<div><b>${b.kind==='install'?`Устанавливаем ${b.to}`:`Возвращаем ${b.to}`}</b><p>${SRV} перезапускается и сейчас недоступен — это нормально. Займёт около 5 минут, окно можно закрыть.</p></div></div>
+      body:`<div class="sh">${ICON.spin}<div><b>${b.kind==='install'?`Устанавливаем ${b.to}`:`Возвращаем ${b.to}`}</b><p>${W().restarting}</p></div></div>
         <ol class="steps">${steps.map((s,i)=>`<li class="${i<b.step?(s.bad?'bad':'done'):i===b.step?'now':''}"><span class="st"></span><span>${s.t}</span></li>`).join('')}</ol>`,
       btns:[{t:'Закрыть',act:close}]};
   },
 
   done(st){
     if(st==='rolled') return {t:'Прошлая версия возвращена',
-      body:sh('ok',`${SRV} снова на версии ${S.cur}`,`Настройки восстановлены из бэкапа от ${S.rbFrom}. Сервер работает, камеры: 50 из 50.`,'Изменения настроек, сделанные после обновления, не сохранились. Обновиться снова можно в любой момент.')+help(false),
-      btns:[{t:'Журнал обновлений',act:()=>open('log','table')},{t:'Готово',pri:1,act:close}]};
+      body:sh('ok',`${W().Name} снова на версии ${S.cur}`,`Настройки восстановлены из бэкапа от ${S.rbFrom}. ${W().worksBack}`,'Изменения настроек, сделанные после обновления, не сохранились. Обновиться снова можно в любой момент.')+help(false),
+      btns:[{t:'Журнал обновлений',act:()=>openSub('log','table')},{t:'Готово',pri:1,act:close}]};
     if(st==='fail') return {t:'Обновление не установилось',
-      body:sh('err',`${S.failTo} не установилась — сервер вернулся на ${S.cur}`,'Сервер не запустился с новой версией, поэтому мы автоматически вернули прошлую и восстановили настройки из бэкапа. Сервер работает как раньше.')
+      body:sh('err',`${S.failTo} не установилась — ${W().obj} вернулся на ${S.cur}`,`${W().Obj} не запустился с новой версией, поэтому мы автоматически вернули прошлую и восстановили настройки из бэкапа. ${W().Obj} работает как раньше.`)
         +box('err',`<span><b>Причина:</b> ошибка при установке пакета (код 0x2F). Подробности сохранены в журнале обновлений — их увидит техподдержка.</span>`)
         +`<div><div class="sec-h">Что можно сделать</div><ol class="recs"><li>Попробуйте обновиться ещё раз — иногда помогает повторная загрузка файла.</li><li>Переустановите ПО: ${site('скачать установщик на сайте ↗')}</li><li>Обратитесь в техподдержку и назовите время обновления — детали уже есть в журнале.</li></ol></div>`+help(true),
-      btns:[{t:'Журнал обновлений',act:()=>open('log','table')},{t:'Закрыть',pri:1,act:close}]};
+      btns:[{t:'Журнал обновлений',act:()=>openSub('log','table')},{t:'Закрыть',pri:1,act:close}]};
     const last=S.log[0];
     return {t:'Обновление установлено',
-      body:sh('ok',`Установлена версия ${S.cur}`,`${SRV} работает. Камеры: 50 из 50, диски и база данных в порядке.`)
+      body:sh('ok',`Установлена версия ${S.cur}`,W().works)
         +(CH[S.cur]?`<div><div class="sec-h">Что нового</div>${ul(CH[S.cur].items)}</div>`:'')
         +(newer(LATEST,S.cur)?box('info',`<span>Это шаг ${chainFrom(last.from).indexOf(S.cur)+1} из ${chainFrom(last.from).length}. Чтобы продолжить, снова откройте «Обновление по сети».</span>`):'')
-        +(last.bk?box('info',`<b>Если что-то работает не так</b><span>Например, пропала камера или не запускается модуль. Можно вернуть версию ${last.from} и настройки на момент обновления — бэкап от ${last.t}.</span><div class="row"><button type="button" class="btn" data-act="rollback">Вернуть ${last.from}</button></div>`)
+        +(last.bk?box('info',`<b>Если что-то работает не так</b><span>${W().brokeEx} Можно вернуть версию ${last.from} и настройки на момент обновления — бэкап от ${last.t}.</span><div class="row"><button type="button" class="btn" data-act="rollback">Вернуть ${last.from}</button></div>`)
                  :box('warn',`<span>Бэкап перед обновлением не сохранялся — вернуть ${last.from} можно будет только переустановкой.</span>`))
         +help(false),
-      btns:[{t:'Журнал обновлений',act:()=>open('log','table')},{t:'Готово',pri:1,act:close}]};
+      btns:[{t:'Журнал обновлений',act:()=>openSub('log','table')},{t:'Готово',pri:1,act:close}]};
   },
 
   changes(st){
     const T='Список изменений';
     if(st==='offline') return {t:T,
-      body:sh('warn','Список изменений недоступен без интернета',`Он загружается с сервера обновлений, а ${SRV} сейчас не подключён к сети.`)
+      body:sh('warn','Список изменений недоступен без интернета',`Он загружается с сервера обновлений, а ${W().Subj} сейчас не подключён к сети.`)
         +`<p>Восстановите подключение или посмотрите изменения на сайте: ${site('Список изменений на dssl.ru ↗')}</p>`,
       btns:[{t:'Закрыть',pri:1,act:close}]};
     let idx=VERS.indexOf(S.cur); if(idx<0) idx=VERS.length-1;
     const shown = VERS.slice(0, idx+1+S.moreCh);
     const rest = VERS.length - shown.length;
     return {t:T, wide:1,
-      body:`<div class="vlist">${shown.map(v=>{
-        const tag = v===S.cur?'<span class="chip">Установлена</span>' : newer(v,S.cur)?`<span class="chip ok">Доступна</span>`:'';
-        return `<div><div class="ver-h"><b>${v}</b><small>${CH[v].d}</small>${tag}</div>${ul(CH[v].items)}</div>`; }).join('')}</div>`
+      body:verList(shown)
         +`<div>${rest>0?lnk('more',`Показать более ранние версии`):`<span class="fine">Изменения в версиях до 4.9.10.0 — ${site('на сайте ↗')}</span>`}</div>`,
-      btns:[...(newer(LATEST,S.cur)&&!S.dl&&!S.ready&&S.checked?[{t:`Обновить до ${LATEST}`,act:()=>openNet()}]:[]),{t:'Закрыть',pri:1,act:close}]};
+      btns:[...(newer(LATEST,S.cur)&&!S.dl&&!S.ready&&S.checked?[{t:`Обновить до ${LATEST}`,act:()=>openNet()}]:[]),{t:closeLbl(),pri:1,act:close}]};
   },
 
   log(st){
     if(st==='confirm'){ const r=S.log[0];
       return {t:'Вернуть прошлую версию',
         body:sh('warn',`Вернуть версию ${r.from}?`,`Сейчас установлена ${r.to}.`)
-          +`<ol class="recs"><li>Сервер перезапустится и будет недоступен около 5 минут.</li><li>Настройки восстановятся из бэкапа от ${r.t}.</li><li>Изменения настроек после этой даты пропадут. Архив сохранится.</li></ol>`,
-        btns:[{t:'Отмена',act:()=>open('log','table')},{t:`Вернуть ${r.from}`,pri:1,act:()=>startRestart('rollback')}]};
+          +`<ol class="recs"><li>${W().rbDowntime}</li><li>Настройки восстановятся из бэкапа от ${r.t}.</li><li>Изменения настроек после этой даты пропадут. ${W().rbKeeps}</li></ol>`,
+        btns:[{t:'Отмена',act:()=>S.back.length?close():open('log','table')},{t:`Вернуть ${r.from}`,pri:1,act:()=>startRestart('rollback')}]};
     }
     const canRb = r => r===S.log[0] && r.ok && r.bk && r.a==='Обновление' && !S.busy;
     return {t:'Журнал обновлений', wide:1,
@@ -1323,13 +1390,16 @@ const WIN = {
           <td><span class="res">${r.ok?ICON.ok:ICON.err}<span>${r.ok?'Успешно':'Ошибка'}${r.why?hint(r.why):''}${r.ok&&r.bk===false&&r.a!=='Установка'?'<span class="why">Без бэкапа</span>':''}</span></span></td>
           <td>${r.who}</td><td>${canRb(r)?`<button type="button" class="btn" data-act="rollback">Вернуть ${r.from}</button>`:''}</td></tr>`).join('')}
         </tbody></table><p class="more">Показаны последние ${S.log.length} записей. ${lnk('noop','Показать все')}</p>`,
-      btns:[{t:'Закрыть',pri:1,act:close}]};
+      btns:[{t:closeLbl(),pri:1,act:close}]};
   }
 };
 
 /* ================= отрисовка ================= */
-function open(key,st){ CUR={key,st}; closeMenu(); draw(); }
-function close(){ CUR=null; draw(); }
+// open — новое окно (стек «назад» сбрасывается); openSub — окно поверх текущего: «Закрыть»/✕ вернут обратно
+function open(key,st){ S.back=[]; S.exp={}; CUR={key,st}; closeMenu(); draw(); }
+function openSub(key,st){ if(CUR) S.back.push(CUR); CUR={key,st}; closeMenu(); draw(); }
+function close(){ if(S.back.length){ CUR=S.back.pop(); draw(); return; } CUR=null; draw(); }
+const closeLbl = () => S.back.length ? 'Назад' : 'Закрыть';
 function draw(){
   hideTip();
   const bg=$('dlgBg');
@@ -1359,18 +1429,18 @@ function renderParent(){
   $('pVer').textContent = S.busy ? '—' : S.cur;
   $('pBuild').textContent = S.busy ? '—' : S.build;
   const st=netState(), b=$('updBtn');
-  let html='Обновление ПО', title='';
-  if(st==='dl'){ const p=Math.floor(S.dl.done/S.dl.total*100);
-    if(S.dl.state==='run') html=`Обновление ПО<span class="pct">${p}%</span><span class="mini"><i style="width:${p}%"></i></span>`;
-    else { html=WARN_IMG+(S.dl.state==='paused'?'Обновление ПО · пауза':'Обновление ПО · ошибка'); title=S.dl.state==='paused'?'Загрузка приостановлена — нет связи':'Загрузка обновления не удалась'; } }
-  else if(st==='ready'){ html=WARN_IMG+'Установить обновление'; title=`${S.ready.target} загружено и готово к установке`; }
-  else if(st==='busy'){ html='Сервер обновляется…'; }
-  else if(st==='avail'||st==='old'||st==='space'){ html=WARN_IMG+'Обновление ПО'; title=`Доступно обновление до ${LATEST}`; }
+  // подпись кнопки всегда «Обновление ПО», как в макете: состояние — значком ⚠, подсказкой и статусом в меню
+  let warn=false, title='';
+  if(st==='dl'){ if(S.dl.state!=='run'){ warn=true; title=S.dl.state==='paused'?'Загрузка приостановлена — нет связи':'Загрузка обновления не удалась'; } }
+  else if(st==='ready'){ warn=true; title=`${S.ready.target} загружено и готово к установке`; }
+  else if(st==='busy'){ title=`${W().Obj} перезапускается для установки обновления`; }
+  else if(st==='avail'||st==='old'||st==='space'){ warn=true; title=`Доступно обновление до ${LATEST}`; }
+  const html=(warn?WARN_IMG:'')+'Обновление ПО';
   b.innerHTML = html; b.title = title; b.disabled = st==='busy';
   const ban=$('pBanner');
   ban.hidden=!S.busy;
-  if(S.busy) ban.innerHTML=`${SPIN}<span><b>${SRV} перезапускается для ${S.busy.kind==='install'?'установки обновления':'возврата прошлой версии'}</b> · около 5 минут. ${lnk('openRestart','Подробнее')}</span>`;
-  renderHealth();
+  if(S.busy) ban.innerHTML=`${SPIN}<span><b>${W().Name} перезапускается для ${S.busy.kind==='install'?'установки обновления':'возврата прошлой версии'}</b> · ${W().client?'около минуты':'около 5 минут'}. ${lnk('openRestart','Подробнее')}</span>`;
+  renderHealth(); renderList();
   if(!$('menu').hidden) renderMenu();
 }
 
@@ -1380,10 +1450,25 @@ function renderHealth(){
   const net = (S.net==='offline') ? ['нет сети','neg'] : ['OK','pos'];
   const items = isClient()
     ? [['Загрузка CPU:','1.0%','pos'],['Облако:','н/д','na'],['Сеть:','OK','pos'],['Сервера:','OK','pos'],['Скрипты:','Ошибка','neg'],['Пользователи:','OK','pos']]
-    : S.busy && S.sel===SRV
+    : S.busy
       ? [['Загрузка CPU:','н/д','na'],['Облако:','н/д','na'],['Диски:','н/д','na'],['Камеры:','н/д','na'],['База данных:','н/д','na'],['Сеть:','н/д','na']]
       : [['Загрузка CPU:','1.0%','pos'],['Облако:','н/д','na'],['Диски:','OK','pos'],['Камеры:','50 / 50','pos'],['База данных:','OK','pos'],['Сеть:',...net]];
   $('pHealth').innerHTML = items.map(([l,v,k])=>`<span>${l}</span><b class="${k}">${v}</b>`).join('');
+}
+// список слева: «подарочек» — есть что установить (как в продукте сейчас), «обновляется…» — сервер или клиент перезапускается
+const GIFT='<svg class="gift" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="7" width="12" height="7.5" rx="1" fill="currentColor"/><rect x="1" y="4.5" width="14" height="3" rx="1" fill="currentColor"/><path d="M8 4.5v10" stroke="#fff" stroke-width="1.4"/><path d="M8 4.5C7 2 4.2 1.6 4.4 3.3 4.6 4.6 8 4.5 8 4.5zm0 0c1-2.5 3.8-2.9 3.6-1.2C11.4 4.6 8 4.5 8 4.5z" fill="currentColor"/></svg>';
+function renderList(){
+  document.querySelectorAll('#srvList [data-srv]').forEach(b=>{
+    const sel=b.dataset.srv, ts=TS[sel];
+    let mark='';
+    if(ts) inTarget(sel,()=>{ const st=netState();
+      if(st==='busy') mark=`<span class="lst busy">${SPIN}обновляется…</span>`;
+      else if(st==='ready') mark=`<span class="lst" data-tip="${S.ready.target} загружено — можно устанавливать">${GIFT}</span>`;
+      else if(st==='avail'||st==='old'||st==='space') mark=`<span class="lst" data-tip="Доступно обновление до ${LATEST}">${GIFT}</span>`;
+      else if(st==='dl'&&S.dl.state!=='run') mark=`<span class="lst" data-tip="${S.dl.state==='paused'?'Загрузка обновления на паузе — нет связи':'Загрузка обновления не удалась'}">${GIFT}</span>`;
+    });
+    b.innerHTML=`<span class="lnm">${esc(sel)}</span>${mark}`;
+  });
 }
 const qSel = (l,v) => `<div class="qrow"><span>${l}</span><div class="qf sel">${v}</div></div>`;
 const qTxt = (l,v) => `<div class="qrow"><span>${l}</span><div class="qf">${v}</div></div>`;
@@ -1430,73 +1515,89 @@ function check(){ S.checking=true; S.checked=true; open('net','checking'); clear
 function openFile(){ if(S.dl) return open('dl',S.dl.state); S.extra=[]; S.fileSel=0; open('file',S.files); }
 
 function startDl(src,target,total){
+  // клиент обновляется из файла на этом же компьютере — передавать нечего, сразу к установке
+  if(src==='file' && W().client){ S.ready={target}; open('ready'); return; }
   S.dl={src,target,total,done:0,state:'run',failed:false};
-  open('dl','run'); tickDl();
+  open('dl','run'); tickDl(S.sel);
 }
-function tickDl(){
-  clearTimeout(tDl); const d=S.dl; if(!d||d.state!=='run'||d.frozen) return;
-  tDl=setTimeout(()=>{
-    if(!S.dl||S.dl.state!=='run') return;
+// окно на экране показывает именно этот элемент списка
+const shown = (sel,key) => S.sel===sel && CUR && CUR.key===key;
+function tickDl(sel){
+  const ts=tsOf(sel); clearTimeout(ts._tDl); const d=ts.dl; if(!d||d.state!=='run'||d.frozen) return;
+  ts._tDl=setTimeout(()=>{
+    if(!ts.dl||ts.dl.state!=='run') return;
     d.done=Math.min(d.total, d.done + d.total/70);
-    if(S.dlOut==='fail' && !d.failed && d.done>=d.total*0.6){ d.done=d.total*0.6; d.state='fail'; if(CUR&&CUR.key==='dl') open('dl','fail'); else renderParent(); return; }
-    if(d.done>=d.total){ finishDl(); return; }
-    if(CUR&&CUR.key==='dl'&&CUR.st==='run') drawProgress(); else renderParent();
-    tickDl();
+    if(S.dlOut==='fail' && !d.failed && d.done>=d.total*0.6){ d.done=d.total*0.6; d.state='fail'; if(shown(sel,'dl')) open('dl','fail'); else renderParent(); return; }
+    if(d.done>=d.total){ finishDl(sel); return; }
+    if(shown(sel,'dl')&&CUR.st==='run') drawProgress(); else renderParent();
+    tickDl(sel);
   },200);
 }
-function finishDl(){
-  const d=S.dl, wasOpen=CUR&&CUR.key==='dl'; S.dl=null; S.ready={target:d.target};
-  $('sDrop').disabled=true;
-  if(S.restartNow) return startRestart('install');
+function finishDl(sel){
+  const wasOpen=shown(sel,'dl');
+  inTarget(sel,()=>{ S.ready={target:S.dl.target}; S.dl=null; });
+  if(S.restartNow && S.sel===sel) return startRestart('install');
   if(wasOpen) open('ready'); else renderParent();
 }
 function minimize(){ close(); }
-function askCancel(){ clearTimeout(tDl); S.cancelFrom=CUR.st; if(S.flags.cancel==='ask') open('dl','cancel'); else doCancel(); }
-function doCancel(){ clearTimeout(tDl); S.dl=null; close(); }
-function resumeDl(){ S.dl.state='run'; S.dl.frozen=false; open('dl','run'); tickDl(); }
-function dropConn(){ if(!S.dl||S.dl.state!=='run') return; clearTimeout(tDl); S.dl.state='paused'; if(CUR&&CUR.key==='dl') open('dl','paused'); else renderParent(); }
+function askCancel(){ clearTimeout(tsOf(S.sel)._tDl); S.cancelFrom=CUR.st; if(S.flags.cancel==='ask') open('dl','cancel'); else doCancel(); }
+function doCancel(){ clearTimeout(tsOf(S.sel)._tDl); S.dl=null; close(); }
+function resumeDl(){ S.dl.state='run'; S.dl.frozen=false; open('dl','run'); tickDl(S.sel); }
+// «Оборвать связь» из панели сценариев — для всех идущих загрузок, даже если окно свёрнуто или выбран другой элемент
+function dropConn(){
+  Object.entries(TS).forEach(([sel,ts])=>{ if(ts.dl&&ts.dl.state==='run'){ clearTimeout(ts._tDl); ts.dl.state='paused'; if(shown(sel,'dl')) open('dl','paused'); } });
+  renderParent();
+}
 
 function restartSteps(){
-  const b=S.busy;
-  if(b.kind==='rollback') return [{t:'Останавливаем сервер'},{t:`Возвращаем версию ${b.to}`},{t:`Восстанавливаем настройки из бэкапа от ${b.bkt}`},{t:'Запускаем сервер и проверяем камеры'}];
-  const s=[]; if(S.backup) s.push({t:'Сохраняем бэкап настроек на архивный диск'});
-  s.push({t:`Устанавливаем ${b.to}`},{t:'Перезапускаем сервер'});
-  if(b.fail) s.push({t:'Сервер не запустился с новой версией',bad:1},{t:`Возвращаем ${b.from} и настройки из бэкапа`});
-  else s.push({t:'Проверяем камеры, диски и базу данных'});
+  const b=S.busy, c=W().client, obj=W().obj;
+  if(b.kind==='rollback') return c
+    ? [{t:'Закрываем клиент'},{t:`Возвращаем версию ${b.to}`},{t:`Восстанавливаем настройки из бэкапа от ${b.bkt}`},{t:'Открываем клиент и подключаемся к серверам'}]
+    : [{t:'Останавливаем сервер'},{t:`Возвращаем версию ${b.to}`},{t:`Восстанавливаем настройки из бэкапа от ${b.bkt}`},{t:'Запускаем сервер и проверяем камеры'}];
+  const s=[]; if(S.backup) s.push({t:`Сохраняем бэкап настроек ${W().backupWhere}`});
+  s.push({t:`Устанавливаем ${b.to}`},{t:`Перезапускаем ${obj}`});
+  if(b.fail) s.push({t:`${W().Obj} не запустился с новой версией`,bad:1},{t:`Возвращаем ${b.from} и настройки из бэкапа`});
+  else s.push({t:c?'Открываем клиент и подключаемся к серверам':'Проверяем камеры, диски и базу данных'});
   return s;
 }
 function startRestart(kind){
-  clearTimeout(tRs);
+  clearTimeout(tsOf(S.sel)._tRs);
   if(kind==='install'){ const to=S.ready.target; S.ready=null; S.busy={kind, from:S.cur, to, step:0, fail:S.outcome==='fail'}; }
   else { const r=S.log[0]; S.busy={kind, from:r.to, to:r.from, bkt:r.t, step:0}; }
-  open('restart'); tickRs();
+  open('restart'); tickRs(S.sel);
 }
-function tickRs(){
-  tRs=setTimeout(()=>{
-    const b=S.busy; if(!b) return; b.step++;
-    if(b.step>=restartSteps().length){ finishRs(); return; }
-    if(CUR&&CUR.key==='restart') draw(); else renderParent();
-    tickRs();
+function tickRs(sel){
+  const ts=tsOf(sel);
+  ts._tRs=setTimeout(()=>{
+    const b=ts.busy; if(!b) return; b.step++;
+    if(b.step>=inTarget(sel,restartSteps).length){ finishRs(sel); return; }
+    if(shown(sel,'restart')) draw(); else renderParent();
+    tickRs(sel);
   },1400);
 }
-function finishRs(){
-  const b=S.busy; S.busy=null; const now='29.10.2026 '+new Date().toTimeString().slice(0,5);
-  if(b.kind==='rollback'){
-    S.cur=b.to; S.rbFrom=b.bkt; S.log.unshift({t:now,a:'Возврат',from:b.from,to:b.to,ok:true,who:'admin',bk:false});
-    S.build=CH[S.cur]?.b||S.build; open('done','rolled'); return;
-  }
-  if(b.fail){
-    S.failTo=b.to; S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:false,who:'admin',why:`Ошибка установки пакета (код 0x2F). Сервер автоматически вернулся на ${b.from}`});
-    open('done','fail'); return;
-  }
-  S.cur=b.to; S.build=CH[S.cur]?.b||'1291377';
-  S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:true,who:'admin',bk:S.backup});
-  open('done','ok');
+function finishRs(sel){
+  const wasOpen=shown(sel,'restart')||(S.sel===sel&&!CUR);
+  const res=inTarget(sel,()=>{
+    const b=S.busy; S.busy=null; const now='29.10.2026 '+new Date().toTimeString().slice(0,5), who=W().client?'ilya.safin':'admin';
+    if(b.kind==='rollback'){
+      S.cur=b.to; S.rbFrom=b.bkt; S.log.unshift({t:now,a:'Возврат',from:b.from,to:b.to,ok:true,who,bk:false});
+      S.build=CH[S.cur]?.b||S.build; return 'rolled';
+    }
+    if(b.fail){
+      S.failTo=b.to; S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:false,who,why:`Ошибка установки пакета (код 0x2F). ${W().Obj} автоматически вернулся на ${b.from}`});
+      return 'fail';
+    }
+    S.cur=b.to; S.build=CH[S.cur]?.b||'1291377';
+    S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:true,who,bk:S.backup});
+    return 'ok';
+  });
+  // итог показываем, если пользователь смотрит на этот сервер или клиент; иначе он увидит его по значку в списке
+  if(wasOpen) open('done',res); else renderParent();
 }
 
 /* ================= события ================= */
 $('updBtn').addEventListener('click',e=>{ e.stopPropagation(); toggleMenu(); });
-$('srvList').addEventListener('click',e=>{ const b=e.target.closest('[data-srv]'); if(!b) return; S.sel=b.dataset.srv; closeMenu(); renderPanel(); });
+$('srvList').addEventListener('click',e=>{ const b=e.target.closest('[data-srv]'); if(!b) return; S.sel=b.dataset.srv; S.back=[]; S.exp={}; closeMenu(); renderPanel(); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.umenu-w')) closeMenu(); });
 $('menu').addEventListener('click',e=>{
   if(e.target.closest('.hi')){ e.preventDefault(); return; }
@@ -1506,11 +1607,12 @@ $('menu').addEventListener('click',e=>{
 });
 const ACT = {
   changes:()=>open('changes',(S.net==='offline'||S.net==='nohost')?'offline':'list'),
-  log:()=>open('log','table'), file:()=>openFile(), net:()=>openNet(),
+  log:()=>openSub('log','table'), file:()=>openFile(), net:()=>openNet(),
   more:()=>{ S.moreCh+=10; draw(); }, noop:()=>{},
   browse:()=>{ const p=PICKS[S.pickN%PICKS.length]; S.pickN++; S.extra=[p]; S.fileSel=0; open('file','found'); },
   callme:()=>{ S.called=true; draw(); },
-  rollback:()=>open('log','confirm'),
+  rollback:()=>openSub('log','confirm'),
+  exp:a=>{ S.exp[a.dataset.k]=!S.exp[a.dataset.k]; draw(); },
   export:()=>{ S.exported=true; draw(); },
   toArchive:()=>{ S.net='avail'; $('sNet').value='avail'; open('net','avail'); },
   recheck:()=>check(),
@@ -1523,7 +1625,7 @@ $('dlgBg').addEventListener('click',e=>{
   if(t.closest('[data-x]')){ ONX(); return; }
   const c=t.closest('[data-ck]'); if(c){ S[c.dataset.ck]=!S[c.dataset.ck]; e.preventDefault(); draw(); return; }
   const f=t.closest('[data-fsel]'); if(f){ S.fileSel=+f.dataset.fsel; draw(); return; }
-  const a=t.closest('[data-act]'); if(a&&ACT[a.dataset.act]){ e.preventDefault(); ACT[a.dataset.act](); }
+  const a=t.closest('[data-act]'); if(a&&ACT[a.dataset.act]){ e.preventDefault(); ACT[a.dataset.act](a); }
 });
 $('pBanner').addEventListener('click',e=>{ const a=e.target.closest('[data-act]'); if(a) ACT[a.dataset.act](); });
 document.addEventListener('keydown',e=>{
@@ -1554,17 +1656,19 @@ $('sDrop').addEventListener('click',dropConn);
 $('scnTog').addEventListener('click',()=>{ const b=$('scnBody'); b.hidden=!b.hidden; $('scnTog').setAttribute('aria-expanded',String(!b.hidden)); });
 $('galHide').addEventListener('click',()=>{ document.body.classList.remove('gal-on'); $('galShow').hidden=false; });
 $('galShow').addEventListener('click',()=>{ document.body.classList.add('gal-on'); $('galShow').hidden=true; });
-setInterval(()=>{ $('sDrop').disabled=!(S.dl&&S.dl.state==='run'); },300);
+setInterval(()=>{ $('sDrop').disabled=!Object.values(TS).some(t=>t.dl&&t.dl.state==='run'); },300);
 
 /* ================= раскадровка ================= */
 function scen(net,extra){ S.net=net; $('sNet').value=net; S.files='found'; $('sFiles').value='found'; S.dlOut='ok'; $('sDl').value='ok'; S.outcome='ok'; $('sOut').value='ok'; reset(); if(extra) extra(); }
-function frozenDl(src,pct,state){ const total=src==='net'?SIZE_NET:1300; S.dl={src,target:LATEST,total,done:total*pct,state,frozen:true}; }
+function frozenDl(src,pct,state){ const total=W().size; S.dl={src,target:LATEST,total,done:total*pct,state,frozen:true}; }
+// то же для клиента: выбрать «Клиент» в списке слева
+function toClient(){ S.sel=CLIENT; renderPanel(); }
 const GAL = [
   {g:'Меню «Обновление ПО»', items:[
     {t:'Доступно обновление', s:'Значок ⚠ на кнопке, «Доступна 4.9.15.0»', run:()=>{ scen('avail'); toggleMenu(); }},
     {t:'Последняя версия', s:'Кнопка без значка', run:()=>{ scen('latest'); toggleMenu(); }},
     {t:'Нет доступа к сети', s:'Проверить актуальность нельзя', run:()=>{ scen('offline'); toggleMenu(); }},
-    {t:'Идёт загрузка', s:'Проценты на кнопке и в меню', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); toggleMenu(); }}]},
+    {t:'Идёт загрузка', s:'Проценты в меню, кнопка без изменений', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); toggleMenu(); }}]},
   {g:'A. Обновление по сети', items:[
     {t:'Доступно обновление', s:'Версия, изменения, бэкап, перезапуск', run:()=>{ scen('avail'); openNet(); }},
     {t:'Проверка обновлений', s:'Короткое ожидание ответа сервера', run:()=>{ scen('avail'); S.checking=true; open('net','checking'); }},
@@ -1584,7 +1688,7 @@ const GAL = [
   {g:'C. Загрузка', items:[
     {t:'Загрузка по сети', s:'Прогресс, объём, время', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); open('dl','run'); }},
     {t:'Передача файла на сервер', s:'С компьютера на регистратор', run:()=>{ scen('avail',()=>frozenDl('file',.18,'run')); open('dl','run'); }},
-    {t:'Окно свёрнуто', s:'Работа продолжается, прогресс на кнопке', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); renderParent(); }},
+    {t:'Окно свёрнуто', s:'Работа продолжается, прогресс — в меню', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); renderParent(); }},
     {t:'Связь прервалась', s:'Продолжим с места остановки', run:()=>{ scen('avail',()=>frozenDl('net',.42,'paused')); open('dl','paused'); }},
     {t:'Отменить загрузку?', s:'Оставить загруженную часть', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); S.cancelFrom='run'; open('dl','cancel'); }},
     {t:'Загрузка не удалась', s:'Повторить или обновиться из файла', run:()=>{ scen('avail',()=>frozenDl('net',.6,'fail')); open('dl','fail'); }}]},
@@ -1599,7 +1703,17 @@ const GAL = [
     {t:'Нет сети', s:'Куда посмотреть', run:()=>{ scen('offline'); open('changes','offline'); }}]},
   {g:'F. Журнал обновлений', items:[
     {t:'Журнал', s:'Статус, пользователь, возврат', run:()=>{ scen('avail'); open('log','table'); }},
-    {t:'Вернуть прошлую версию?', s:'Подтверждение', run:()=>{ scen('avail'); open('log','confirm'); }}]}
+    {t:'Вернуть прошлую версию?', s:'Подтверждение', run:()=>{ scen('avail'); open('log','confirm'); }}]},
+  {g:'G. Список слева', items:[
+    {t:'Обновление доступно', s:'«Подарочек» у сервера и клиента', run:()=>{ scen('avail'); }},
+    {t:'Сервер обновляется', s:'Статус в списке, плашка в панели', run:()=>{ scen('avail',()=>{ S.busy={kind:'install',from:S.cur,to:LATEST,step:1}; }); renderPanel(); }}]},
+  {g:'H. Обновление клиента', items:[
+    {t:'Меню клиента', s:'Своя версия и статус', run:()=>{ scen('avail'); toClient(); toggleMenu(); }},
+    {t:'Доступно обновление', s:'Без перезапуска сервера и архива', run:()=>{ scen('avail'); toClient(); openNet(); }},
+    {t:'Из файла', s:'Файлы для клиента, серверный не подходит', run:()=>{ scen('avail'); toClient(); openFile(); }},
+    {t:'Готово к установке', s:'Клиент закроется примерно на минуту', run:()=>{ scen('avail'); toClient(); S.ready={target:LATEST}; open('ready'); }},
+    {t:'Клиент перезапускается', s:'Шаги установки', run:()=>{ scen('avail'); toClient(); S.busy={kind:'install',from:S.cur,to:LATEST,step:2}; open('restart'); }},
+    {t:'Обновление установлено', s:'Возврат прошлой версии', run:()=>{ scen('avail'); toClient(); S.cur=LATEST; S.build=CH[LATEST].b; S.log.unshift({t:'29.10.2026 14:41',a:'Обновление',from:'4.9.13.0',to:LATEST,ok:true,who:'ilya.safin',bk:true}); open('done','ok'); }}]}
 ];
 $('galList').innerHTML = GAL.map((g,gi)=>`<div class="ugal-g">${g.g}</div>`+g.items.map((it,ii)=>`<button type="button" class="ugal-i" data-gal="${gi}.${ii}">${it.t}${it.s?`<span>${it.s}</span>`:''}</button>`).join('')).join('');
 $('galList').addEventListener('click',e=>{
