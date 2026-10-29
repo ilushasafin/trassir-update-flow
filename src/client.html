@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Обновление ПО — TRASSIR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/*__BASECSS__*/
+/*__UCSS__*/
+</style>
+</head>
+<!-- Окно обновления ПО в клиенте TRASSIR (бриф продукта 29.10.2026, заметки в Figma HBuvq4rJPBkOk1mnNANrCZ / 29767:43503).
+     Родительское окно — «Настройки» сервера по наброску продукта; окна обновления открываются из меню «Обновление ПО». -->
+<body class="u-page gal-on">
+<div class="desk"></div>
+
+<!-- раскадровка: все окна и состояния -->
+<aside class="ugal" id="gal" aria-label="Раскадровка">
+  <div class="ugal-h"><b>Раскадровка</b><span>Все окна и состояния. Клик открывает окно в этом состоянии.</span></div>
+  <div class="ugal-list" id="galList"></div>
+  <div class="ugal-f"><a class="lnk" href="site.html" target="_blank">Страница загрузок на сайте ↗</a><button type="button" class="btn sm" id="galHide">Скрыть раскадровку</button></div>
+</aside>
+<button type="button" class="btn ugal-show" id="galShow" hidden>Раскадровка</button>
+
+<div class="stage" id="stage">
+  <div class="pw upw" id="pw">
+    <div class="tbar"><div class="ttl">Настройки - Admin - VMS-DEMOSTAND-1</div>
+      <div class="wctl"><button class="wbtn" type="button" aria-label="Свернуть"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 5.5h8" stroke="#333"/></svg></button><button class="wbtn" type="button" aria-label="Развернуть"><svg width="10" height="10" viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="#333"/></svg></button><button class="wbtn close" type="button" aria-label="Закрыть"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1L1 9" stroke="#333"/></svg></button></div>
+    </div>
+    <div class="upw-b">
+      <nav class="usrv" aria-label="Серверы">
+        <div class="usrv-h">Все сервера</div>
+        <button type="button">Клиент</button>
+        <button type="button">admin@admin.ru</button>
+        <button type="button" class="on" id="srvMain">VMS-DEMOSTAND-1</button>
+        <button type="button">VMS-DEMOSTAND-2</button>
+        <button type="button">VMS-DEMOSTAND-3</button>
+      </nav>
+      <div class="umain">
+        <div class="utabs"><b>Настройка</b><span>Справка</span><span class="r">Новости</span></div>
+        <div class="ubanner" id="pBanner" hidden></div>
+        <div class="uver">
+          <div class="uver-t"><span>Версия ПО:</span><b id="pVer"></b><span>Сборка:</span><span id="pBuild"></span></div>
+          <div class="uver-b">
+            <div class="umenu-w">
+              <button type="button" class="btn uupd" id="updBtn" aria-haspopup="menu" aria-expanded="false"></button>
+              <div class="umenu" id="menu" role="menu" hidden></div>
+            </div>
+            <button type="button" class="btn">Журналы &amp; дампы падений…</button>
+            <button type="button" class="btn">Перезагрузка</button>
+          </div>
+        </div>
+        <fieldset class="uhealth" id="pHealth"><legend>Индикаторы здоровья</legend>
+          <div><span>Диски:</span><b class="g">OK</b></div>
+          <div><span>База данных:</span><b class="g">OK</b></div>
+          <div><span>Камеры:</span><b class="g">50 / 50</b></div>
+        </fieldset>
+        <div class="ubk"><button type="button" class="btn">Сохранить бэкап</button><button type="button" class="btn">Восстановить бэкап</button></div>
+      </div>
+    </div>
+    <div class="upw-f"><button type="button" class="btn">Закрыть</button></div>
+  </div>
+  <div class="ubg" id="dlgBg"></div>
+</div>
+
+<!-- служебная панель прототипа -->
+<div class="uscn" id="scn">
+  <button type="button" class="uscn-t" id="scnTog" aria-expanded="false">Сценарии</button>
+  <div class="uscn-b" id="scnBody" hidden>
+    <label>Обновление по сети<select id="sNet">
+      <option value="avail">Доступно обновление</option><option value="latest">Уже последняя версия</option>
+      <option value="offline">Нет доступа к сети</option><option value="nohost">Сервер обновлений недоступен</option>
+      <option value="old">Версия слишком старая (4.6.9.0)</option><option value="space">Не хватает места на диске</option></select></label>
+    <label>Файлы на компьютере<select id="sFiles"><option value="found">Найдены</option><option value="none">Не найдены</option></select></label>
+    <label>Загрузка<select id="sDl"><option value="ok">Проходит</option><option value="fail">Обрывается на 60%</option></select></label>
+    <label>Установка<select id="sOut"><option value="ok">Успешно</option><option value="fail">Ошибка — сервер вернёт прошлую версию</option></select></label>
+    <button type="button" class="btn sm" id="sDrop" disabled>Оборвать связь во время загрузки</button>
+    <div class="uscn-g">Спорные варианты</div>
+    <label>Галочка автопроверки<select id="fAuto"><option value="dialog">В окне «Обновление по сети»</option><option value="menu">Строкой в меню</option><option value="off">Убрать (заметка продукта)</option></select></label>
+    <label>Окно загрузки<select id="fMin"><option value="yes">Можно свернуть и работать</option><option value="no">Модальное до конца</option></select></label>
+    <label>Отмена загрузки<select id="fCancel"><option value="ask">Спросить про загруженную часть</option><option value="now">Отменять сразу</option></select></label>
+    <label>Помощь специалиста<select id="fHelp"><option value="errors">Контакты при ошибках</option><option value="always">Кнопка на итоговых экранах</option><option value="none">Не показывать</option></select></label>
+    <button type="button" class="btn sm" id="sReset">Начать сначала</button>
+    <p>Прототип. Тексты ошибок — по статье техподдержки; время установки, пути к настройкам и записи журнала условные.</p>
+  </div>
+</div>
+
+<script>
+/*__ICONS__*/
+/*__UJS__*/
+</script>
+</body>
+</html>

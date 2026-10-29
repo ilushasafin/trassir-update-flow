@@ -1,0 +1,1527 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Обновление ПО — TRASSIR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --txt:#06080e; --black:#030712; --muted:rgba(0,0,0,.38); --grey:#6b6f76; --grey2:#8f9093; --dash:#b9bbbf;
+  --bd:#c3c3c3; --bd2:#c8c8c8; --btn-bd:#afb0b2; --cell-bd:#e3e4e6; --row-bd:#eeeef0;
+  --pri:#445b9c; --pri-50:#eaedf6; --pri-200:#b1bcdd; --icon:#3c5899;
+  --sel:#e3e8f6; --hover:#f1f4fb; --win-bg:#e6e6e7; --title-bg:#f0f4fa;
+  --card-head:#f2f3f4;                  /* шапка карточки настроек: нейтральный серый, отличается от голубой подсветки строки при наведении (16.10) */
+  --amber:#ff8f00; --badge:#ab1330; --ok:#2c8e45; --warn:#b98a00; --err:#ab1330;
+  /* статусы применения настроек */
+  --st-ok:#2c8e45; --st-warn:#e6bd34; --st-err:#ab1330; --st-neutral:#8f9093;
+  --st-err-hover:#8e0f28; --st-err-pressed:#730c20; --focus-ring:#7f95d1;
+  --drift-bg:#fff4cc; --drift-bd:#e6cf7a; /* настройка изменилась на устройстве: фон поля и рамка плашки */
+  --st-err-on:#fff; --ebadge-h:14px;   /* индикатор числа ошибок: текст на красном и высота */
+  /* раскладка диалога — правила растяжения описаны в device-settings-dialog/README.md */
+  --tree-w:clamp(300px,15cqw,350px);   /* дерево: 15% ширины окна, 300–350; 350 — самая длинная строка целиком (ручной разделитель: 220–350) */
+  --nav-w:258px; --search-w:236px;       /* поиск по настройкам — фиксированной ширины (= ширина навигации по умолчанию − отступы 11 + 11), не тянется вместе с панелью разделов (26.10) */
+                         /* навигация разделов: фиксированная (ручной разделитель: 234–270, по содержимому) */
+  --form-min:452px; --form-max:100%;    /* колонка настроек (вкл. внутренние отступы 37 px); сверху не ограничена — тянется на всю ширину панели */
+  --label-min:180px; --label-max:360px; /* названия настроек */
+  --ctl-min:200px; --ctl-share:50%;     /* значения: строка делится 50/50 — вертикальная линия посередине; значение не уже 200 (до 14.10: 40% строки, не шире 360) */
+  --grid-row:28px; --label:#4b5060;    /* вид «Таблица»: высота строки, цвет названия параметра */
+  --tbl-pv:128px; --tbl-cols:minmax(86px,100px) minmax(93px,104px) minmax(83px,100px) minmax(65px,74px) minmax(99px,112px) minmax(87px,98px) minmax(85px,128px) minmax(40px,52px) minmax(55px,76px); /* колонки растут вместе с окном, пока значения не поместятся целиком; дальше — свободное место справа */
+  --tbl-x:0px; /* «Список каналов»: превью; тип, кодек, разрешение, FPS, сжатие, битрейт, тип битрейта, текущий FPS, текущий поток */
+  --tip-bg:#f9f9f9; --tip-bd:#bbbbbb; --tip-shadow:0 1px 4px rgba(0,0,0,.16); /* подсказка: светлый фон, тонкая светло-серая рамка, небольшая тень */
+  --status-w:18px;                      /* статус-иконка */
+  --crumbs-h:35px; --title-h:25px; --head-h:calc(var(--crumbs-h) + var(--indent)*2 + var(--title-h)); /* шапка устройства и канала: путь + заголовок с отступом --indent сверху и снизу (19.10; было 12 px) */
+  --pad-x:16px; --row-pad-r:6px; --indent:8px; --sb-w:10px; --col-gap:14px; /* --col-gap — от вертикальной линии до значения */
+  /* левый край контента панели, шаг вложенности заголовков/полей, ширина скроллбара */
+  --btn-grad:linear-gradient(180deg,#e6e6e7 38.8%,#f8f8f8 97.2%);
+  --btn-grad-hover:linear-gradient(180deg,#eef1f8 30%,#ffffff 100%);
+  --desk:#cdd3dc;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font:11px/1.2 Inter,"Segoe UI",system-ui,sans-serif;color:var(--txt);background:var(--desk);-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
+body.is-dragging,body.is-dragging *{user-select:none!important}
+body.is-dragging iframe{pointer-events:none}
+
+/* ---------- desktop ---------- */
+.desk{position:fixed;inset:0;background:
+  radial-gradient(1200px 700px at 20% 10%,#dfe4eb 0%,transparent 60%),
+  radial-gradient(900px 600px at 90% 100%,#bcc4d0 0%,transparent 60%),var(--desk)}
+.hint{position:fixed;left:252px;bottom:12px;color:#4a5263;font-size:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 580px)} /* слева — панель «Сценарии», справа — «Симуляция связи» */
+.hint kbd{font:inherit;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:1px 5px}
+.hint button,.sim button{border:1px solid rgba(0,0,0,.18);background:rgba(255,255,255,.7);border-radius:4px;padding:3px 9px;cursor:pointer}
+.hint button:hover,.sim button:hover{background:#fff}
+.reopen{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);display:none;flex-direction:column;align-items:center;gap:10px;color:#3b4252;font-size:13px}
+.reopen.show{display:flex}
+.reopen button{display:flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--btn-bd);background:var(--btn-grad);cursor:pointer;font-size:12px}
+.reopen button:hover{background:var(--btn-grad-hover);border-color:#8d97b5}
+.sim{position:fixed;right:14px;bottom:10px;z-index:1000;width:300px;background:rgba(255,255,255,.94);border:1px solid rgba(0,0,0,.14);border-radius:8px;box-shadow:0 8px 24px rgba(20,30,50,.18);font-size:12px;color:#2b2f37}
+.sim-h{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;font-weight:600;border-bottom:1px solid #e8eaee;cursor:pointer}
+.sim-h small{font-weight:400;color:var(--grey)}
+.sim-b{padding:8px 10px 10px;display:grid;gap:6px}
+.sim.min .sim-b{display:none}
+.sim label{display:flex;gap:7px;align-items:flex-start;cursor:pointer;line-height:1.35}
+.sim label input{margin:2px 0 0}
+.sim .sim-sec{font-weight:600;border-top:1px solid #eef0f3;padding-top:7px}
+.sim .tips:empty{display:none}
+.sim .tips{color:var(--grey);line-height:1.4;font-size:11px;border-top:1px solid #eef0f3;padding-top:7px}
+.sim .tips b{color:#2b2f37;font-weight:600}
+
+/* ---------- window ---------- */
+.win{position:absolute;display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;
+  box-shadow:0 18px 50px rgba(20,30,50,.28),0 2px 8px rgba(20,30,50,.12);transition:opacity .15s,transform .15s}
+.win.preset{transition:opacity .15s} /* масштаб сценария применяется сразу, без анимации */
+.win.closing{opacity:0;transform:scale(.98)}
+.win.hidden{display:none}
+.win.maximized{border-color:transparent;box-shadow:none}
+.tbar{height:24px;flex:none;display:flex;align-items:center;justify-content:space-between;padding-left:7px;
+  background:var(--title-bg);border-bottom:.7px solid var(--bd);user-select:none;cursor:default;touch-action:none}
+.tbar .ttl{display:flex;align-items:center;gap:3px;color:#212121;white-space:nowrap;overflow:hidden}
+.tbar .wctl{display:flex;height:100%}
+.tbar .wbtn{width:30px;height:100%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer}
+.tbar .wbtn:hover{background:#dde4f0}
+.tbar .wbtn.close:hover{background:#e81123}
+.tbar .wbtn.close:hover path{stroke:#fff}
+.rh{position:absolute;z-index:20;touch-action:none}
+.rh.n{top:-4px;left:8px;right:8px;height:8px;cursor:ns-resize}
+.rh.s{bottom:-4px;left:8px;right:8px;height:8px;cursor:ns-resize}
+.rh.e{right:-4px;top:8px;bottom:8px;width:8px;cursor:ew-resize}
+.rh.w{left:-4px;top:8px;bottom:8px;width:8px;cursor:ew-resize}
+.rh.ne{right:-5px;top:-5px;width:14px;height:14px;cursor:nesw-resize}
+.rh.nw{left:-5px;top:-5px;width:14px;height:14px;cursor:nwse-resize}
+.rh.se{right:-5px;bottom:-5px;width:14px;height:14px;cursor:nwse-resize}
+.rh.sw{left:-5px;bottom:-5px;width:14px;height:14px;cursor:nesw-resize}
+.win.maximized .rh{display:none}
+.grip{position:absolute;right:2px;bottom:2px;width:10px;height:10px;pointer-events:none;opacity:.55}
+
+.wbody{flex:1;min-height:0;display:flex;flex-direction:column;padding:6px 6px 0 6px;overflow:hidden}
+.cols{flex:1;min-height:0;display:flex;container-type:inline-size} /* от неё считается 15cqw для дерева */
+.box{background:#fff;border:.7px solid var(--bd);border-radius:1px}
+
+/* splitters */
+.vsplit{width:10px;flex:none;cursor:col-resize;position:relative;touch-action:none}
+.vsplit::after,.navsplit::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;background:transparent;transition:background .12s}
+.vsplit:hover::after,.vsplit.drag::after,.navsplit:hover::after,.navsplit.drag::after{background:#9fb0dc}
+.navsplit{position:absolute;left:-4px;top:0;bottom:0;width:8px;cursor:col-resize;z-index:5;touch-action:none}
+.hsplit{height:9px;flex:none;cursor:row-resize;position:relative;touch-action:none;margin-top:1px}
+/* единое правило сворачивания: шевронов у заголовков нет, раздел сворачивается и разворачивается кликом по разделителю.
+   На разделителе — маленькая кнопка-стрелка: показывает, куда свернётся или развернётся раздел */
+#devTog,#chanTog,#pvTog{display:none}
+.hsplit::before,.split::before,.navsplit::before{content:"";position:absolute;z-index:1;box-sizing:border-box;border:1px solid var(--cell-bd);border-radius:5px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1.5 3l2.5 2.5L6.5 3' fill='none' stroke='%236b6f76' stroke-width='1.2'/%3E%3C/svg%3E") center/8px no-repeat;transition:border-color .12s}
+.hsplit::before,.split::before{left:50%;width:32px;height:10px;margin-left:-16px}
+.hsplit::before{top:calc(100% - 5.5px);transform:rotate(180deg)} /* превью сворачивается вверх; кнопка — по центру линии разделителя (19.10) */
+.hsplit{z-index:3}
+.cview.pv-closed .hsplit::before{transform:none}
+.split::before{top:-2px}                         /* список каналов сворачивается вниз */
+.split.shut::before{transform:rotate(180deg)}
+.navsplit::before{top:50%;left:-1px;width:10px;height:32px;margin-top:-16px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M1.5 3l2.5 2.5L6.5 3' fill='none' stroke='%236b6f76' stroke-width='1.2'/%3E%3C/svg%3E");transform:rotate(-90deg);width:32px;height:10px;left:-12px;margin-top:-5px} /* навигация сворачивается вправо */
+.win.nav-closed .navsplit::before{transform:rotate(90deg)}
+.hsplit:hover::before,.hsplit.drag::before,.split:hover::before,.split.drag::before,.navsplit:hover::before,.navsplit.drag::before{border-color:#9fb0dc}
+.hsplit,.split,.navsplit{cursor:pointer}
+.win.nav-closed .dnav,.win.nav-closed .cnav{width:10px}
+.win.nav-closed .dnav>:not(.navsplit),.win.nav-closed .cnav>:not(.navsplit){display:none}
+.hsplit::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--cell-bd)}
+
+/* ---------- left column ---------- */
+.left{width:var(--tree-w);flex:none;display:flex;flex-direction:column;min-height:0;min-width:0}
+.srv{height:43px;flex:none;display:flex;align-items:center;gap:9px;padding:0 18px 0 7px;cursor:pointer;position:relative;border:.7px solid var(--bd)}
+.srv:hover{background:#fafbfd}
+.srv .nm{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree{flex:1;min-height:0;margin-top:6px;overflow:auto;overflow-x:hidden;padding:5px 0}
+.trow{height:24px;display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap;padding-right:8px;position:relative}
+.trow:hover{background:var(--hover)}
+.trow.sel{background:var(--sel)}
+.trow:focus{outline:0}
+.trow:focus-visible{outline:2px solid var(--focus-ring);outline-offset:-2px} /* фокус с клавиатуры */
+.trow.inert{cursor:default} .trow.inert:hover{background:transparent} /* детектор: не выбирается */
+.trow.fold:hover{background:transparent} /* группа: клик только сворачивает/разворачивает */
+.trow .tl.b{font-weight:700}
+.trow .tl .md{color:var(--grey)}
+.trow.off .tl{color:#9a9ca2}
+.trow.off .ticon{opacity:.45}
+.trow .st-dot{width:6px;height:6px;border-radius:50%;flex:none;margin-left:2px}
+.trow .st-dot.off{background:var(--err)}
+.trow .st-dot.boot{background:#e6a100;animation:blink 1s infinite}
+/* индикатор числа ошибок: дерево (кнопка — переход к ошибке) и навигация разделов */
+.ebadge{min-width:var(--ebadge-h);height:var(--ebadge-h);padding:0 4px;border-radius:calc(var(--ebadge-h)/2);background:var(--st-err);color:var(--st-err-on);font-size:10px;font-weight:600;line-height:var(--ebadge-h);text-align:center;flex:none;box-sizing:border-box}
+button.ebadge{border:0;margin-left:2px;cursor:pointer;font-family:inherit;transition:transform .08s,background .12s}
+button.ebadge:hover{background:var(--st-err-hover)}
+button.ebadge:active{background:var(--st-err-pressed);transform:scale(.9)}
+button.ebadge:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+@keyframes blink{50%{opacity:.25}}
+.trow mark{background:#ffe69a;color:inherit;border-radius:2px}
+.tchev{width:11px;height:11px;flex:none;display:grid;place-items:center;transition:transform .12s}
+.tchev.closed{transform:rotate(-90deg)}
+.tchev.sp{visibility:hidden}
+.ticon{flex:none;display:block}
+.trow .ticon{width:12px}
+.trow .tl{min-width:0;overflow:hidden} /* длинное имя обрезается краем панели, без «…» */
+.tree-empty{padding:10px 12px;color:var(--grey)}
+.qs{height:20px;flex:none;margin:6px 0 0;display:flex;align-items:center;border:.7px solid var(--bd);background:#fff}
+.qs input{flex:1;min-width:0;border:0;outline:0;height:100%;padding:0 4px;font-size:11px;color:var(--txt);background:transparent}
+.qs input::placeholder{color:var(--grey2)}
+.qs .clr{width:18px;height:100%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;opacity:.75}
+.qs .clr:hover{opacity:1}
+
+/* ---------- main column ---------- */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0}
+.tabsrow{height:28px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;position:relative;z-index:2}
+.tabs{display:flex;gap:2px;align-items:flex-end}
+.tab{border:.7px solid var(--pri-200);border-bottom:0;border-radius:11px 11px 0 0;background:var(--pri-50);
+  color:var(--pri);font-weight:700;padding:7px 16px 6px;cursor:pointer;height:27px}
+.tab:hover{background:#f2f4fa}
+.tab.on{background:#fff;border-color:var(--bd);height:29px;margin-bottom:-1px;padding-top:8px;padding-bottom:7px}
+.news{display:flex;align-items:center;gap:5px;margin:0 0 8px 0;border:0;background:transparent;cursor:pointer;padding:0;font-weight:700;color:#000}
+.news .bdg{background:var(--badge);color:#fff;font-weight:400;border-radius:3px;min-width:13px;height:14px;line-height:14px;text-align:center;padding:0 3px;font-size:11px}
+.news .bdg.zero{display:none}
+.news:hover span:last-child{text-decoration:underline}
+.panel{flex:1;min-height:0;background:#fff;border:.7px solid var(--bd);border-bottom:1px solid var(--cell-bd);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.view{display:none;flex:1;min-height:0}
+.panel[data-view="dev"] #devView{display:flex;flex-direction:column}
+.panel[data-view="chan"] #chanView{display:flex}
+.panel.help-on .view{display:none!important}
+
+/* shared header pieces */
+.crumbs{height:var(--crumbs-h);flex:none;display:flex;align-items:center;gap:9px;padding:0 0 0 var(--pad-x);color:#7c7f86;white-space:nowrap;overflow:hidden}
+.crumbs .c{cursor:pointer}
+.crumbs .c:hover{color:var(--pri);text-decoration:underline}
+.crumbs .c.cur{color:var(--txt);cursor:default;text-decoration:none}
+.crumbs .c.nc,.crumbs .c.nc:hover{color:inherit;cursor:default;text-decoration:none} /* группа — не ссылка */
+.crumbs svg{transform:rotate(-90deg);flex:none}
+.chevbtn{width:16px;height:16px;border:0;background:transparent;padding:0;display:grid;place-items:center;cursor:pointer;border-radius:3px;flex:none}
+.chevbtn:hover{background:var(--sel)}
+.chevbtn svg{transition:transform .15s}
+.chevbtn.open svg{transform:rotate(180deg)}
+.btn{height:25px;padding:0 10px;border:1px solid var(--btn-bd);background:var(--btn-grad);color:var(--black);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;font-size:11px}
+.btn:hover{background:var(--btn-grad-hover);border-color:#8d97b5}
+.btn:active{background:#dfe2e8}
+.btn:disabled{color:#9a9ca2;cursor:default;background:var(--btn-grad);border-color:#c9cacc}
+.btn:focus-visible,.tab:focus-visible,.chevbtn:focus-visible,.cb:focus-visible,.tcb:focus-visible,select.sel:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+.btn.sm{height:23px}
+.btn.ico{width:25px;padding:0;flex:none}
+.btn.ico.spin svg{animation:spin .7s ease}
+.btn.refresh{flex:none}
+/* статус соединения в футере, сразу за кнопкой «Обновить»: коротко, полный текст — в подсказке */
+.conn{display:flex;align-items:center;gap:5px;flex:0 1 auto;min-width:14px;margin-left:4px;color:var(--grey);white-space:nowrap;cursor:default} /* при нехватке места текст статуса сжимается: полный есть в подсказке */
+.conn .ct{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.conn i{width:8px;height:8px;border-radius:50%;background:var(--st-neutral);flex:none}
+.conn.on i{background:var(--st-ok)} .conn.warn i{background:var(--st-warn)} .conn.off i{background:var(--st-err)}
+.conn.boot i{background:var(--st-warn);animation:blink 1s infinite}
+.conn .spin{display:grid;flex:none} .conn .spin svg{animation:spin 1s linear infinite}
+.btn.pri{background:linear-gradient(180deg,#5670b8,#445b9c);border-color:#3a4f8a;color:#fff}
+.btn.pri:hover{background:linear-gradient(180deg,#6079c0,#4a62a5)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn.on{background:#dfe3ee;border-color:#8d97b5}
+.pill{display:inline-flex;align-items:center;gap:5px;height:18px;padding:0 7px;border-radius:9px;font-size:10.5px;font-weight:500;white-space:nowrap;flex:none}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.on{background:#e7f4ea;color:#23743a}
+.pill.off{background:#fbe9ec;color:var(--err)}
+.pill.boot{background:#fff4d6;color:#8a6400}
+
+/* ---------- banners ---------- */
+.banner{display:flex;gap:6px;padding:0 var(--pad-x);margin-bottom:10px}
+.banner .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex:none;margin-top:3px}
+.banner p{margin:0;font-weight:600;color:var(--amber);line-height:13px;max-width:560px}
+.banner p span{display:block;font-weight:400;color:var(--muted)}
+.banner.err .dot{background:var(--err)} .banner.err p{color:var(--err)}
+.banner.boot .dot{background:#e6a100;animation:blink 1s infinite} .banner.boot p{color:#8a6400}
+.banner a{color:var(--pri);cursor:pointer;text-decoration:underline;font-weight:500}
+
+/* ---------- device view ---------- */
+.dev{flex:1;min-height:120px;display:flex;overflow:hidden}
+.dev-main{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0}
+.dev-head{flex:none;height:var(--head-h);position:relative}
+.dev-head::after{content:""; /* линия под шапкой устройства — всегда (26.10; раньше появлялась только при прокрутке) */position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--cell-bd);z-index:2}
+.dtitle{height:var(--title-h);margin-top:var(--indent);display:flex;align-items:center;padding:0 calc(var(--pad-x) + var(--sb-w)) 0 var(--pad-x);gap:8px;max-width:calc(var(--form-max) + var(--sb-w))} /* кнопки справа — по колонке статусов */
+.dtitle .nm{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dbtns{margin-left:auto;display:flex;gap:6px;align-items:center;flex:none}
+.dev-scroll{flex:1;min-height:0;overflow:auto;scrollbar-gutter:stable;padding:10px 0 24px}
+
+/* ---------- settings form (shared) ---------- */
+/* колонка настроек: ограничена по ширине, чтобы на широком окне не было «дыр» посреди строки */
+.form{padding:0 var(--pad-x);min-width:var(--form-min);max-width:var(--form-max);--ctl-w:max(var(--ctl-min),var(--ctl-share) - var(--status-w) - 3px - var(--col-gap))}
+.blk{padding-top:5px;margin-bottom:4px}
+.blk-title{font-weight:700;height:14px;margin-bottom:10px}
+.sub1{font-weight:700;height:14px;margin-bottom:10px;padding-left:var(--indent)}
+.sub2{font-weight:600;height:14px;margin-bottom:10px;padding-left:calc(var(--indent)*2);color:#3a3e47}
+.form.fchan .blk{margin-bottom:6px}
+.ln{display:flex;align-items:center;gap:14px;min-height:18px;margin-bottom:10px}
+.ln.b{min-height:25px}
+@supports (width:round(down,10.5px,1px)){ .form{--ctl-w:round(down,max(var(--ctl-min),var(--ctl-share) - var(--status-w) - 3px - var(--col-gap)),1px)} } /* контролы начинаются на целом пикселе */
+.ln-l{flex:1 1 0;min-width:var(--label-min);max-width:var(--label-max);padding-left:calc(var(--indent)*3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ln.c .ln-l{cursor:pointer}
+.ln.off .ln-l{color:#a3a5aa}
+/* значение + статус прижаты к правому краю колонки; контрол — к левому краю своей колонки (поля, чекбоксы и кнопки на одной вертикали) */
+.ln-c{display:flex;align-items:center;gap:3px;flex:none;margin-left:auto;width:calc(var(--ctl-w) + var(--status-w)*2 + 6px)} /* значение + кнопка возврата + значок статуса */
+.ln-c>.mk{margin-left:auto}
+.ln.b .ln-c{width:auto;min-width:calc(var(--ctl-w) + var(--status-w)*2 + 6px)}
+.ln.note{display:block;padding:8px 10px;margin:0 0 10px 10px;background:#f4f6fb;border-left:3px solid var(--pri-200);color:#4b5060;line-height:1.4;max-width:540px}
+.tf,select.sel{flex:1 1 auto;min-width:0;width:auto;height:18px;border:1px solid var(--btn-bd);padding:0 3px;font-size:11px;color:var(--black);background-color:#fff;outline:0;border-radius:0}
+select.sel{-webkit-appearance:none;appearance:none;padding-right:16px;cursor:pointer;text-overflow:ellipsis;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='20' viewBox='0 0 13.58 19.69'%3E%3Cpath d='M9.38 8.64H4.62L7 11.36z' fill='%23030712'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 1px center}
+.tf:hover,select.sel:hover{border-color:#8e95a3}
+.tf:focus,select.sel:focus{border-color:var(--pri);box-shadow:0 0 0 1px rgba(68,91,156,.18)}
+.tf.chg,select.sel.chg{font-weight:700} /* изменено, не сохранено: жирное значение (синий фон убран) */
+.tf.ro{background:#f5f6f8;color:#4b5060;border-color:#dcdde0;cursor:default}
+.tf:disabled,select.sel:disabled{color:#a3a5aa;background-color:#f7f7f8;border-color:#dcdde0;cursor:default}
+.tf.bad,select.sel.bad{border-color:var(--err);background-color:#fdf2f4;box-shadow:0 0 0 1px rgba(171,19,48,.15)}
+.cb{width:14px;height:14px;flex:none;border:1px solid #8f9399;border-radius:1px;padding:0;background:#fff;display:grid;place-items:center;cursor:pointer}
+.cb:hover{border-color:var(--pri)}
+.cb svg{opacity:0}
+.cb[aria-checked="true"]{background:var(--pri);border-color:var(--pri)}
+.cb[aria-checked="true"] svg{opacity:1}
+.cb.chg{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pri-200)}
+.cb:disabled{opacity:.4;cursor:default}
+.rng{-webkit-appearance:none;appearance:none;flex:1 1 auto;width:auto;min-width:0;height:14px;background:transparent;margin:0;cursor:pointer}
+.rng::-webkit-slider-runnable-track{height:6px;border:1px solid var(--btn-bd);background:#fff}
+.rng::-moz-range-track{height:4px;border:1px solid var(--btn-bd);background:#fff}
+.rng::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:13px;margin-top:-4.5px;border:1px solid #9a9ca0;background:linear-gradient(180deg,#f6f6f6,#dcdcdd)}
+.rng::-moz-range-thumb{width:9px;height:11px;border:1px solid #9a9ca0;border-radius:0;background:linear-gradient(180deg,#f6f6f6,#dcdcdd)}
+.rng.chg::-webkit-slider-runnable-track{background:var(--sel);border-color:var(--pri-200)}
+.rng.chg::-moz-range-track{background:var(--sel)}
+.rng:disabled{opacity:.45;cursor:default}
+.rv{width:27px;flex:none;text-align:right;color:#4b5060;font-variant-numeric:tabular-nums}
+.mk{width:18px;height:18px;flex:none;display:grid;place-items:center}
+.mk:empty{visibility:hidden}
+.mk svg{display:block}
+.mk.spin svg{animation:spin 1s linear infinite}
+.ic-info{color:var(--pri)} .ic-ok{color:var(--st-ok)} .ic-warn{color:var(--st-warn)} .ic-err{color:var(--st-err)}
+body.status-b .ic-ok,body.status-b .ic-warn{color:var(--st-neutral)} /* вариант Б: цветным остаётся только крестик */
+.mk-undo{width:18px;height:18px;flex:none;padding:0;border:0;border-radius:50%;background:transparent;color:var(--pri);display:grid;place-items:center;cursor:pointer;transition:transform .08s,background .12s}
+/* кнопка «вернуть прежнее значение» в строке настройки: место под неё есть всегда, видна только у изменённого и у неприменённого поля */
+.ln-c>.un{margin-left:auto;visibility:hidden}
+.ln-c>.un.on{visibility:visible}
+.ln-c>.un+.mk{margin-left:0}
+.mk-undo:hover{background:var(--sel)}
+.mk-undo:active{transform:scale(.88)}
+.mk-undo:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+.mk-undo:disabled{cursor:default;opacity:.5;background:transparent}
+.ln.hide,.sub1.hide,.sub2.hide,.blk.hide,.blk-title.hide{display:none!important}
+
+.ln.flash{animation:lnflash 1.2s ease}
+/* загрузка настроек при открытии устройства или канала: видны прежние значения серым, как у недоступных полей, править нельзя, в футере «Загрузка настроек…» (19.10, вместо заглушек) */
+.form.loading{pointer-events:none}
+.form.loading select.sel:disabled{opacity:1} /* у списка браузер по умолчанию ещё и приглушает недоступный — серый текст как у полей ввода */
+.form.loading .mk,.form.loading .un{visibility:hidden}
+/* варианты фонового обновления: A+ — обновлённое значение коротко подсвечивается и гаснет */
+@keyframes bgflash{0%,35%{background-color:var(--drift-bg)}100%{background-color:transparent}}
+.bgflash{animation:bgflash 2.5s ease-out}
+.ln.bgflash-ln{animation:bgflash 2.5s ease-out}
+/* сверка с устройством: значение на устройстве отличается от показанного (drift) или только что обновлено с устройства (drifted) */
+.tf.drift,select.sel.drift,.tf.drifted,select.sel.drifted{background-color:var(--drift-bg)}
+.cb.drift,.cb.drifted{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--drift-bd)}
+.driftbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:6px 10px;background:var(--drift-bg);border:1px solid var(--drift-bd)}
+.driftbar span{flex:1;min-width:0}
+.driftbar .lnk{border:0;background:none;padding:0;color:var(--pri);text-decoration:underline;cursor:pointer;font:inherit}
+@keyframes lnflash{0%,40%{background:#fff3d6}100%{background:transparent}}
+
+/* ---------- вид «Таблица» (переключатель под окном, по умолчанию — форма) ----------
+   Тихая таблица: строки с волосяными линиями, название приглушено, значение — текст без рамки.
+   Ячейка становится полем при наведении и в фокусе, правка — сразу по клику. */
+.view-table .blk,.view-table .form.fchan .blk{padding-top:0;margin-bottom:18px}
+.view-table .blk-title{height:auto;margin:0;padding:6px 0 6px;font-size:13px;font-weight:600;line-height:18px}
+.view-table .sub1{height:auto;margin:0;padding:12px 0 5px var(--indent);font-size:10px;font-weight:600;line-height:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--grey);border-bottom:1px solid var(--cell-bd)}
+.view-table .blk-title+.sub1{padding-top:4px}
+.view-table .sub2{height:auto;margin:0;padding:9px 0 5px var(--indent);line-height:13px;color:var(--label);border-bottom:1px solid var(--cell-bd)}
+.view-table .ln{margin:0;min-height:var(--grid-row);padding-left:var(--indent);border-bottom:1px solid var(--cell-bd)}
+.view-table .ln.b{min-height:calc(var(--grid-row) + 6px)}
+.view-table .ln.note{margin:6px 0;min-height:0;border-bottom:0}
+.view-table .ln-l{padding-left:0;max-width:none;color:var(--label)}
+/* строка подсвечивается при наведении (14.10); поле внутри без своей подложки — ни при наведении, ни в фокусе, чтобы в подсвеченной строке не было белого прямоугольника */
+.view-table .form:not(.loading) .ln:not(.note):not(.off):hover,.view-table .form:not(.loading) .ln:has(:focus-visible),.chm-table .srow:has(:focus-visible){background-color:var(--hover)} /* с клавиатуры строка с фокусом подсвечивается так же, как при наведении */
+.view-table .form .tf,.view-table .form select.sel{height:20px;padding-left:5px;margin-left:-6px}
+.view-table .form .tf:not(.bad),.view-table .form select.sel:not(.bad){border-color:transparent;box-shadow:none}
+.view-table .form .tf:not(.chg):not(.bad):not(.drift):not(.drifted),.view-table .form select.sel:not(.chg):not(.bad):not(.drift):not(.drifted){background-color:transparent}
+.view-table .form select.sel{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='20' viewBox='0 0 14 20'%3E%3Cpath d='M4 8.5l3 3 3-3' fill='none' stroke='%238f9093' stroke-width='1.2'/%3E%3C/svg%3E")}
+.view-table .form select.sel:disabled{background-image:none}
+.view-table .form .tf.ro{color:var(--grey)}
+/* рамки и подложки у поля нет ни при наведении, ни в фокусе: редактирование видно по курсору */
+.view-table .form .tf.bad,.view-table .form select.sel.bad{border-color:transparent;box-shadow:none;background-color:transparent;color:var(--err)} /* недопустимое значение: красный текст и значок, без рамки и заливки */
+.view-table .form .tf.chg:not(.bad):not(.drift):not(.drifted),.view-table .form select.sel.chg:not(.bad):not(.drift):not(.drifted){background-color:transparent}
+/* фокус в поле — одинаково у ввода и выпадающего списка: без рамки и обводки, закрашивается вся ячейка значения — цветом выбранного пункта дерева --sel, на два тона темнее подсветки строки --hover (19.10) */
+.view-table .form:not(.loading) .ln .tf:focus:not(.drift):not(.drifted),.view-table .form:not(.loading) .ln select.sel:focus:not(.drift):not(.drifted){background-color:transparent;outline:0}
+.view-table .form:not(.loading) .ln-c:has(.tf:focus:not(.drift):not(.drifted),select.sel:focus:not(.drift):not(.drifted)){background-color:var(--sel);box-shadow:var(--row-pad-r) 0 0 var(--sel)} /* заливка до правой границы карточки — через внутренний отступ строки */
+/* «Список каналов» в том же оформлении, что и настройки в центре: шапка-полоса, тонкие линии, значения без рамок */
+.view-table .tbl{border-radius:0}
+.view-table .tr-h{height:var(--grid-row);background:var(--hover);border-bottom:1px solid var(--cell-bd)}
+.view-table .tr-h>div{height:auto}
+.view-table .tr-h>div+div{border-left:0}
+.view-table .pvc{border-right:0}
+.view-table .pvc{padding:4px 5px}
+.view-table .srow{height:32px;border-bottom:1px solid var(--cell-bd)}
+.view-table .srow:hover{background:var(--hover)}
+.view-table .srow .ty{color:var(--label)}
+.view-table .tbl select.sel:not(.bad){border-color:transparent;background-color:transparent;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='20' viewBox='0 0 14 20'%3E%3Cpath d='M4 8.5l3 3 3-3' fill='none' stroke='%238f9093' stroke-width='1.2'/%3E%3C/svg%3E")}
+.view-table .tbl .srow:hover select.sel:not(:disabled):not(.bad){border-color:var(--btn-bd);background-color:#fff}
+.view-table .tbl select.sel:focus:not(.bad){border-color:var(--pri);background-color:#fff}
+/* «Карточки»: каждый подраздел — отдельная карточка с заголовком */
+/* карточки одного раздела стоят вплотную: общая рамка, заголовок подраздела — полоса внутри неё */
+.tv-cards .blk-title{border-bottom:1px solid var(--cell-bd)}
+.tv-cards .sub1,.tv-cards .blk-title+.sub1{margin-top:0;padding:7px var(--indent);font-size:11px;letter-spacing:0;text-transform:none;color:var(--txt);background:var(--card-head);border:1px solid var(--cell-bd);border-top:0}
+.tv-cards .sub2,.tv-cards .ln:not(.note){border-left:1px solid var(--cell-bd);border-right:1px solid var(--cell-bd);padding-right:var(--row-pad-r)}
+/* вариант «С отступом» (класс cards-gap на body): подразделы одного раздела — отдельные карточки с промежутком */
+.tv-cards.cards-gap .sub1{margin-top:calc(var(--indent)*1.5);border-top:1px solid var(--cell-bd)}
+.tv-cards.cards-gap .blk-title+.sub1{margin-top:0;border-top:0}
+/* ---------- каналы — раздел-таблица в настройках устройства (классы chm-in chm-table на body; решение 14.10). Код панели «Список каналов» снизу оставлен, но не используется ---------- */
+.chm-in #split{display:none!important}
+.chm-in .chan{height:auto!important;flex:none;border-top:0;background:none;padding:0 calc(var(--pad-x) + var(--status-w) + 4px) calc(var(--indent)*2) var(--pad-x);--ctl-w:max(var(--ctl-min),var(--ctl-share) - var(--status-w) - 3px - var(--col-gap))}
+.chm-in .chan.qhide{display:none}
+.chm-in .chan-h{height:auto;padding:6px 0;border-bottom:1px solid var(--cell-bd)}
+.chm-in .chan-h .nm{font-size:13px;line-height:18px}
+.chm-in .chan-h .btn{height:20px}
+.chm-in .chan-body{display:block;overflow:visible;padding:0}
+.chm-in .tbl{min-width:0;border:0;border-radius:0;overflow:visible}
+.chm-in .cn-x{font-weight:500}
+.chst{color:var(--grey);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ty>.mk{margin-left:auto;flex:none}
+/* B. одна таблица: превью, поток, FPS, КБ/с */
+.chm-table .tbl{border:1px solid var(--cell-bd);border-top:0}
+.chan-sub{display:none}
+.chm-in.chm-table .chan-sub{display:block;margin-top:0;border-top:0}
+/* каналы — отдельными карточками с тем же зазором, что между карточками настроек: первая примыкает к шапке «Список каналов» */
+.chm-in.chm-table #tbl{border:0}
+.chm-in.chm-table #tbl>.grp{border:1px solid var(--cell-bd)}
+.chm-in.chm-table #tbl>.grp:first-child{border-top:0}
+.chm-in.chm-table #tbl>.grp+.grp{margin-top:calc(var(--indent)*1.5)}
+.ln-c>.cb+.chst{margin-left:var(--indent);min-width:0;overflow:hidden;text-overflow:ellipsis} /* в канале: показатели потока — рядом с галочкой «Поток включён», как в таблице каналов */ /* шапка карточки — как «Журнал тревог» в разделах устройства */
+/* строка потока как строка настройки: слева название потока, справа за вертикальной линией — галочка и текущие показатели на одной вертикали со значениями ниже (--chk-x считается по строке настроек) */
+.chm-table .srow{grid-template-columns:minmax(0,calc(var(--chk-x,60%) - var(--tbl-pv) - 1px)) minmax(0,1fr)}
+.chm-table .srow>.chs{padding:0 var(--indent);color:var(--label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chm-table .ty>.chst{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.chm-table .srow>.ty{align-self:stretch;gap:var(--indent);border-left:1px solid var(--cell-bd);padding:0 6px 0 calc(var(--col-gap) - 1px);cursor:default}
+/* как в строках настроек: стрелка возврата — в ячейке, значок статуса — за правым краем таблицы */
+.chm-table .srow{position:relative}
+.chm-table .ty>.un{margin-left:auto;visibility:hidden}
+.chm-table .ty>.un.on{visibility:visible}
+.chm-table .ty>.mk{position:absolute;right:calc(-5px - var(--status-w));top:50%;margin:-9px 0 0}
+/* «Карточки»: значок статуса вынесен за правый край карточки, в строке на его месте — кнопка возврата значения */
+.tv-cards .form{padding-right:calc(var(--pad-x) + var(--status-w) + 4px)}
+.tv-cards .dtitle{padding-right:calc(var(--pad-x) + var(--sb-w) + var(--status-w) + 4px)} /* кнопки в заголовке — по правому краю карточек */
+.tv-cards .ln:not(.note){gap:0}
+.tv-cards .ln:not(.note) .ln-l{padding-right:var(--indent)}
+.tv-cards .ln-c{position:relative;align-self:stretch;width:calc(var(--ctl-w) + var(--status-w) + 3px + var(--col-gap));padding-left:calc(var(--col-gap) - 1px);border-left:1px solid var(--cell-bd)} /* вертикальная линия между названием и значением */
+.tv-cards .ln.b .ln-c{min-width:calc(var(--ctl-w) + var(--status-w) + 3px + var(--col-gap))}
+.tv-cards .ln-c>.mk{position:absolute;right:calc(-11px - var(--status-w));top:50%;margin:-9px 0 0}
+.tv-cards .cpv{margin-right:calc(var(--pad-x) + var(--sb-w) + var(--status-w) + 4px);max-width:calc(var(--form-max) - var(--pad-x)*2 - var(--status-w) - 4px)}
+
+.form mark,.dnav mark,.cnav mark{background:none;color:inherit} /* найденное в настройках и разделах не подсвечивается */
+.nores{display:none;color:var(--grey)}
+.nores.show{display:flex;align-items:center;justify-content:center;height:calc(100% - 70px);min-height:80px;max-width:var(--form-max);text-align:center} /* по центру пустой области */
+
+/* device nav */
+.dnav,.cnav{flex:none;border-left:.7px solid var(--bd);display:flex;flex-direction:column;min-height:0;position:relative}
+.dnav,.cnav{width:var(--nav-w)}
+.dsearch{margin:11px;height:20px;flex:none;border:.7px solid var(--bd);display:flex;align-items:center;background:#fff}
+.dsearch input{flex:1;min-width:0;border:0;outline:0;height:100%;padding:0 4px;font-size:11px}
+.dsearch input::placeholder{color:var(--grey2)}
+/* поиск по настройкам стоит над списком разделов в правой панели */
+.dsearch:focus-within{border-color:var(--pri)}
+.sfound{flex:none;padding-left:8px;color:var(--grey);white-space:nowrap} /* число найденного — внутри поля, справа */
+.sfound:empty{display:none}
+.dsearch .clr{width:18px;height:100%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer}
+.navlist{flex:1;min-height:0;overflow:auto;padding-bottom:8px}
+/* футер примыкает к панели настроек без зазора: между ними — светлая линия, как под строкой с путём */
+/* поиск над разделами стоит на одной строке с хлебными крошками (высота строки 35); под строкой — линия через всю панель; заголовок ниже линии — с отступом 12 */
+.dnav>.dsearch,.cnav>.dsearch{margin:7px 11px;width:var(--search-w);align-self:flex-end;flex:none} /* прижат к правому краю; панель уже — поиск выходит влево в строку с путём */
+.dnav>.navlist,.cnav>.navlist{border-top:1px solid var(--cell-bd);padding-top:6px}
+.dnav,.cnav{border-left-color:transparent} /* в строке с путём и поиском вертикального разделителя нет */
+.dnav>.navlist,.cnav>.navlist{border-left:.7px solid var(--bd)}
+.win.nav-closed .dnav,.win.nav-closed .cnav{border-left-color:var(--bd)} /* свёрнутая панель — полоса с линией во всю высоту */
+/* поиск — отдельный блок в строке с путём; сворачивается и тянется только панель разделов под ним (19.10).
+   Свёрнута — поиск стоит там же, путь до него не доходит; полоса и ручка панели начинаются под строкой с путём */
+.dnav>.navsplit,.cnav>.navsplit{top:var(--crumbs-h)}
+.win.nav-closed .dnav>.dsearch,.win.nav-closed .cnav>.dsearch{display:flex;position:absolute;top:0;right:0;width:var(--search-w);z-index:2}
+.win.nav-closed .crumbs{padding-right:calc(var(--search-w) + 12px)}
+.win.nav-closed .dnav,.win.nav-closed .cnav{border-left-color:transparent}
+.win.nav-closed .dnav::before,.win.nav-closed .cnav::before{content:"";position:absolute;left:-.7px;top:var(--crumbs-h);bottom:0;border-left:.7px solid var(--bd)}
+.crumbs{border-bottom:1px solid var(--cell-bd)}
+.cnt{margin-left:auto;margin-right:10px;font-weight:500;color:var(--grey);letter-spacing:0}
+.cnt.ebadge{color:var(--st-err-on);font-weight:600;margin-right:8px;cursor:pointer} /* в разделе есть ошибки — число внутри; клик ведёт к полю с ошибкой */
+.cnt.ebadge:hover{background:var(--st-err-hover)}
+.cnt.ebadge:active{background:var(--st-err-pressed)}
+/* «Счётчики в меню», вариант 2: цвет счётчика по старшинству — красный (есть ошибки), жёлтый (есть предупреждения), синий (только изменения) */
+.cnt.ebadge.warn{background:var(--st-warn);color:var(--txt)}
+.cnt.ebadge.info{background:var(--pri);color:var(--st-err-on)}
+.cnt.ebadge.warn:hover,.cnt.ebadge.info:hover{filter:brightness(.9)}
+
+/* channels (device view) */
+.split{height:6px;flex:none;margin:-3px 0;position:relative;z-index:3;cursor:row-resize;touch-action:none}
+.split::after{content:"";position:absolute;left:0;right:0;top:2px;height:2px;background:transparent;transition:background .12s}
+.split:hover::after,.split.drag::after{background:#9fb0dc}
+.split.shut{cursor:pointer}
+.chan{flex:none;display:flex;flex-direction:column;border-top:.7px solid var(--bd);min-height:0;background:#fff}
+.chan-h{height:47px;flex:none;display:flex;align-items:center;gap:8px;padding:0 var(--pad-x)}
+.chan-h .nm{font-size:14px;font-weight:600;white-space:nowrap}
+.chan-h .btn{margin-left:auto;gap:2px;padding:0 10px 0 8px}
+.chan-body{display:none;flex:1;min-height:0;overflow:auto;padding:0 14px 14px}
+.devview.chan-open .chan-body{display:block}
+.devview.dev-closed .dev{flex:none;height:var(--head-h);min-height:var(--head-h)}
+.devview.dev-closed .dev-scroll{visibility:hidden}
+.devview.dev-closed.chan-open .chan{flex:1}
+.tbl{min-width:823px;border:1px solid var(--cell-bd);border-radius:3px;overflow:hidden}
+.tr-h{display:grid;grid-template-columns:var(--tbl-pv) var(--tbl-cols);height:40px;border-bottom:1px solid #c6c6c6;background:#fff;align-items:center;position:sticky;top:0;z-index:1}
+.tr-h>div{height:36px;display:flex;align-items:center;padding:0 6px;font-weight:600;white-space:nowrap;overflow:hidden}
+.tr-h>div+div{border-left:1px solid var(--cell-bd)}
+.grp{display:grid;grid-template-columns:var(--tbl-pv) 1fr;border-bottom:1px solid var(--cell-bd);background:#fff}
+.grp:last-child{border-bottom:0}
+.grp.new{animation:flash 1.2s ease}
+@keyframes flash{from{background:#fff4dc}to{background:#fff}}
+.pvc{padding:12px 4px 10px 5px}
+.pv{width:118px;height:82px;border-radius:1px;overflow:hidden;position:relative;background:#d9d9d9 center/cover no-repeat;cursor:pointer}
+.pv::after{content:"";position:absolute;left:0;right:0;bottom:0;height:54px;background:linear-gradient(0deg,rgba(0,0,0,.7),rgba(0,0,0,0))}
+.pv .cap{position:absolute;left:6px;right:5px;bottom:7px;z-index:1;color:#fff;display:flex;flex-direction:column;gap:3px}
+.pv .cap b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv.virt{background:linear-gradient(135deg,#5d6f9f,#2e3a5c)}
+.pv.dead{background:#2a2d34}
+.pv:hover{outline:2px solid var(--focus-ring);outline-offset:1px}
+.streams{min-width:0}
+.pvc{border-right:1px solid var(--cell-bd)}
+.srow{display:grid;grid-template-columns:var(--tbl-cols);height:40px;align-items:center;border-bottom:1px solid var(--row-bd)}
+.srow:last-child{border-bottom:0}
+.srow:hover{background:#fafbfe}
+.srow>div{padding:0 4px 0 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .ty{display:flex;align-items:center;gap:8px;cursor:pointer}
+.srow .na{color:var(--dash)}
+/* редактируемая ячейка: список и значок статуса справа от него, как у настройки в центре */
+.srow>.tc{display:flex;align-items:center;gap:3px;padding:0 3px 0 5px;overflow:visible}
+.srow>.ty{padding:0 4px 0 8px}
+.tc.flash{animation:lnflash 1.2s ease}
+.srow .st{color:var(--grey);padding:0 4px 0 6px;font-variant-numeric:tabular-nums}
+.tcb{width:16px;height:16px;flex:none;border:1px solid #8f9399;background:#fff;padding:0;display:grid;place-items:center;cursor:pointer}
+.tcb svg{opacity:0}
+.tcb[aria-checked="true"]{background:var(--pri);border-color:var(--pri)}
+.tcb[aria-checked="true"] svg{opacity:1}
+
+/* ---------- channel view ---------- */
+.cv-main{flex:1;min-width:0;min-height:0;container-type:inline-size;container-name:cvmain}
+.cv-in{display:flex;flex-direction:column;height:100%;min-height:0}
+.crumbs.cc{padding-left:var(--pad-x)}
+.ctitle{height:var(--title-h);margin-top:var(--indent);flex:none;display:flex;align-items:center;gap:8px;padding:0 calc(var(--pad-x) + var(--sb-w)) 0 var(--pad-x)}
+.ctitle .nm{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* значок автозаполнения контактов и паролей, который браузер подставляет в поля, в прототипе не нужен */
+input::-webkit-contacts-auto-fill-button,input::-webkit-credentials-auto-fill-button{visibility:hidden;display:none!important;pointer-events:none;position:absolute;right:0}
+.pen{width:18px;height:18px;border:0;background:transparent;padding:0;display:grid;place-items:center;cursor:pointer;border-radius:3px;flex:none;margin-left:-1px}
+.pen:hover{background:var(--sel)}
+.cname-inp{font-size:14px;font-weight:600;height:23px;border:1px solid var(--pri);padding:0 5px;width:min(260px,60%);outline:0;box-shadow:0 0 0 2px rgba(68,91,156,.15)}
+.ctitle .btn.ico{margin-left:auto}
+.cpv{margin:16px calc(var(--pad-x) + var(--sb-w)) 0 var(--pad-x);position:relative;height:240px;flex:none;overflow:hidden;background:var(--win-bg);max-width:calc(var(--form-max) - var(--pad-x)*2);--vx:0px;--vy:0px} /* не шире колонки настроек; кадр 16:9 вписан целиком, свободное место по бокам — светло-серые поля */
+.vwrap{position:absolute;inset:var(--vy) var(--vx);overflow:hidden;background:#15171c;transition:filter .15s,transform .25s}
+.vwrap iframe{position:absolute;left:50%;top:50%;border:0;pointer-events:none;transform:translate(-50%,-50%)}
+.vwrap img{width:100%;height:100%;object-fit:cover;display:block}
+.osd{position:absolute;color:#fff;font:600 12px/1.35 "Courier New",ui-monospace,monospace;text-shadow:0 0 2px #000,0 0 3px #000;pointer-events:none;white-space:pre;z-index:2}
+.osd.tr{top:calc(8px + var(--vy));right:calc(10px + var(--vx));text-align:right}
+.osd.bl{left:calc(10px + var(--vx));bottom:calc(8px + var(--vy))}
+.rec{position:absolute;left:calc(10px + var(--vx));top:calc(9px + var(--vy));z-index:2;display:flex;align-items:center;gap:5px;color:#fff;font:600 10.5px/1 Inter,sans-serif;background:rgba(0,0,0,.45);padding:3px 6px;border-radius:3px}
+.rec::before{content:"";width:7px;height:7px;border-radius:50%;background:#e53935;animation:blink 1.4s infinite}
+.nosig{position:absolute;inset:var(--vy) var(--vx);z-index:3;display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#c9ccd3;background:repeating-linear-gradient(135deg,#1b1d23 0 12px,#1e2027 12px 24px)}
+.nosig b{font-size:14px;color:#fff}
+.nosig.show{display:flex}
+.vnote{position:absolute;right:calc(8px + var(--vx));bottom:calc(8px + var(--vy));z-index:2;background:rgba(0,0,0,.55);color:#fff;font-size:10.5px;padding:3px 7px;border-radius:3px;display:none}
+.cview.pv-closed .cpv{display:none}
+.cview.pv-closed .hsplit{margin-top:0;height:var(--indent)} /* превью свёрнуто: шапка канала той же высоты, что шапка устройства — настройки начинаются на той же высоте (--indent под заголовком) */
+.cv-scroll{flex:1;min-height:0;overflow:auto;scrollbar-gutter:stable;padding:12px 0 24px}
+.cv-scroll .banner{margin-top:2px}
+.cn-row{height:26px;display:flex;align-items:center;width:100%;border:0;background:transparent;text-align:left;cursor:pointer;padding:0 8px 0 24px;position:relative;white-space:nowrap;color:var(--txt)}
+.cn-row:hover{background:var(--hover)}
+.cn-row:focus{outline:0}
+.cn-row:focus-visible{outline:2px solid var(--focus-ring);outline-offset:-2px}
+.cn-row.act{background:var(--sel)}
+.cn-row .t{overflow:hidden} /* без «…»: текст обрезается краем панели */
+.cn-g{font-weight:500}
+.cn-g .ch{position:absolute;left:8px;top:7px;width:12px;height:12px;display:grid;place-items:center;transform:rotate(-90deg);transition:transform .15s;border-radius:2px}
+.cn-g.open .ch{transform:none}
+.cn-s.cur{color:var(--pri)}
+.cn-s{padding-left:calc(24px + var(--indent)*1.5)} /* подпункты — со сдвигом от названия раздела, чтобы читалась иерархия (19.10) */
+.cn-subs{display:none}
+.cn-subs.open{display:block}
+
+/* help tab */
+.help{display:none;flex:1;overflow:auto;padding:18px 22px;line-height:1.55;font-size:12px;color:#2b2f37}
+.help h2{font-size:15px;margin:0 0 10px;color:var(--txt)}
+.help h3{font-size:12px;margin:16px 0 6px;color:var(--txt)}
+.help ul{margin:0;padding-left:18px}
+.panel.help-on .help{display:block}
+
+/* footer actions */
+.factions{height:41px;flex:none;margin-top:0;background:#fff;border:.7px solid var(--bd);border-top:0;display:flex;align-items:center;padding:0 var(--pad-x);gap:8px;position:relative}
+.stat{margin-left:auto;color:var(--grey2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:0;background:transparent;padding:0;cursor:default}
+.stat.link{text-decoration:underline;text-underline-offset:2px;cursor:pointer} /* подчёркнут — значит, можно нажать; некликабельный статус без подчёркивания */
+/* статус всегда серый: и ошибки, и предупреждения, и наведение — кликабельность видна по подчёркиванию */
+.split-btn{display:flex;height:25px}
+.split-btn .btn{height:25px}
+.split-btn .main-b{width:82px;justify-content:flex-start;padding-left:10px;border-right:0}
+.split-btn .arr{width:25px;padding:0}
+.wfoot{height:43px;flex:none;display:flex;align-items:center;justify-content:flex-end;padding-right:0}
+.wfoot .btn{width:74px}
+
+/* menus, popovers */
+.menu{position:absolute;z-index:40;background:#fff;border-radius:2px;box-shadow:0 1px 6px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.06);padding:4px 0;min-width:199px;display:none}
+.menu.show{display:block}
+.menu button{display:block;width:100%;border:0;background:transparent;text-align:left;padding:0 10px;height:25px;cursor:pointer;white-space:nowrap;font-size:11px;color:var(--txt)}
+.menu button:hover,.menu button:focus-visible{background:var(--sel);outline:0}
+.menu button:disabled{color:#a3a5aa;cursor:default;background:transparent}
+.menu button.chk::before{content:"";display:inline-block;width:12px}
+.menu button.chk.on::before{content:"✓"}
+.pop{position:absolute;z-index:40;background:#fff;box-shadow:0 4px 18px rgba(0,0,0,.16),0 0 0 .5px rgba(0,0,0,.08);width:280px;display:none;border-radius:2px}
+.pop.show{display:block}
+.pop h4{margin:0;padding:10px 12px;border-bottom:1px solid #eceef2;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.pop .it{padding:9px 12px;border-bottom:1px solid #f1f2f5;line-height:1.4}
+.pop .it:last-child{border-bottom:0}
+.pop .it small{display:block;color:var(--grey);margin-top:2px}
+.pop .res{display:flex;gap:8px;align-items:flex-start}
+.pop .res .mk{margin-top:-2px}
+.pop .res.clk{cursor:pointer}
+.pop .res.clk:hover{background:var(--hover)}
+.pop .res small.e{color:var(--err)} .pop .res small.w{color:var(--warn)}
+.pop .res .lnk{color:var(--pri);text-decoration:underline;cursor:pointer}
+.pop .scroll{max-height:320px;overflow:auto}
+.pop .pf{display:flex;justify-content:flex-end;gap:8px;padding:8px 12px;border-top:1px solid #eceef2}
+.tip{position:absolute;z-index:70;background:var(--tip-bg);color:var(--black);border:1px solid var(--tip-bd);padding:2px 6px 3px;border-radius:2px;box-shadow:var(--tip-shadow);font-size:11px;max-width:280px;line-height:1.35;pointer-events:none;opacity:0;transition:opacity .12s;white-space:pre-line}
+.tip.show{opacity:1}
+.modal-bg{position:absolute;inset:24px 0 0 0;background:rgba(20,26,40,.18);display:none;align-items:center;justify-content:center;z-index:50}
+.modal-bg.show{display:flex}
+.modal{width:380px;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.modal .mt{height:24px;background:var(--title-bg);border-bottom:.7px solid var(--bd);display:flex;align-items:center;padding-left:8px}
+.modal .mb{background:#fff;margin:6px;border:.7px solid var(--bd);padding:14px 14px 16px;line-height:1.45;font-size:11.5px}
+.modal .mb ul{margin:6px 0 0;padding-left:16px}
+.modal .mf{display:flex;justify-content:flex-end;gap:8px;padding:0 6px 8px}
+.modal .mf .btn{min-width:80px}
+.modal .mb p{margin:4px 0 0}
+/* боковая панель автосценариев (панель прототипа) */
+.scn{position:fixed;left:14px;bottom:10px;z-index:1000;width:272px;max-height:calc(100vh - 100px);display:flex;flex-direction:column;background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.14);border-radius:8px;box-shadow:0 8px 24px rgba(20,30,50,.18);font-size:12px;color:#2b2f37}
+.scn-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;font-weight:600;cursor:pointer;flex:none}
+.scn-h small{font-weight:400;color:var(--grey)}
+.scn.min{width:auto}
+.scn.min .scn-b{display:none}
+.scn-b{border-top:1px solid #e8eaee;overflow:auto;min-height:0;padding:6px 0 8px}
+.scn-now{margin:4px 10px 8px;padding:8px 10px;border-radius:6px;background:var(--pri-50);border:1px solid var(--pri-200)}
+.scn-now b{display:block;margin-bottom:4px}
+.scn-step{color:#2b2f37;line-height:1.4;min-height:34px}
+.scn-ctl{display:flex;justify-content:space-between;align-items:center;margin-top:6px;color:var(--grey);font-size:11px}
+.scn-ctl button,.scn-all{border:1px solid rgba(0,0,0,.18);background:#fff;border-radius:4px;padding:3px 9px;cursor:pointer;font:inherit}
+.scn-ctl button:hover,.scn-all:hover{background:var(--hover)}
+.scn-grp{padding:8px 10px 3px;font-size:11px;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:.3px}
+.scn-it{display:flex;gap:8px;align-items:flex-start;width:100%;border:0;background:none;text-align:left;padding:5px 10px;cursor:pointer;font:inherit;color:inherit;line-height:1.35}
+.scn-it:hover{background:var(--hover)}
+.scn-it:focus-visible{outline:2px solid var(--focus-ring);outline-offset:-2px}
+.scn-it .n{flex:none;width:18px;height:18px;border-radius:50%;background:#eef0f4;color:var(--grey);display:grid;place-items:center;font-size:10px;font-weight:600}
+.scn-it small{display:block;color:var(--grey);font-size:11px}
+.scn-it.on{background:var(--sel)} .scn-it.on .n{background:var(--pri);color:#fff}
+.scn-it.done .n{background:var(--st-ok);color:#fff}
+.scn-all{margin:8px 10px 0}
+.scn-ring{position:fixed;z-index:2000;pointer-events:none;border:2px solid var(--pri);border-radius:6px;box-shadow:0 0 0 4px rgba(68,91,156,.18);opacity:0;transition:opacity .15s,left .25s,top .25s,width .25s,height .25s}
+.scn-ring.show{opacity:1;animation:scnPulse .9s ease-in-out infinite}
+@keyframes scnPulse{50%{box-shadow:0 0 0 7px rgba(68,91,156,.10)}}
+/* окно «Результат применения настроек» (Figma 423:9607) — открывается по ссылке-статусу в футере */
+.rw-bg{z-index:45}
+/* окно второго уровня «Настройка областей и зон»: открывается кнопками «Задать область…», «Нарисовать зону» и вкладкой под окном.
+   Правая колонка — те же карточки и строки, что в основном диалоге */
+.zw-bg{background:transparent;pointer-events:none} /* основное окно под ним не затемняется и остаётся доступным */
+.zw{position:relative;width:min(1025px,calc(100% - 24px));max-width:calc(100% - 24px);max-height:calc(100% - 24px);display:flex;flex-direction:column;pointer-events:auto;--zw-l:470px}
+.zw .mt{cursor:move;user-select:none}
+.zw-empty{height:100%;display:flex;align-items:center;justify-content:center;padding:0 24px;color:var(--grey);text-align:center}
+.zw-empty[hidden],.zw .form[hidden]{display:none}
+.zw .mt{gap:6px;padding-right:2px}
+.zw .mt .x{margin-left:auto;width:24px;height:22px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer}
+.zw .mt .x:hover{background:var(--hover)}
+.zw .mt .x:focus-visible{outline:2px solid var(--focus-ring)}
+.zw-b{display:flex;margin:6px;min-height:0;flex:1}
+/* разделитель между кадром и параметрами и края окна: размеры меняются мышью */
+.zw-sp{flex:none;width:6px;cursor:col-resize;position:relative;touch-action:none}
+.zw-sp::after{content:"";position:absolute;top:0;bottom:0;left:2px;width:2px;background:transparent;transition:background .12s}
+.zw-sp:hover::after,.zw-sp.drag::after{background:#9fb0dc}
+.zw-rs{position:absolute;z-index:2;touch-action:none}
+.zw-rs.r{top:24px;bottom:8px;right:-3px;width:7px;cursor:ew-resize}
+.zw-rs.b{left:8px;right:8px;bottom:-3px;height:7px;cursor:ns-resize}
+.zw-rs.rb{right:-3px;bottom:-3px;width:12px;height:12px;cursor:nwse-resize}
+.zw-l,.zw-r{background:#fff;border:.7px solid var(--bd);min-height:0;padding:6px 0 16px}
+.zw-l{flex:none;width:var(--zw-l);padding-left:var(--pad-x);padding-right:var(--pad-x);display:flex;flex-direction:column;overflow:auto}
+.zw-r{flex:1;min-width:0;overflow:auto}
+.zw-stage{position:relative;flex:none;aspect-ratio:16/9;margin:8px 0 12px;background:#15171c;user-select:none;touch-action:none}
+.zw-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(22,1fr);grid-template-rows:repeat(18,1fr);cursor:crosshair}
+.zw-grid i{box-shadow:inset -1px -1px 0 rgba(255,255,255,.09)}
+.zw-grid i.on{background:color-mix(in srgb,var(--st-err) 28%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--st-err) 70%,transparent)}
+.zw-grid i.cur{background:color-mix(in srgb,var(--st-err) 50%,transparent);box-shadow:inset 0 0 0 1px var(--st-err)}
+.zw-cam,.zw-lab,.zw-hint{position:absolute;color:#fff;pointer-events:none;white-space:nowrap}
+.zw-cam{top:8px;right:10px;font:600 12px/1.35 "Courier New",ui-monospace,monospace;text-shadow:0 0 2px #000}
+.zw-lab{font-size:10px;font-weight:600;transform:translateY(-100%);padding:0 2px 2px}
+.zw-hint{left:8px;bottom:7px;font-size:10px;opacity:.75}
+.zw-lh{border-top:1px solid var(--cell-bd)}
+.zw-list{flex:1;min-height:84px;overflow:auto;border:1px solid var(--cell-bd);border-top:0}
+.zw-list div{height:var(--grid-row);display:flex;align-items:center;padding:0 var(--indent);border-bottom:1px solid var(--cell-bd);cursor:pointer}
+.zw-list div:hover{background:var(--hover)}
+.zw-list div.sel{background:var(--sel)}
+.zw-tools{display:flex;gap:8px;padding-top:12px}
+.scrsw{flex:0 0 auto;display:flex;gap:4px;align-items:center}
+.scrsw+.scrsw{margin-left:16px}
+.hint .brk{display:none} /* всё в одну компактную строку (19.10) */
+.hint{gap:6px;font-size:11px;row-gap:4px}
+.hint button{padding:2px 7px}
+.hint .zvsw,.hint .scrsw{gap:3px}
+.hint .keys{width:20px;padding:2px 0;border-radius:50%;font-weight:600}
+body.ux #uxBtn,body.ux #dlgBtn{display:none}
+/* «Варианты интерфейса»: переключатели спорных решений — всплывающая панель над подсказкой, чтобы не уходить под окно */
+.hint.vopen{z-index:1001}
+.vars{position:absolute;left:0;bottom:calc(100% + 8px);display:grid;gap:8px;padding:10px 12px;width:max-content;max-width:calc(100vw - 280px);background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.14);border-radius:8px;box-shadow:0 8px 24px rgba(20,30,50,.18)}
+.vars[hidden]{display:none}
+.vars .scrsw{margin-left:0;flex-wrap:wrap}
+#varsBtn.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.scrsw b{font-weight:600;margin-right:4px}
+.scrsw button.on,.scrsw button.on:hover{background:var(--pri);border-color:var(--pri);color:#fff}
+.rw{width:min(706px,calc(100% - 24px));max-height:calc(100% - 24px);display:flex;flex-direction:column}
+.rw .mt{gap:6px;padding-right:2px}
+.rw .mt .x{margin-left:auto;width:24px;height:22px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer}
+.rw .mt .x:hover{background:var(--hover)}
+.rw .mt .x:focus-visible{outline:2px solid var(--focus-ring)}
+.rw-b{background:#fff;margin:6px;border:.7px solid var(--bd);padding:12px 15px 14px;display:flex;flex-direction:column;min-height:0;flex:1}
+.rw-h{display:flex;align-items:center;gap:6px;margin-bottom:11px;font-size:11.5px}
+.rw-i{width:16px;height:16px;border-radius:50%;background:var(--icon);color:#fff;display:grid;place-items:center;font:700 10px/1 Inter,sans-serif;cursor:default;flex:none}
+.rw-t{border:1px solid var(--cell-bd);display:flex;flex-direction:column;min-height:0;flex:1}
+.rw-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,.75fr) minmax(0,1fr) minmax(0,1.15fr);gap:8px;align-items:center;min-height:36px;padding:0 10px}
+.rw-row>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-th{min-height:31px;font-weight:600;border-bottom:1px solid var(--cell-bd)}
+.rw-th button{border:0;background:none;padding:0;font:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:inherit}
+.rw-th button .ar{color:var(--grey2);font-size:8px}
+.rw-th button.on .ar{color:var(--black)}
+.rw-body{overflow:auto;max-height:330px;min-height:0}
+.rw-body .rw-row{cursor:pointer}
+.rw-body .rw-row:hover{background:var(--hover)}
+.rw-now{display:flex;align-items:center;gap:6px}
+.rw-now .ic{width:18px;height:18px;flex:none;display:grid;place-items:center}
+.rw-now .ic.spin svg{animation:spin 1s linear infinite}
+.rw-now .lnk{color:var(--pri);text-decoration:underline;cursor:pointer;margin-left:4px}
+.rw-skip{color:var(--grey2)}
+.rw-oth{margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;color:var(--grey)}
+.rw-oth a{display:inline-flex;align-items:center;gap:5px;color:var(--pri);cursor:pointer}
+.rw-oth a:hover{text-decoration:underline}
+.win ::-webkit-scrollbar{width:var(--sb-w);height:var(--sb-w)}
+.win ::-webkit-scrollbar-track{background:#fff}
+.win ::-webkit-scrollbar-thumb{background:#c4c4c4;border:2px solid #fff}
+.win ::-webkit-scrollbar-thumb:hover{background:#a3a3a3}
+.win ::-webkit-scrollbar-corner{background:#fff}
+/*__UXCSS__*/
+#scrSw{display:none!important} /* старый переключатель «Окно» не нужен: окно «Области и зоны» открывается из настроек канала. Варианты окна (src/zones.*) убраны из сборки 26.10 */
+
+/* ===== Окно обновления ПО (client.html) =====
+   Базовые токены и компоненты (.tbar, .btn, .cb, .pill, .banner, иконки статусов) — из стилей прототипа настроек, подставляются сборкой.
+   Здесь — раскладка родительского окна, окна обновления и служебные панели. */
+.u-page{
+  --gal-w:256px; --uw-w:540px; --uw-wide:780px;
+  --pbar-h:8px; --pbar-bg:#e3e6ec; --pbar-fill:var(--pri);
+  --hot-bg:#fde6c8; --hot-bd:#e8a35a;                      /* кнопка «Обновление ПО», когда есть что делать (набросок продукта) */
+  --chip-ok-bg:#e3f3e7; --chip-ok:#23743a; --chip-n-bg:#eceef1; --chip-n:#5d6169; --chip-w-bg:#fff1d6; --chip-w:#8a5a00;
+  --box-info:#eef2fb; --box-info-bd:#c9d3ee; --box-warn:#fff7e3; --box-warn-bd:#efd69a; --box-err:#fdf0f2; --box-err-bd:#efc0c9;
+  --u-gap:12px; --u-txt:12px;
+}
+.u-page .lnk{color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.u-page .lnk:hover{color:#2f437c}
+
+/* ---------- сцена и родительское окно ---------- */
+.stage{position:fixed;top:0;bottom:0;right:0;left:0}
+.gal-on .stage{left:var(--gal-w)}
+.upw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(980px,calc(100% - 32px));height:min(660px,calc(100% - 32px));
+  display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 18px 50px rgba(20,30,50,.28),0 2px 8px rgba(20,30,50,.12)}
+.upw-b{flex:1;min-height:0;display:flex;gap:6px;margin:6px 6px 0}
+.usrv{flex:none;width:210px;background:#fff;border:.7px solid var(--bd);display:flex;flex-direction:column;overflow:auto}
+.usrv-h{font-size:15px;font-weight:600;padding:14px 14px 12px;border-bottom:1px solid var(--cell-bd)}
+.usrv button{border:0;background:none;text-align:left;padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
+.usrv button:hover{background:var(--hover)}
+.usrv button.on{background:var(--sel)}
+.umain{flex:1;min-width:0;background:#fff;border:.7px solid var(--bd);padding:10px 16px 12px;display:flex;flex-direction:column;position:relative}
+.utabs{display:flex;gap:14px;align-items:flex-end;padding-bottom:6px;border-bottom:1px solid var(--pri);font-size:12px}
+.utabs b{color:var(--pri);font-weight:600}
+.utabs span{color:var(--pri)}
+.utabs .r{margin-left:auto;color:var(--txt);font-weight:600}
+.uver{display:flex;gap:24px;align-items:flex-start;margin-top:14px;flex-wrap:wrap}
+.uver-t{display:grid;grid-template-columns:auto auto;gap:6px 10px;font-size:12px;align-items:baseline}
+.uver-t b{font-weight:600}
+.uver-b{display:flex;gap:8px;flex-wrap:wrap}
+.umenu-w{position:relative}
+.uupd .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none}
+.uupd.hot{background:var(--hot-bg);border-color:var(--hot-bd)}
+.uupd .mini{width:46px;height:5px;background:var(--pbar-bg);border-radius:3px;overflow:hidden;flex:none}
+.uupd .mini i{display:block;height:100%;background:var(--pbar-fill)}
+.uupd .chev{display:grid}
+.umenu{position:absolute;left:0;top:calc(100% + 2px);z-index:30;width:370px;background:#fff;border:1px solid #b9bcc3;box-shadow:0 6px 18px rgba(20,30,50,.18);padding:4px 0}
+.umenu[hidden]{display:none}
+.umenu .mi{display:flex;align-items:center;gap:10px;width:100%;height:34px;padding:0 14px;border:0;background:none;text-align:left;font-size:12px;cursor:pointer}
+.umenu .mi:hover,.umenu .mi:focus-visible{background:var(--hover);outline:0}
+.umenu .mi .chip{margin-left:auto}
+.umenu .msub{display:flex;align-items:center;gap:8px;padding:2px 14px 8px 28px;color:var(--grey);font-size:11px;cursor:pointer}
+.umenu .sep{height:1px;background:var(--cell-bd);margin:4px 0}
+.chip{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 9px;border-radius:10px;font-size:10.5px;font-weight:500;white-space:nowrap;background:var(--chip-n-bg);color:var(--chip-n)}
+.chip.ok{background:var(--chip-ok-bg);color:var(--chip-ok)}
+.chip.w{background:var(--chip-w-bg);color:var(--chip-w)}
+.chip.run{background:var(--pri-50);color:var(--pri)}
+.uhealth{margin:14px 0 0;border:1px solid var(--cell-bd);padding:6px 14px 10px;width:300px;display:grid;gap:6px;font-size:12px}
+.uhealth legend{padding:0 4px;color:#333}
+.uhealth div{display:grid;grid-template-columns:110px auto}
+.uhealth .g{color:var(--st-ok);font-weight:600}
+.uhealth .n{color:var(--grey);font-weight:500}
+.ubk{margin-top:auto;display:flex;gap:8px;justify-content:flex-end}
+.upw-f{flex:none;display:flex;justify-content:flex-end;padding:6px}
+.ubanner{display:flex;gap:8px;align-items:center;margin-top:10px;padding:8px 12px;background:var(--box-warn);border:1px solid var(--box-warn-bd);font-size:12px;color:#5f4100}
+.ubanner[hidden]{display:none}
+.ubanner svg{animation:spin 1s linear infinite;flex:none}
+
+/* ---------- окно обновления ---------- */
+.ubg{position:absolute;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(20,26,40,.16)}
+.ubg.show{display:flex}
+.uw{width:min(var(--uw-w),calc(100% - 24px));max-height:calc(100% - 24px);display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 18px 50px rgba(20,30,50,.3),0 2px 8px rgba(20,30,50,.12)}
+.uw.wide{--uw-w:var(--uw-wide)}
+.uw .tbar .ttl{font-weight:500}
+.uw .wbtn:disabled{opacity:.35;cursor:default;background:transparent}
+.uw-b{flex:1;min-height:0;overflow:auto;margin:6px 6px 0;padding:14px 16px 16px;background:#fff;border:.7px solid var(--bd);font-size:var(--u-txt);line-height:1.45;display:flex;flex-direction:column;gap:var(--u-gap)}
+.uw-b p{margin:0}
+.uw-f{flex:none;display:flex;align-items:center;gap:8px;padding:8px 6px}
+.uw-f .l{margin-right:auto;display:flex;align-items:center;min-width:0}
+.uw-f .btn{min-width:80px}
+.uw .btn.pri:disabled{background:var(--btn-grad);border-color:#c9cacc;color:#9a9ca2} /* базовый .btn.pri перекрывает :disabled */
+
+.sh{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start}
+.sh>svg{margin-top:1px}
+.sh b{font-size:13.5px;font-weight:600;display:block}
+.sh p{color:#4b5060;margin-top:3px}
+.sec-h{font-weight:600;margin-bottom:4px}
+.chg{margin:0;padding-left:18px;display:grid;gap:3px}
+.fine{color:var(--grey);font-size:11px}
+.ubox{border:1px solid;padding:10px 12px;display:grid;gap:6px}
+.ubox.info{background:var(--box-info);border-color:var(--box-info-bd)}
+.ubox.warn{background:var(--box-warn);border-color:var(--box-warn-bd)}
+.ubox.err{background:var(--box-err);border-color:var(--box-err-bd)}
+.ubox .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.recs{margin:0;padding-left:18px;display:grid;gap:5px}
+.recs .btn{margin-top:4px}
+.ck{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;align-items:start;cursor:pointer}
+.ck .cb{margin-top:1px}
+.ck small{display:block;color:var(--grey);font-size:11px;margin-top:1px}
+.opts{display:grid;gap:8px;padding-top:var(--u-gap);border-top:1px solid var(--cell-bd)}
+.uw-f .ck{align-items:center;font-size:11.5px}
+.uw-f .ck .cb{margin-top:0}
+
+.pbar{height:var(--pbar-h);background:var(--pbar-bg);border-radius:4px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--pbar-fill);border-radius:4px;transition:width .2s linear}
+.pbar.paused i{background:var(--st-warn)}
+.pbar.fail i{background:var(--st-err)}
+.dlh{display:flex;justify-content:space-between;gap:12px;font-weight:600;font-size:13px}
+.dlh span{color:var(--pri);font-variant-numeric:tabular-nums}
+.dlm{display:flex;justify-content:space-between;gap:12px;color:var(--grey);font-size:11px;font-variant-numeric:tabular-nums;margin-top:-6px}
+.flow{display:grid;grid-template-columns:auto 18px auto;gap:8px;align-items:center;justify-content:start;font-size:12px;color:#4b5060}
+.flow b{color:var(--txt)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.steps li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:center;color:var(--grey)}
+.steps li .st{width:14px;height:14px;border-radius:50%;border:1.5px solid #c3c6cc;display:grid;place-items:center}
+.steps li.done{color:var(--txt)}
+.steps li.done .st{background:var(--st-ok);border-color:var(--st-ok)}
+.steps li.done .st::after{content:"";width:6px;height:3px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.steps li.now{color:var(--txt);font-weight:500}
+.steps li.now .st{border-color:var(--pri);border-top-color:transparent;animation:spin .9s linear infinite}
+.steps li.bad{color:var(--err);font-weight:500}
+.steps li.bad .st{background:var(--st-err);border-color:var(--st-err)}
+
+.files{border:1px solid var(--cell-bd);max-height:210px;overflow:auto}
+.frow{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:8px;align-items:start;padding:8px 10px;border-bottom:1px solid var(--row-bd);cursor:pointer;width:100%;border-left:0;border-right:0;border-top:0;background:#fff;text-align:left;font:inherit}
+.frow:last-child{border-bottom:0}
+.frow:hover{background:var(--hover)}
+.frow.on{background:var(--sel)}
+.frow .rd{width:13px;height:13px;border-radius:50%;border:1px solid #8f9399;margin-top:1px;background:#fff}
+.frow.on .rd{border:4px solid var(--pri)}
+.frow .fn{font-weight:500;word-break:break-all}
+.frow .fm{color:var(--grey);font-size:11px}
+.frow .fe{color:var(--err);font-size:11px}
+.frow .fo{color:var(--chip-ok);font-size:11px}
+.frow.bad .fn{color:#6d7078}
+.frow .sz{color:var(--grey);font-size:11px;white-space:nowrap}
+.fsrc{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--grey);font-size:11px}
+
+.ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.way{border:1px solid var(--cell-bd);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.way.rec{border-color:var(--pri-200);background:var(--box-info)}
+.way b{font-size:12.5px}
+.way .fine{margin-top:-2px}
+.way ol{margin:0;padding-left:18px}
+.way .btn{align-self:flex-start;margin-top:auto}
+
+.vlist{display:grid;gap:12px}
+.ver-h{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.ver-h b{font-size:12.5px}
+.ver-h small{color:var(--grey)}
+
+.ulog{width:100%;border-collapse:collapse;font-size:11.5px}
+.ulog th{text-align:left;font-weight:500;color:var(--grey);padding:0 8px 6px;border-bottom:1px solid var(--cell-bd);white-space:nowrap}
+.ulog td{padding:8px;border-bottom:1px solid var(--row-bd);vertical-align:top}
+.ulog td:first-child,.ulog th:first-child{padding-left:0}
+.ulog .v{white-space:nowrap;font-variant-numeric:tabular-nums}
+.ulog .res{display:flex;gap:6px;align-items:flex-start}
+.ulog .res svg{width:14px;height:14px;flex:none;margin-top:1px}
+.ulog .why{display:block;color:var(--grey);font-size:11px;max-width:220px}
+.ulog .btn{height:21px;font-size:11px}
+.more{color:var(--grey);font-size:11px}
+
+.helpl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:9px 12px;background:#f5f6f8;border:1px solid var(--cell-bd);color:#4b5060}
+.helpl .btn{margin-left:auto}
+
+/* ---------- раскадровка ---------- */
+.ugal{position:fixed;left:0;top:0;bottom:0;width:var(--gal-w);display:flex;flex-direction:column;background:#fff;border-right:.7px solid var(--bd);z-index:50}
+.u-page:not(.gal-on) .ugal{display:none}
+.ugal-h{padding:14px 14px 10px;display:grid;gap:3px;border-bottom:1px solid var(--cell-bd)}
+.ugal-h b{font-size:14px;font-weight:600}
+.ugal-h span{color:var(--grey)}
+.ugal-list{flex:1;min-height:0;overflow:auto;padding:2px 0 12px}
+.ugal-g{padding:12px 14px 4px;font-weight:600;color:var(--label)}
+.ugal-i{display:block;width:100%;border:0;background:none;text-align:left;padding:5px 14px 6px 24px;cursor:pointer;font:inherit}
+.ugal-i:hover{background:var(--hover)}
+.ugal-i.sel{background:var(--sel)}
+.ugal-i span{display:block;color:var(--grey);font-size:10px;line-height:1.35;margin-top:1px}
+.ugal-f{display:grid;gap:8px;padding:10px 14px 14px;border-top:1px solid var(--cell-bd)}
+.ugal-show{position:fixed;left:12px;top:12px;z-index:50}
+.ugal-show[hidden]{display:none}
+
+/* ---------- сценарии (служебная панель) ---------- */
+.uscn{position:fixed;right:12px;bottom:12px;z-index:60;width:270px;background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.14);border-radius:6px;box-shadow:0 6px 20px rgba(20,30,50,.18);font-size:11px;color:#4a5263}
+.uscn-t{width:100%;border:0;background:none;padding:9px 12px;text-align:left;font-weight:600;cursor:pointer;color:var(--txt)}
+.uscn-t::after{content:" ▾"}
+.uscn-t[aria-expanded="false"]::after{content:" ▸"}
+.uscn-b{display:grid;gap:7px;padding:0 12px 12px;max-height:calc(100vh - 80px);overflow:auto}
+.uscn-b[hidden]{display:none}
+.uscn label{display:grid;gap:3px}
+.uscn select{width:100%;min-width:0;height:24px;border:1px solid var(--bd);background:#fff;border-radius:3px;padding:0 4px}
+.uscn-g{margin-top:6px;padding-top:8px;border-top:1px solid var(--cell-bd);font-weight:600;color:var(--txt)}
+.uscn p{margin:2px 0 0;color:var(--grey);line-height:1.35}
+
+@media (max-width:1100px){ .gal-on .stage{left:0} .ugal{box-shadow:4px 0 20px rgba(0,0,0,.15)} }
+
+</style>
+</head>
+<!-- Окно обновления ПО в клиенте TRASSIR (бриф продукта 29.10.2026, заметки в Figma HBuvq4rJPBkOk1mnNANrCZ / 29767:43503).
+     Родительское окно — «Настройки» сервера по наброску продукта; окна обновления открываются из меню «Обновление ПО». -->
+<body class="u-page gal-on">
+<div class="desk"></div>
+
+<!-- раскадровка: все окна и состояния -->
+<aside class="ugal" id="gal" aria-label="Раскадровка">
+  <div class="ugal-h"><b>Раскадровка</b><span>Все окна и состояния. Клик открывает окно в этом состоянии.</span></div>
+  <div class="ugal-list" id="galList"></div>
+  <div class="ugal-f"><a class="lnk" href="site.html" target="_blank">Страница загрузок на сайте ↗</a><button type="button" class="btn sm" id="galHide">Скрыть раскадровку</button></div>
+</aside>
+<button type="button" class="btn ugal-show" id="galShow" hidden>Раскадровка</button>
+
+<div class="stage" id="stage">
+  <div class="pw upw" id="pw">
+    <div class="tbar"><div class="ttl">Настройки - Admin - VMS-DEMOSTAND-1</div>
+      <div class="wctl"><button class="wbtn" type="button" aria-label="Свернуть"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 5.5h8" stroke="#333"/></svg></button><button class="wbtn" type="button" aria-label="Развернуть"><svg width="10" height="10" viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="#333"/></svg></button><button class="wbtn close" type="button" aria-label="Закрыть"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1L1 9" stroke="#333"/></svg></button></div>
+    </div>
+    <div class="upw-b">
+      <nav class="usrv" aria-label="Серверы">
+        <div class="usrv-h">Все сервера</div>
+        <button type="button">Клиент</button>
+        <button type="button">admin@admin.ru</button>
+        <button type="button" class="on" id="srvMain">VMS-DEMOSTAND-1</button>
+        <button type="button">VMS-DEMOSTAND-2</button>
+        <button type="button">VMS-DEMOSTAND-3</button>
+      </nav>
+      <div class="umain">
+        <div class="utabs"><b>Настройка</b><span>Справка</span><span class="r">Новости</span></div>
+        <div class="ubanner" id="pBanner" hidden></div>
+        <div class="uver">
+          <div class="uver-t"><span>Версия ПО:</span><b id="pVer"></b><span>Сборка:</span><span id="pBuild"></span></div>
+          <div class="uver-b">
+            <div class="umenu-w">
+              <button type="button" class="btn uupd" id="updBtn" aria-haspopup="menu" aria-expanded="false"></button>
+              <div class="umenu" id="menu" role="menu" hidden></div>
+            </div>
+            <button type="button" class="btn">Журналы &amp; дампы падений…</button>
+            <button type="button" class="btn">Перезагрузка</button>
+          </div>
+        </div>
+        <fieldset class="uhealth" id="pHealth"><legend>Индикаторы здоровья</legend>
+          <div><span>Диски:</span><b class="g">OK</b></div>
+          <div><span>База данных:</span><b class="g">OK</b></div>
+          <div><span>Камеры:</span><b class="g">50 / 50</b></div>
+        </fieldset>
+        <div class="ubk"><button type="button" class="btn">Сохранить бэкап</button><button type="button" class="btn">Восстановить бэкап</button></div>
+      </div>
+    </div>
+    <div class="upw-f"><button type="button" class="btn">Закрыть</button></div>
+  </div>
+  <div class="ubg" id="dlgBg"></div>
+</div>
+
+<!-- служебная панель прототипа -->
+<div class="uscn" id="scn">
+  <button type="button" class="uscn-t" id="scnTog" aria-expanded="false">Сценарии</button>
+  <div class="uscn-b" id="scnBody" hidden>
+    <label>Обновление по сети<select id="sNet">
+      <option value="avail">Доступно обновление</option><option value="latest">Уже последняя версия</option>
+      <option value="offline">Нет доступа к сети</option><option value="nohost">Сервер обновлений недоступен</option>
+      <option value="old">Версия слишком старая (4.6.9.0)</option><option value="space">Не хватает места на диске</option></select></label>
+    <label>Файлы на компьютере<select id="sFiles"><option value="found">Найдены</option><option value="none">Не найдены</option></select></label>
+    <label>Загрузка<select id="sDl"><option value="ok">Проходит</option><option value="fail">Обрывается на 60%</option></select></label>
+    <label>Установка<select id="sOut"><option value="ok">Успешно</option><option value="fail">Ошибка — сервер вернёт прошлую версию</option></select></label>
+    <button type="button" class="btn sm" id="sDrop" disabled>Оборвать связь во время загрузки</button>
+    <div class="uscn-g">Спорные варианты</div>
+    <label>Галочка автопроверки<select id="fAuto"><option value="dialog">В окне «Обновление по сети»</option><option value="menu">Строкой в меню</option><option value="off">Убрать (заметка продукта)</option></select></label>
+    <label>Окно загрузки<select id="fMin"><option value="yes">Можно свернуть и работать</option><option value="no">Модальное до конца</option></select></label>
+    <label>Отмена загрузки<select id="fCancel"><option value="ask">Спросить про загруженную часть</option><option value="now">Отменять сразу</option></select></label>
+    <label>Помощь специалиста<select id="fHelp"><option value="errors">Контакты при ошибках</option><option value="always">Кнопка на итоговых экранах</option><option value="none">Не показывать</option></select></label>
+    <button type="button" class="btn sm" id="sReset">Начать сначала</button>
+    <p>Прототип. Тексты ошибок — по статье техподдержки; время установки, пути к настройкам и записи журнала условные.</p>
+  </div>
+</div>
+
+<script>
+const ICON = {
+  gear:'<svg width="12.2" height="12.2" viewBox="0 0 12.22 12.22"><path d="M10.31 6.21v-.2l.71-.9a.4.4 0 0 0 .07-.34 5.2 5.2 0 0 0-.52-1.25.4.4 0 0 0-.29-.19l-1.13-.13-.14-.14-.13-1.13a.4.4 0 0 0-.19-.29 5.2 5.2 0 0 0-1.25-.52.4.4 0 0 0-.34.07l-.89.71h-.2l-.89-.71a.4.4 0 0 0-.34-.07 5.2 5.2 0 0 0-1.25.52.4.4 0 0 0-.19.29l-.13 1.13-.14.14-1.13.13a.4.4 0 0 0-.29.19 5.2 5.2 0 0 0-.52 1.25.4.4 0 0 0 .07.34l.71.89v.2l-.71.89a.4.4 0 0 0-.07.34c.12.44.29.86.52 1.25a.4.4 0 0 0 .29.19l1.13.13.14.14.13 1.13a.4.4 0 0 0 .19.29c.39.23.81.4 1.25.52a.4.4 0 0 0 .34-.07l.89-.71h.2l.89.71a.4.4 0 0 0 .34.07 5.2 5.2 0 0 0 1.25-.52.4.4 0 0 0 .19-.29l.13-1.13.14-.14 1.13-.13a.4.4 0 0 0 .29-.19c.23-.39.4-.81.52-1.25a.4.4 0 0 0-.07-.34zM6.11 8.02a1.91 1.91 0 1 1 0-3.82 1.91 1.91 0 0 1 0 3.82z" fill="#2F4F80"/></svg>',
+  chev:'<svg width="11" height="11" viewBox="0 0 10.86 10.86"><path d="M2.72 4.08l2.71 2.71 2.72-2.71" stroke="#808080" stroke-width=".68" fill="none"/></svg>',
+  chev16:'<svg width="16" height="16" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="#06080e" stroke-width="1" fill="none"/></svg>',
+  refresh:'<svg width="12" height="14" viewBox="0 0 12.38 14.1" fill="none" stroke="#292D32" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4.31 2.55a5.6 5.6 0 0 1 1.88-.28 5.64 5.64 0 1 1-5.64 5.64"/><path d="M3.5 2.71L5.38.55M3.5 2.71l2.19 1.6"/></svg>',
+  chip:'<svg class="ticon" width="11.6" height="12.2" viewBox="0 0 11.6 12.22" fill="#3c5899"><rect x="2.72" y="3.4" width="5.43" height="5.43"/><rect x="4.75" width="1.36" height="2.04"/><rect x="4.75" y="10.18" width="1.36" height="2.04"/><rect x="8.14" width="1.36" height="2.04"/><rect x="7.47" y="10.18" width="1.36" height="2.04"/><rect x="2.04" width="1.36" height="2.04"/><rect x="2.04" y="10.18" width="1.36" height="2.04"/><rect x="10.18" y="3.4" width="1.36" height="2.04"/><rect y="3.4" width="1.36" height="2.04"/><rect x="10.18" y="6.11" width="1.36" height="2.04"/><rect y="5.43" width="1.36" height="2.04"/><rect x="10.18" y=".68" width="1.36" height="2.04"/><rect y=".68" width="1.36" height="2.04"/></svg>',
+  cam:'<svg class="ticon" width="12.44" height="7.47" viewBox="0 0 12.44 7.47" fill="#3C5899"><rect width="9.96" height="7.47"/><path d="M12.44.83L9.95 2.49v2.36l2.49 1.79z"/></svg>',
+  det:'<svg class="ticon" width="11.63" height="8.15" viewBox="0 0 11.63 8.15"><path d="M2.66 1.17L1.16 6.99h7.82l1.5-5.82z" stroke="#3C5899" stroke-width=".58" fill="none"/><g fill="#3C5899"><circle cx="10.47" cy="1.16" r="1.16"/><circle cx="2.91" cy="1.16" r="1.16"/><circle cx="8.73" cy="6.98" r="1.16"/><circle cx="1.16" cy="6.98" r="1.16"/></g></svg>',
+  check:'<svg width="10" height="10" viewBox="0 0 13.58 13.58"><path d="M11.2 3.9L5.43 9.84 2.4 6.9" stroke="#fff" stroke-width="1.7" fill="none"/></svg>',
+  check16:'<svg width="12" height="12" viewBox="0 0 13.58 13.58"><path d="M10.86 4.41L5.43 9.84 2.72 7.13" stroke="#fff" stroke-width="1.5" fill="none"/></svg>',
+  thgear:'<svg width="13" height="13" viewBox="0 0 11.21 11.33" fill="none" stroke="#000" stroke-width=".55"><path d="M4.8.27h1.6l.15 1.19c.48.1.93.3 1.33.55l.93-.73 1.13 1.14-.72.94c.25.4.44.86.55 1.34l1.17.15v1.62l-1.17.15c-.11.48-.3.93-.55 1.34l.72.94-1.13 1.15-.93-.74c-.4.26-.85.45-1.33.56l-.15 1.19H4.8l-.15-1.19a4.2 4.2 0 0 1-1.32-.56l-.94.74-1.13-1.15.73-.94a4.3 4.3 0 0 1-.55-1.34L.27 6.48V4.86l1.17-.15c.11-.48.3-.94.55-1.34l-.73-.94L2.4 1.28l.94.73c.4-.25.84-.45 1.32-.55z"/><circle cx="5.6" cy="5.67" r="2.05"/></svg>',
+  undo:'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M3 5.5h5.2a3 3 0 0 1 0 6H5.5"/><path d="M5.4 3L3 5.5 5.4 8"/></svg>',
+  info:'<svg class="ic-info" width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="currentColor" fill-opacity=".7"/><path d="M9 8v4.6M9 5.2v1.4" stroke="#fff" stroke-width="1.3" fill="none"/></svg>',
+  spin:'<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.8" stroke="#dfe4f1" stroke-width="1.6"/><path d="M7 1.2a5.8 5.8 0 0 1 5.8 5.8" stroke="#445B9C" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  ok:'<svg class="ic-ok" width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="currentColor" fill-opacity=".7"/><path d="M6 9.5l2 2L12.5 7" stroke="#fff" stroke-width="1.3" fill="none"/></svg>',
+  warn:'<svg class="ic-warn" width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="currentColor"/><path d="M9 4.5v7M9 12.5V14" stroke="#fff" stroke-width="1.3"/></svg>',
+  err:'<svg class="ic-err" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7" fill="currentColor"/><path d="M7 11l4-4M7 7l4 4" stroke="#fff" stroke-width="1.3"/></svg>',
+  bad:'<svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 2.2l7.4 13H1.6z" fill="#AB1330"/><path d="M9 7v4.2M9 12.4v1.3" stroke="#fff" stroke-width="1.3"/></svg>'
+};
+/* ===== Окно обновления ПО в клиенте TRASSIR =====
+   Окна: net — обновление по сети, file — из файла, dl — загрузка, ready — готово к установке, restart — установка,
+   done — итог, changes — список изменений, log — журнал. Каждое окно — функция состояния, рисуется заново при любом изменении. */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SRV='VMS-DEMOSTAND-1';
+const LATEST='4.9.15.0';
+const SITE='site.html#pick';
+const PHONE='8 (499) 111-25-50';
+const XSVG='<svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1L1 9" stroke="#333"/></svg>';
+const CHEV='<svg width="9" height="9" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="#333" fill="none"/></svg>';
+const ARROW='<svg width="18" height="10" viewBox="0 0 18 10"><path d="M1 5h15m-4-4l4 4-4 4" stroke="#8f9093" fill="none"/></svg>';
+const SPIN='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.8" stroke="#ecd9a8" stroke-width="1.6"/><path d="M7 1.2a5.8 5.8 0 0 1 5.8 5.8" stroke="#8a6400" stroke-width="1.6"/></svg>';
+
+/* ---------- данные (номера сборок и тексты изменений условные) ---------- */
+const CH = {
+  '4.9.15.0':{d:'28.10.2026', b:'1321840', items:['Видеоаналитика на видеокартах NVIDIA GeForce RTX 50-й серии.','Исправлены разрывы подключений через Cloud Connect примерно через сутки работы.','СКУД: уведомления через МАКС, PIN-код на контроллерах Hikvision.']},
+  '4.9.14.0':{d:'14.10.2026', b:'1319665', items:['Для камеры TR-D6124IR10v3 (D) снова видны кнопки PTZ-пресетов.','Быстрее поиск по архиву на серверах с большим числом каналов.']},
+  '4.9.13.0':{d:'30.09.2026', b:'1317308', items:['Базовый «Детектор вторжения» на серверах NeuroStation и UltraStation.','До 60 FPS для камеры TR-D2343WDZIR7v3 (R).']},
+  '4.9.12.0':{d:'16.09.2026', b:'1316200', items:['Экспорт архива в MP4 без перекодирования.','Исправлено зависание клиента при быстром переключении раскладок.']},
+  '4.9.11.0':{d:'02.09.2026', b:'1314420', items:['Поддержка камер TRASSIR серии v8.','Исправлены ложные срабатывания детектора движения ночью.']},
+  '4.9.10.0':{d:'12.08.2026', b:'1312005', items:['Новый вид журнала событий.','Ускорен запуск сервера с большим архивом.']}
+};
+const VERS = Object.keys(CH); // от новых к старым
+const BR_LAST = {'4.7':'4.7.9.2','4.8':'4.8.3.5','4.9':LATEST};
+const SIZE_NET = 1300; // МБ, ServicePack сервера
+const SPEED = 4.3;     // МБ/с — для оценки «осталось»; сама загрузка в демо ускорена
+const FILES = [
+  {n:'Trassir-4.9.15.0-1321840-64-Release-sp.pack', v:'4.9.15.0', mb:1300, where:'Загрузки', ok:true, tag:'Рекомендуем: последняя версия'},
+  {n:'Trassir (1).pack', v:'4.9.15.0', mb:1300, where:'Рабочий стол', ok:true, tag:'Имя изменено — версию определили по содержимому файла'},
+  {n:'Trassir-4.9.14.0-1319665-64-Release-sp.pack', v:'4.9.14.0', mb:1290, where:'Загрузки', ok:true, tag:'Подходит, но есть версия новее'},
+  {n:'Trassir-4.9.15.0-1321840-64-Release-client-sp.pack', mb:693, where:'Загрузки', err:'Не подходит: обновление для TRASSIR Client, а это сервер'},
+  {n:'Trassir-4.9.15.0-1321844-LITE', mb:2300, where:'USB-накопитель (E:)', err:'Не подходит: для регистраторов MiniNVR на TRASSIR OS'}
+];
+// «Обзор…» в демо выбирает по очереди файлы с ошибками, которые ловим до загрузки
+const PICKS = [
+  {n:'trassir_4.9.15.zip', mb:1240, where:'Выбран вручную', err:'Это не файл обновления TRASSIR', kind:'format'},
+  {n:'Trassir-4.9.15.0-1321840-64-Release-sp.pack', mb:910, where:'Выбран вручную', err:'Файл повреждён — не прошёл проверку подписи', kind:'sign'},
+  {n:'Trassir-4.9.12.0-1316200-64-Release-sp.pack', v:'4.9.12.0', mb:1280, where:'Выбран вручную', err:'Версия 4.9.12.0 старше установленной', kind:'older'}
+];
+const PICK_RECS = {
+  format:['Нужен файл с расширением .pack со страницы загрузок dssl.ru. Архивы .zip и установщики .exe для обновления не подходят.','Если скачивали архив — распакуйте его и выберите файл .pack внутри.'],
+  sign:['Скачайте файл заново — скорее всего, загрузка прервалась.','Если переносили файл на флешке — запишите его на флешку ещё раз.','Антивирус, брандмауэр или роутер могут портить скачанные файлы — проверьте их настройки.'],
+  older:['Обновлением нельзя вернуться на прошлую версию.','Вернуть предыдущую версию можно из журнала обновлений, если перед обновлением сохранялся бэкап.']
+};
+
+/* ---------- состояние ---------- */
+const S = {
+  net:'avail', files:'found', dlOut:'ok', outcome:'ok',
+  flags:{auto:'dialog', min:'yes', cancel:'ask', help:'errors'},
+  autoCheck:true, backup:true, restartNow:false, keepPart:true
+};
+let CUR=null, BTNS=[], ONX=null, tDl=null, tRs=null, tChk=null, galSel=null;
+
+function baseLog(){
+  const l=[
+    {t:'21.10.2026 10:02', a:'Обновление', from:'4.9.11.0', to:'4.9.13.0', ok:true, who:'admin', bk:true},
+    {t:'20.10.2026 18:47', a:'Обновление', from:'4.9.11.0', to:'4.9.13.0', ok:false, who:'admin', why:'Файл повреждён — не прошёл проверку подписи. Сервер остался на 4.9.11.0'},
+    {t:'02.09.2026 09:15', a:'Обновление', from:'4.9.10.0', to:'4.9.11.0', ok:true, who:'i.petrov', bk:true},
+    {t:'12.08.2026 22:05', a:'Обновление', from:'4.9.9.0', to:'4.9.10.0', ok:true, who:'admin', bk:true},
+    {t:'22.11.2024 22:34', a:'Установка', to:'4.5.26.0', ok:true, who:'—'}
+  ];
+  if(S.net==='latest') l.unshift({t:'28.10.2026 23:10', a:'Обновление', from:'4.9.13.0', to:LATEST, ok:true, who:'admin', bk:true});
+  if(S.net==='old') return [{t:'05.03.2025 12:40', a:'Обновление', from:'4.6.8.0', to:'4.6.9.0', ok:true, who:'admin', bk:false},{t:'22.11.2024 22:34', a:'Установка', to:'4.5.26.0', ok:true, who:'—'}];
+  return l;
+}
+function reset(){
+  clearTimeout(tDl); clearTimeout(tRs); clearTimeout(tChk);
+  Object.assign(S, {
+    cur: S.net==='latest'?LATEST : S.net==='old'?'4.6.9.0' : '4.9.13.0',
+    checked: S.autoCheck || S.flags.auto==='off', checking:false,
+    dl:null, ready:null, busy:null, extra:[], fileSel:0, moreCh:0, called:false, pickN:0, cancelFrom:null, exported:false
+  });
+  S.build = CH[S.cur]?.b || '1268000';
+  S.log = baseLog();
+  CUR=null; draw();
+}
+
+/* ---------- помощники разметки ---------- */
+const ICO = k => ICON[k==='ok'?'ok':k==='warn'?'warn':k==='err'?'err':'info'];
+const sh = (k,title,text) => `<div class="sh">${ICO(k)}<div><b>${title}</b>${text?`<p>${text}</p>`:''}</div></div>`;
+const box = (k,html) => `<div class="ubox ${k}">${html}</div>`;
+const ck = (key,label,sub) => `<label class="ck"><button type="button" class="cb" role="checkbox" aria-checked="${!!S[key]}" data-ck="${key}">${ICON.check}</button><span>${label}${sub?`<small>${sub}</small>`:''}</span></label>`;
+const lnk = (act,t) => `<a class="lnk" data-act="${act}" tabindex="0">${t}</a>`;
+const site = t => `<a class="lnk" href="${SITE}" target="_blank">${t||'Открыть страницу загрузок ↗'}</a>`;
+const ul = a => `<ul class="chg">${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+const mb = v => v>=1000 ? (v/1000).toFixed(1).replace('.',',')+' ГБ' : Math.round(v)+' МБ';
+const left = s => { const sec=s/SPEED; return sec<60?'меньше минуты':`~${Math.ceil(sec/60)} мин`; };
+const br = v => v.split('.').slice(0,2).join('.');
+const newer = (a,b) => { const x=a.split('.').map(Number), y=b.split('.').map(Number); for(let i=0;i<4;i++) if(x[i]!==y[i]) return x[i]>y[i]; return false; };
+function chainFrom(v){ const b=br(v); if(b==='4.9') return [LATEST]; return Object.keys(BR_LAST).filter(k=>newer(k+'.0.0',b+'.0.0')).map(k=>BR_LAST[k]); }
+function changesSince(v){ return VERS.filter(x=>newer(x,v)); }
+function help(isErr){
+  const f=S.flags.help; if(f==='none'||(f==='errors'&&!isErr)) return '';
+  if(f==='always') return `<div class="helpl"><span><b>Нужна помощь специалиста?</b> Перезвоним в течение 15 минут в рабочее время.</span>${S.called?'<span class="chip ok">Заявка отправлена — специалист перезвонит</span>':'<button type="button" class="btn" data-act="callme">Связаться со специалистом</button>'}</div>`;
+  return `<div class="helpl"><span>Не получается? Техподдержка TRASSIR: <b>${PHONE}</b>, пн–пт 9:00–18:00.</span><a class="lnk" href="#" onclick="return false">Все контакты ↗</a></div>`;
+}
+const autoRow = () => S.flags.auto==='dialog' ? ck('autoCheck','Проверять обновления автоматически') : '';
+const opts = () => `<div class="opts">${ck('backup','Сохранить бэкап настроек','Перед установкой — на архивный диск. Если после обновления что-то пойдёт не так, к нему можно вернуться')}
+  ${S.backup?'':`<p class="fine" style="color:var(--warn);margin:-2px 0 0 22px">Без бэкапа вернуться к ${S.cur} не получится — только переустановкой.</p>`}
+  ${ck('restartNow','Перезапустить сервер и установить сразу после загрузки','Сервер будет недоступен около 5 минут, запись архива на это время остановится')}</div>`;
+
+/* ---------- сетевое состояние ---------- */
+function netState(){
+  if(S.busy) return 'busy'; if(S.dl) return 'dl'; if(S.ready) return 'ready';
+  if(S.checking) return 'checking';
+  if(!S.checked) return 'unchecked';
+  if(S.net==='offline'||S.net==='nohost') return S.net;
+  if(!newer(LATEST,S.cur)) return 'latest';
+  if(br(S.cur)!=='4.9') return 'old';
+  return S.net==='space'?'space':'avail';
+}
+function openNet(){ const st=netState();
+  if(st==='dl') return open('dl', S.dl.state);
+  if(st==='ready') return open('ready');
+  if(st==='busy') return open('restart');
+  open('net', st);
+}
+
+/* ================= окна ================= */
+const WIN = {
+  net(st){
+    const T='Обновление по сети';
+    if(st==='checking') return {t:T, body:`<div class="sh">${ICON.spin}<div><b>Проверяем обновления…</b><p>Обращаемся к серверу обновлений TRASSIR.</p></div></div>`, btns:[{t:'Закрыть',act:close}]};
+    if(st==='unchecked') return {t:T, left:autoRow(),
+      body:sh('info','Автоматическая проверка выключена',`${SRV} не обращается к серверу обновлений сам. Проверьте вручную, когда удобно.`),
+      btns:[{t:'Закрыть',act:close},{t:'Проверить сейчас',pri:1,act:check}]};
+    if(st==='latest') return {t:T, left:autoRow(),
+      body:sh('ok',`Установлена последняя версия ${S.cur}`,'Проверено сегодня в 14:32.')+`<div>${lnk('changes','Что нового в этой версии')}</div>`,
+      btns:[{t:'Проверить снова',act:check},{t:'Закрыть',pri:1,act:close}]};
+    if(st==='offline') return {t:T, left:autoRow(),
+      body:sh('err','Нет доступа к сети',`${SRV} не подключён к интернету, поэтому проверить обновления нельзя.`)
+        +`<div><div class="sec-h">Что можно сделать</div><ol class="recs">
+          <li><b>Восстановить подключение.</b> Проверьте кабель и настройки в «Настройки сервера» → «Сетевые интерфейсы»: адрес, шлюз и DNS. Затем нажмите «Проверить снова».</li>
+          <li><b>Обновить из файла.</b> Скачайте файл обновления на любом компьютере с интернетом — страница загрузок подберёт нужный по версии — и загрузите его сюда. ${site()}</li></ol></div>`+help(true),
+      btns:[{t:'Проверить снова',act:check},{t:'Обновить из файла',pri:1,act:()=>openFile()}]};
+    if(st==='nohost') return {t:T, left:autoRow(),
+      body:sh('err','Не удаётся связаться с сервером обновлений',`Интернет есть, но ${SRV} не находит адрес updates.cloud.trassir.com — обычно не указан шлюз или DNS.`)
+        +`<div><div class="sec-h">Как исправить</div><ol class="recs">
+          <li>Откройте «Настройки сервера» → «Сетевые интерфейсы».</li>
+          <li>У интерфейса с доступом в интернет нажмите «Настроить» и заполните поля «Шлюз» и «DNS». Подойдут публичные DNS Яндекса <b>77.88.8.8</b> и <b>77.88.8.1</b>, за пределами России — Google <b>8.8.8.8</b>.</li>
+          <li>Если не знаете адрес шлюза — уточните у системного администратора.</li></ol></div>`
+        +`<p class="fine">Пока доступа нет, можно ${lnk('file','обновиться из файла')}.</p>`+help(true),
+      btns:[{t:'Закрыть',act:close},{t:'Проверить снова',pri:1,act:check}]};
+    if(st==='old'){
+      const ch=chainFrom(S.cur);
+      return {t:T, left:autoRow(),
+        body:sh('warn',`Сразу до ${LATEST} обновиться нельзя`,`Установлена ${S.cur}. Обновлять нужно по порядку: ${ch.length} шага, по одной ветке за раз.`)
+          +`<div class="ways">
+            <div class="way rec"><b>Обновить по шагам</b><span class="fine">Можно удалённо, настройки и архив сохранятся</span>
+              <ol>${ch.map((v,i)=>`<li>${i===0?`<b>${v}</b> — сейчас`:v}</li>`).join('')}</ol>
+              <span class="fine">После каждого шага сервер перезапустится. Снова откройте «Обновление по сети» — предложим следующий.</span>
+              ${br(ch[0])==='4.7'?`<span class="fine" style="color:var(--warn)">На 4.7 меняется формат базы данных — <a class="lnk" href="#" onclick="return false">прочитайте инструкцию</a>.</span>`:''}</div>
+            <div class="way"><b>Переустановить ПО</b><span class="fine">Сразу ${LATEST} одним шагом. Нужен доступ к компьютеру, на котором стоит сервер</span>
+              ${site('Скачать установщик на сайте ↗')}</div></div>`+opts(),
+        btns:[{t:'Отмена',act:close},{t:`Загрузить шаг 1 — ${ch[0]}`,pri:1,act:()=>startDl('net',ch[0],SIZE_NET)}]};
+    }
+    // avail / space
+    const list=changesSince(S.cur);
+    const space = st==='space' ? box('err',`<b>Не хватает места на системном диске</b><span>Для загрузки и установки нужно 2,6 ГБ, свободно 1,1 ГБ. Проверили до загрузки, чтобы она не оборвалась на середине.</span>
+      <ol class="recs"><li>Удалите старые скриншоты и экспортированные видео: «Настройки сервера» → «Скриншоты».</li><li>Или загрузите обновление на архивный диск — места там достаточно.</li></ol>
+      <div class="row"><button type="button" class="btn" data-act="toArchive">Загружать на архивный диск</button><button type="button" class="btn" data-act="recheck">Проверить снова</button></div>`) : '';
+    return {t:T, left:autoRow(),
+      body:sh('info',`Доступно обновление до ${LATEST}`,`Установлена ${S.cur} · загрузка ${mb(SIZE_NET)}`)
+        +`<div><div class="sec-h">Что изменилось</div>${ul(CH[LATEST].items)}<div style="margin-top:6px">${lnk('changes',`Полный список изменений — ${list.length} ${list.length===1?'версия':'версии'} после ${S.cur}`)}</div></div>`
+        +space+opts()+(S.flags.min==='yes'?'<p class="fine">Загрузка идёт в фоне — с TRASSIR можно работать как обычно.</p>':''),
+      btns:[{t:'Отмена',act:close},{t:'Загрузить обновление',pri:1,dis:st==='space',act:()=>startDl('net',LATEST,SIZE_NET)}]};
+  },
+
+  file(st){
+    const T='Обновление из файла';
+    if(st==='none') return {t:T,
+      body:sh('info','Не нашли файлы обновления','Искали в папках «Загрузки» и «Рабочий стол» на этом компьютере и на подключённых флешках.')
+        +`<ol class="recs"><li>Скачайте файл на странице загрузок — она подберёт нужный по вашей версии ${S.cur}. ${site()}</li>
+          <li>Положите файл в «Загрузки» или на флешку и нажмите «Искать снова».</li></ol>
+          <p>Файл в другом месте? ${lnk('browse','Укажите его вручную')}.</p>`
+        +(S.net==='avail'||S.net==='space'?box('info',`<div class="row"><span>У ${SRV} есть интернет — обновиться можно без файла.</span><button type="button" class="btn" data-act="net">Обновление по сети</button></div>`):''),
+      btns:[{t:'Отмена',act:close},{t:'Искать снова',pri:1,act:()=>{ S.files='found'; $('sFiles').value='found'; open('file','found'); }}]};
+    const all=[...S.extra,...FILES], f=all[S.fileSel]||all[0];
+    const rows=all.map((x,i)=>`<button type="button" class="frow${i===S.fileSel?' on':''}${x.err?' bad':''}" data-fsel="${i}" role="radio" aria-checked="${i===S.fileSel}">
+        <span class="rd"></span><span><span class="fn">${esc(x.n)}</span><br><span class="fm">${x.where}${x.v?' · версия '+x.v:''}</span><br>${x.err?`<span class="fe">${x.err}</span>`:`<span class="fo">${x.tag}</span>`}</span><span class="sz">${mb(x.mb)}</span></button>`).join('');
+    let detail='';
+    if(f.err && f.kind) detail=box('err',`<b>${f.err}</b><ol class="recs">${PICK_RECS[f.kind].map(r=>`<li>${r}</li>`).join('')}</ol>${f.kind==='older'?`<div>${lnk('log','Открыть журнал обновлений')}</div>`:''}${f.kind!=='older'?`<div>${site('Скачать файл заново ↗')}</div>`:''}`);
+    else if(f.err) detail=box('warn',`<span>${f.err}. Выберите файл с отметкой «Рекомендуем» или ${site('скачайте нужный ↗')}</span>`);
+    else detail=`<div class="flow"><span>Установлена <b>${S.cur}</b></span>${ARROW}<span>будет <b>${f.v}</b></span></div>`
+      +(newer(LATEST,f.v)?box('warn',`<span>Есть версия новее — ${LATEST}. Её файл тоже в списке.</span>`):'')+opts();
+    return {t:T,
+      body:`<div class="fsrc"><span>Нашли ${FILES.filter(x=>x.ok).length} подходящих файла на этом компьютере и флешке</span><button type="button" class="btn sm" data-act="browse">Обзор…</button></div>
+        <div class="files" role="radiogroup" aria-label="Файлы обновления">${rows}</div>`+detail,
+      btns:[{t:'Отмена',act:close},{t:'Загрузить обновление',pri:1,dis:!!f.err,act:()=>startDl('file',f.v,f.mb)}]};
+  },
+
+  dl(st){
+    const d=S.dl, pct=Math.floor(d.done/d.total*100);
+    const T=d.src==='net'?'Загрузка обновления':'Передача файла на сервер';
+    const head=`<div class="dlh"><span style="color:var(--txt)">${d.src==='net'?'Загружаем':'Передаём'} ${d.target}</span><span>${pct}%</span></div>`;
+    const bar=k=>`<div class="pbar ${k||''}"><i style="width:${pct}%"></i></div>`;
+    if(st==='paused') return {t:T, x:minimize,
+      body:sh('warn','Связь с сервером прервалась',`Загружено ${mb(d.done)} из ${mb(d.total)} — эта часть сохранится. Как только связь восстановится, загрузка продолжится с того же места.`)+bar('paused')
+        +`<p class="fine">Повторяем попытку каждые 30 секунд.</p>`,
+      btns:[{t:'Отменить загрузку',act:askCancel},{t:'Повторить сейчас',pri:1,act:resumeDl}]};
+    if(st==='cancel') return {t:T, x:()=>open('dl',S.cancelFrom||'run'),
+      body:sh('warn','Отменить загрузку?',`Загружено ${mb(d.done)} из ${mb(d.total)}.`)
+        +`<div class="opts" style="border:0;padding:0">${ck('keepPart','Сохранить загруженную часть на 7 дней','Если начнёте загрузку снова, она продолжится с этого места. Потом файл удалится сам')}</div>`,
+      btns:[{t:'Продолжить загрузку',act:()=>{ S.dl.frozen=false; open('dl',S.cancelFrom||'run'); if(S.cancelFrom!=='paused') tickDl(); }},{t:'Отменить загрузку',pri:1,act:doCancel}]};
+    if(st==='fail') return {t:T,
+      body:sh('err','Загрузка обновления не удалась',`Связь с сервером обновлений обрывалась слишком часто. Загружено ${mb(d.done)} из ${mb(d.total)} — эта часть сохранена, повторная загрузка продолжится с неё.`)+bar('fail')
+        +`<ol class="recs"><li>Проверьте подключение ${SRV} к интернету и попробуйте ещё раз.</li><li>Если канал медленный или нестабильный, скачайте файл на другом компьютере и обновитесь из файла.</li></ol>`+help(true),
+      btns:[{t:'Обновить из файла',act:()=>{ S.dl=null; openFile(); }},{t:'Повторить загрузку',pri:1,act:()=>{ S.dl.state='run'; S.dl.failed=true; S.dl.frozen=false; open('dl','run'); tickDl(); }}]};
+    const remain=d.total-d.done;
+    return {t:T, x:S.flags.min==='yes'?minimize:null,
+      body:head+bar()+`<div class="dlm"><span>${mb(d.done)} из ${mb(d.total)}</span><span>Осталось ${left(remain)}</span></div>`
+        +`<p>${d.src==='net'?'Скачиваем с сервера обновлений TRASSIR.':`Передаём файл с этого компьютера на ${SRV}.`} ${S.restartNow?'Сразу после загрузки сервер перезапустится и установит обновление.':'После загрузки предложим перезапустить сервер.'}</p>`
+        +(S.flags.min==='yes'?'<p class="fine">Окно можно закрыть и продолжать работать — прогресс виден на кнопке «Обновление ПО».</p>':''),
+      btns:[...(S.flags.min==='yes'?[{t:'Свернуть',act:minimize}]:[]),{t:'Отменить загрузку',act:askCancel}]};
+  },
+
+  ready(){
+    const v=S.ready.target;
+    return {t:'Обновление загружено',
+      body:sh('ok',`${v} готово к установке`,`Файл загружен на ${SRV}.`)
+        +box('info',`<ol class="recs" style="padding-left:16px"><li>Сервер перезапустится и будет недоступен около 5 минут. Запись архива на это время остановится.</li>
+          ${S.backup?`<li>Перед установкой сохраним бэкап настроек на архивный диск.</li><li>Если после обновления что-то пойдёт не так, вернуть ${S.cur} можно будет из журнала обновлений.</li>`:`<li>Бэкап настроек не сохранится — вернуть ${S.cur} после обновления не получится.</li>`}</ol>`),
+      btns:[{t:'Позже',act:close},{t:'Перезапустить сервер и установить',pri:1,act:()=>startRestart('install')}]};
+  },
+
+  restart(){
+    const b=S.busy, steps=restartSteps();
+    const T=b.kind==='install'?'Установка обновления':'Возврат прошлой версии';
+    return {t:T,
+      body:`<div class="sh">${ICON.spin}<div><b>${b.kind==='install'?`Устанавливаем ${b.to}`:`Возвращаем ${b.to}`}</b><p>${SRV} перезапускается и сейчас недоступен — это нормально. Займёт около 5 минут, окно можно закрыть.</p></div></div>
+        <ol class="steps">${steps.map((s,i)=>`<li class="${i<b.step?(s.bad?'bad':'done'):i===b.step?'now':''}"><span class="st"></span><span>${s.t}</span></li>`).join('')}</ol>`,
+      btns:[{t:'Закрыть',act:close}]};
+  },
+
+  done(st){
+    if(st==='rolled') return {t:'Прошлая версия возвращена',
+      body:sh('ok',`${SRV} снова на версии ${S.cur}`,`Настройки восстановлены из бэкапа от ${S.rbFrom}. Сервер работает, камеры: 50 из 50.`)
+        +`<p class="fine">Изменения настроек, сделанные после обновления, не сохранились. Обновиться снова можно в любой момент.</p>`+help(false),
+      btns:[{t:'Журнал обновлений',act:()=>open('log','table')},{t:'Готово',pri:1,act:close}]};
+    if(st==='fail') return {t:'Обновление не установилось',
+      body:sh('err',`${S.failTo} не установилась — сервер вернулся на ${S.cur}`,'Сервер не запустился с новой версией, поэтому мы автоматически вернули прошлую и восстановили настройки из бэкапа. Сервер работает как раньше.')
+        +box('err',`<span><b>Причина:</b> ошибка при установке пакета (код 0x2F). Подробности сохранены в журнале обновлений — их увидит техподдержка.</span>`)
+        +`<div><div class="sec-h">Что можно сделать</div><ol class="recs"><li>Попробуйте обновиться ещё раз — иногда помогает повторная загрузка файла.</li><li>Переустановите ПО: ${site('скачать установщик на сайте ↗')}</li><li>Обратитесь в техподдержку и назовите время обновления — детали уже есть в журнале.</li></ol></div>`+help(true),
+      btns:[{t:'Журнал обновлений',act:()=>open('log','table')},{t:'Закрыть',pri:1,act:close}]};
+    const last=S.log[0];
+    return {t:'Обновление установлено',
+      body:sh('ok',`Установлена версия ${S.cur}`,`${SRV} работает. Камеры: 50 из 50, диски и база данных в порядке.`)
+        +(CH[S.cur]?`<div><div class="sec-h">Что нового</div>${ul(CH[S.cur].items)}</div>`:'')
+        +(newer(LATEST,S.cur)?box('info',`<span>Это шаг ${chainFrom(last.from).indexOf(S.cur)+1} из ${chainFrom(last.from).length}. Чтобы продолжить, снова откройте «Обновление по сети».</span>`):'')
+        +(last.bk?box('info',`<b>Если что-то работает не так</b><span>Например, пропала камера или не запускается модуль. Можно вернуть версию ${last.from} и настройки на момент обновления — бэкап от ${last.t}.</span><div class="row"><button type="button" class="btn" data-act="rollback">Вернуть ${last.from}</button></div>`)
+                 :box('warn',`<span>Бэкап перед обновлением не сохранялся — вернуть ${last.from} можно будет только переустановкой.</span>`))
+        +help(false),
+      btns:[{t:'Журнал обновлений',act:()=>open('log','table')},{t:'Готово',pri:1,act:close}]};
+  },
+
+  changes(st){
+    const T='Список изменений';
+    if(st==='offline') return {t:T,
+      body:sh('warn','Список изменений недоступен без интернета',`Он загружается с сервера обновлений, а ${SRV} сейчас не подключён к сети.`)
+        +`<p>Восстановите подключение или посмотрите изменения на сайте: ${site('Список изменений на dssl.ru ↗')}</p>`,
+      btns:[{t:'Закрыть',pri:1,act:close}]};
+    let idx=VERS.indexOf(S.cur); if(idx<0) idx=VERS.length-1;
+    const shown = VERS.slice(0, idx+1+S.moreCh);
+    const rest = VERS.length - shown.length;
+    return {t:T, wide:1,
+      body:`<div class="vlist">${shown.map(v=>{
+        const tag = v===S.cur?'<span class="chip">Установлена</span>' : newer(v,S.cur)?`<span class="chip ok">Доступна</span>`:'';
+        return `<div><div class="ver-h"><b>${v}</b><small>${CH[v].d}</small>${tag}</div>${ul(CH[v].items)}</div>`; }).join('')}</div>`
+        +`<div>${rest>0?lnk('more',`Показать более ранние версии`):`<span class="fine">Изменения в версиях до 4.9.10.0 — ${site('на сайте ↗')}</span>`}</div>`,
+      btns:[...(newer(LATEST,S.cur)&&!S.dl&&!S.ready&&S.checked?[{t:`Обновить до ${LATEST}`,act:()=>openNet()}]:[]),{t:'Закрыть',pri:1,act:close}]};
+  },
+
+  log(st){
+    if(st==='confirm'){ const r=S.log[0];
+      return {t:'Вернуть прошлую версию',
+        body:sh('warn',`Вернуть версию ${r.from}?`,`Сейчас установлена ${r.to}.`)
+          +`<ol class="recs"><li>Сервер перезапустится и будет недоступен около 5 минут.</li><li>Настройки восстановятся из бэкапа от ${r.t}.</li><li>Изменения настроек после этой даты пропадут. Архив сохранится.</li></ol>`,
+        btns:[{t:'Отмена',act:()=>open('log','table')},{t:`Вернуть ${r.from}`,pri:1,act:()=>startRestart('rollback')}]};
+    }
+    const canRb = r => r===S.log[0] && r.ok && r.bk && r.a==='Обновление' && !S.busy;
+    return {t:'Журнал обновлений', wide:1,
+      left:`<button type="button" class="btn" data-act="export">${S.exported?'Сохранено в «Загрузки» ✓':'Сохранить для техподдержки'}</button>`,
+      body:`<table class="ulog"><thead><tr><th>Дата и время</th><th>Действие</th><th>Версия</th><th>Результат</th><th>Пользователь</th><th></th></tr></thead><tbody>
+        ${S.log.map(r=>`<tr><td class="v">${r.t}</td><td>${r.a}</td><td class="v">${r.from?`${r.from} → ${r.to}`:r.to}</td>
+          <td><span class="res">${r.ok?ICON.ok:ICON.err}<span>${r.ok?'Успешно':'Ошибка'}${r.why?`<span class="why">${r.why}</span>`:''}${r.ok&&r.bk===false&&r.a!=='Установка'?'<span class="why">Без бэкапа</span>':''}</span></span></td>
+          <td>${r.who}</td><td>${canRb(r)?`<button type="button" class="btn" data-act="rollback">Вернуть ${r.from}</button>`:''}</td></tr>`).join('')}
+        </tbody></table><p class="more">Показаны последние ${S.log.length} записей. ${lnk('noop','Показать все')}</p>`,
+      btns:[{t:'Закрыть',pri:1,act:close}]};
+  }
+};
+
+/* ================= отрисовка ================= */
+function open(key,st){ CUR={key,st}; closeMenu(); draw(); }
+function close(){ CUR=null; draw(); }
+function draw(){
+  const bg=$('dlgBg');
+  if(!CUR){ bg.classList.remove('show'); bg.innerHTML=''; renderParent(); return; }
+  const w=WIN[CUR.key](CUR.st);
+  const lockX = CUR.key==='dl' && CUR.st==='run' && S.flags.min==='no';
+  ONX = w.x || close; BTNS = w.btns;
+  bg.innerHTML=`<div class="uw${w.wide?' wide':''}" role="dialog" aria-modal="true" aria-labelledby="uwT">
+    <div class="tbar"><div class="ttl" id="uwT">${w.t}</div><div class="wctl"><button class="wbtn close" type="button" data-x aria-label="Закрыть" ${lockX?'disabled title="Загрузку можно только отменить"':''}>${XSVG}</button></div></div>
+    <div class="uw-b">${w.body}</div>
+    <div class="uw-f"><div class="l">${w.left||''}</div>${w.btns.map((b,i)=>`<button type="button" class="btn${b.pri?' pri':''}" data-b="${i}"${b.dis?' disabled':''}>${b.t}</button>`).join('')}</div></div>`;
+  bg.classList.add('show');
+  renderParent();
+}
+// во время загрузки обновляем только прогресс, чтобы не сбивать фокус и наведение
+function drawProgress(){
+  const d=S.dl, pct=Math.floor(d.done/d.total*100), bg=$('dlgBg');
+  const i=bg.querySelector('.pbar i'); if(i) i.style.width=pct+'%';
+  const h=bg.querySelector('.dlh span:last-child'); if(h) h.textContent=pct+'%';
+  const m=bg.querySelectorAll('.dlm span'); if(m.length){ m[0].textContent=`${mb(d.done)} из ${mb(d.total)}`; m[1].textContent=`Осталось ${left(d.total-d.done)}`; }
+  renderParent();
+}
+
+function renderParent(){
+  $('pVer').textContent = S.busy ? '—' : S.cur;
+  $('pBuild').textContent = S.busy ? '—' : S.build;
+  const st=netState(), b=$('updBtn');
+  let html='Обновление ПО', hot=false;
+  if(st==='dl'){ const p=Math.floor(S.dl.done/S.dl.total*100); html=S.dl.state==='paused'?'Обновление ПО · пауза':S.dl.state==='fail'?'Обновление ПО · ошибка':`Обновление ПО · ${p}% <span class="mini"><i style="width:${p}%"></i></span>`; hot=S.dl.state!=='run'; }
+  else if(st==='ready'){ html='<span class="dot"></span>Установить обновление'; hot=true; }
+  else if(st==='busy'){ html='Сервер обновляется…'; }
+  else if(st==='avail'||st==='old'||st==='space'){ html='<span class="dot"></span>Обновление ПО'; hot=true; }
+  b.innerHTML = html+`<span class="chev">${CHEV}</span>`;
+  b.classList.toggle('hot',hot); b.disabled = st==='busy';
+  const ban=$('pBanner');
+  ban.hidden=!S.busy;
+  if(S.busy) ban.innerHTML=`${SPIN}<span><b>${SRV} перезапускается для ${S.busy.kind==='install'?'установки обновления':'возврата прошлой версии'}</b> · около 5 минут. ${lnk('openRestart','Подробнее')}</span>`;
+  $('pHealth').querySelectorAll('b').forEach((x,i)=>{ x.className=S.busy?'n':'g'; x.textContent=S.busy?'нет связи':['OK','OK','50 / 50'][i]; });
+  if(!$('menu').hidden) renderMenu();
+}
+function chipFor(st){
+  if(st==='dl') return S.dl.state==='paused'?'<span class="chip w">Пауза — нет связи</span>':S.dl.state==='fail'?'<span class="chip w">Загрузка не удалась</span>':`<span class="chip run">Загрузка ${Math.floor(S.dl.done/S.dl.total*100)}%</span>`;
+  if(st==='ready') return '<span class="chip ok">Готово к установке</span>';
+  if(st==='avail'||st==='space'||st==='old') return `<span class="chip ok">Доступна ${LATEST}</span>`;
+  if(st==='latest') return '<span class="chip">Последняя версия</span>';
+  if(st==='offline') return '<span class="chip w">Нет доступа к сети</span>';
+  if(st==='nohost') return '<span class="chip w">Сервер обновлений недоступен</span>';
+  if(st==='unchecked') return '<span class="chip">Не проверялось</span>';
+  if(st==='checking') return '<span class="chip">Проверяем…</span>';
+  return '';
+}
+function renderMenu(){
+  const st=netState();
+  $('menu').innerHTML=`<button type="button" class="mi" role="menuitem" data-m="net">Обновление по сети${chipFor(st)}</button>
+    ${S.flags.auto==='menu'?`<div class="msub">${ck('autoCheck','Проверять обновления автоматически')}</div>`:''}
+    <button type="button" class="mi" role="menuitem" data-m="file">Обновление из файла…</button>
+    <div class="sep"></div>
+    <button type="button" class="mi" role="menuitem" data-m="changes">Список изменений</button>
+    <button type="button" class="mi" role="menuitem" data-m="log">Журнал обновлений</button>`;
+}
+function toggleMenu(){ const m=$('menu'); m.hidden=!m.hidden; $('updBtn').setAttribute('aria-expanded',String(!m.hidden)); if(!m.hidden) renderMenu(); }
+function closeMenu(){ $('menu').hidden=true; $('updBtn').setAttribute('aria-expanded','false'); }
+
+/* ================= сценарий ================= */
+function check(){ S.checking=true; S.checked=true; open('net','checking'); clearTimeout(tChk); tChk=setTimeout(()=>{ S.checking=false; if(CUR&&CUR.key==='net') open('net',netState()); else renderParent(); },1100); }
+function openFile(){ if(S.dl) return open('dl',S.dl.state); S.extra=[]; S.fileSel=0; open('file',S.files); }
+
+function startDl(src,target,total){
+  S.dl={src,target,total,done:0,state:'run',failed:false};
+  open('dl','run'); tickDl();
+}
+function tickDl(){
+  clearTimeout(tDl); const d=S.dl; if(!d||d.state!=='run'||d.frozen) return;
+  tDl=setTimeout(()=>{
+    if(!S.dl||S.dl.state!=='run') return;
+    d.done=Math.min(d.total, d.done + d.total/70);
+    if(S.dlOut==='fail' && !d.failed && d.done>=d.total*0.6){ d.done=d.total*0.6; d.state='fail'; if(CUR&&CUR.key==='dl') open('dl','fail'); else renderParent(); return; }
+    if(d.done>=d.total){ finishDl(); return; }
+    if(CUR&&CUR.key==='dl'&&CUR.st==='run') drawProgress(); else renderParent();
+    tickDl();
+  },200);
+}
+function finishDl(){
+  const d=S.dl, wasOpen=CUR&&CUR.key==='dl'; S.dl=null; S.ready={target:d.target};
+  $('sDrop').disabled=true;
+  if(S.restartNow) return startRestart('install');
+  if(wasOpen) open('ready'); else renderParent();
+}
+function minimize(){ close(); }
+function askCancel(){ clearTimeout(tDl); S.cancelFrom=CUR.st; if(S.flags.cancel==='ask') open('dl','cancel'); else doCancel(); }
+function doCancel(){ clearTimeout(tDl); S.dl=null; close(); }
+function resumeDl(){ S.dl.state='run'; S.dl.frozen=false; open('dl','run'); tickDl(); }
+function dropConn(){ if(!S.dl||S.dl.state!=='run') return; clearTimeout(tDl); S.dl.state='paused'; if(CUR&&CUR.key==='dl') open('dl','paused'); else renderParent(); }
+
+function restartSteps(){
+  const b=S.busy;
+  if(b.kind==='rollback') return [{t:'Останавливаем сервер'},{t:`Возвращаем версию ${b.to}`},{t:`Восстанавливаем настройки из бэкапа от ${b.bkt}`},{t:'Запускаем сервер и проверяем камеры'}];
+  const s=[]; if(S.backup) s.push({t:'Сохраняем бэкап настроек на архивный диск'});
+  s.push({t:`Устанавливаем ${b.to}`},{t:'Перезапускаем сервер'});
+  if(b.fail) s.push({t:'Сервер не запустился с новой версией',bad:1},{t:`Возвращаем ${b.from} и настройки из бэкапа`});
+  else s.push({t:'Проверяем камеры, диски и базу данных'});
+  return s;
+}
+function startRestart(kind){
+  clearTimeout(tRs);
+  if(kind==='install'){ const to=S.ready.target; S.ready=null; S.busy={kind, from:S.cur, to, step:0, fail:S.outcome==='fail'}; }
+  else { const r=S.log[0]; S.busy={kind, from:r.to, to:r.from, bkt:r.t, step:0}; }
+  open('restart'); tickRs();
+}
+function tickRs(){
+  tRs=setTimeout(()=>{
+    const b=S.busy; if(!b) return; b.step++;
+    if(b.step>=restartSteps().length){ finishRs(); return; }
+    if(CUR&&CUR.key==='restart') draw(); else renderParent();
+    tickRs();
+  },1400);
+}
+function finishRs(){
+  const b=S.busy; S.busy=null; const now='29.10.2026 '+new Date().toTimeString().slice(0,5);
+  if(b.kind==='rollback'){
+    S.cur=b.to; S.rbFrom=b.bkt; S.log.unshift({t:now,a:'Возврат',from:b.from,to:b.to,ok:true,who:'admin',bk:false});
+    S.build=CH[S.cur]?.b||S.build; open('done','rolled'); return;
+  }
+  if(b.fail){
+    S.failTo=b.to; S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:false,who:'admin',why:`Ошибка установки пакета (код 0x2F). Сервер автоматически вернулся на ${b.from}`});
+    open('done','fail'); return;
+  }
+  S.cur=b.to; S.build=CH[S.cur]?.b||'1291377';
+  S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:true,who:'admin',bk:S.backup});
+  open('done','ok');
+}
+
+/* ================= события ================= */
+$('updBtn').addEventListener('click',e=>{ e.stopPropagation(); toggleMenu(); });
+document.addEventListener('click',e=>{ if(!e.target.closest('.umenu-w')) closeMenu(); });
+$('menu').addEventListener('click',e=>{
+  const c=e.target.closest('[data-ck]'); if(c){ S[c.dataset.ck]=!S[c.dataset.ck]; renderMenu(); return; }
+  const m=e.target.closest('[data-m]'); if(!m) return; closeMenu();
+  ({net:openNet, file:openFile, changes:()=>open('changes',(S.net==='offline'||S.net==='nohost')?'offline':'list'), log:()=>open('log','table')})[m.dataset.m]();
+});
+const ACT = {
+  changes:()=>open('changes',(S.net==='offline'||S.net==='nohost')?'offline':'list'),
+  log:()=>open('log','table'), file:()=>openFile(), net:()=>openNet(),
+  more:()=>{ S.moreCh+=10; draw(); }, noop:()=>{},
+  browse:()=>{ const p=PICKS[S.pickN%PICKS.length]; S.pickN++; S.extra=[p]; S.fileSel=0; open('file','found'); },
+  callme:()=>{ S.called=true; draw(); },
+  rollback:()=>open('log','confirm'),
+  export:()=>{ S.exported=true; draw(); },
+  toArchive:()=>{ S.net='avail'; $('sNet').value='avail'; open('net','avail'); },
+  recheck:()=>check(),
+  openRestart:()=>open('restart')
+};
+$('dlgBg').addEventListener('click',e=>{
+  const t=e.target;
+  const b=t.closest('[data-b]'); if(b&&!b.disabled){ BTNS[+b.dataset.b].act(); return; }
+  if(t.closest('[data-x]')){ ONX(); return; }
+  const c=t.closest('[data-ck]'); if(c){ S[c.dataset.ck]=!S[c.dataset.ck]; e.preventDefault(); draw(); return; }
+  const f=t.closest('[data-fsel]'); if(f){ S.fileSel=+f.dataset.fsel; draw(); return; }
+  const a=t.closest('[data-act]'); if(a&&ACT[a.dataset.act]){ e.preventDefault(); ACT[a.dataset.act](); }
+});
+$('pBanner').addEventListener('click',e=>{ const a=e.target.closest('[data-act]'); if(a) ACT[a.dataset.act](); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ if(!$('menu').hidden) closeMenu(); else if(CUR && !$('dlgBg').querySelector('[data-x]:disabled')) ONX(); }
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('a.lnk[data-act]')){ e.preventDefault(); e.target.click(); }
+});
+
+/* ---------- панель сценариев ---------- */
+const SEL = {sNet:'net', sFiles:'files', sDl:'dlOut', sOut:'outcome'};
+Object.entries(SEL).forEach(([id,k])=>$(id).addEventListener('change',e=>{ S[k]=e.target.value; if(k==='net') reset(); }));
+[['fAuto','auto'],['fMin','min'],['fCancel','cancel'],['fHelp','help']].forEach(([id,k])=>$(id).addEventListener('change',e=>{ S.flags[k]=e.target.value; if(k==='auto'&&S.flags.auto==='off') { S.autoCheck=true; S.checked=true; } if(CUR) draw(); else renderParent(); }));
+$('sReset').addEventListener('click',reset);
+$('sDrop').addEventListener('click',dropConn);
+$('scnTog').addEventListener('click',()=>{ const b=$('scnBody'); b.hidden=!b.hidden; $('scnTog').setAttribute('aria-expanded',String(!b.hidden)); });
+$('galHide').addEventListener('click',()=>{ document.body.classList.remove('gal-on'); $('galShow').hidden=false; });
+$('galShow').addEventListener('click',()=>{ document.body.classList.add('gal-on'); $('galShow').hidden=true; });
+setInterval(()=>{ $('sDrop').disabled=!(S.dl&&S.dl.state==='run'); },300);
+
+/* ================= раскадровка ================= */
+function scen(net,extra){ S.net=net; $('sNet').value=net; S.files='found'; $('sFiles').value='found'; S.dlOut='ok'; $('sDl').value='ok'; S.outcome='ok'; $('sOut').value='ok'; reset(); if(extra) extra(); }
+function frozenDl(src,pct,state){ const total=src==='net'?SIZE_NET:1300; S.dl={src,target:LATEST,total,done:total*pct,state,frozen:true}; }
+const GAL = [
+  {g:'Меню «Обновление ПО»', items:[
+    {t:'Доступно обновление', s:'Оранжевая кнопка, «Доступна 4.9.15.0»', run:()=>{ scen('avail'); toggleMenu(); }},
+    {t:'Последняя версия', s:'Кнопка без подсветки', run:()=>{ scen('latest'); toggleMenu(); }},
+    {t:'Нет доступа к сети', s:'Проверить актуальность нельзя', run:()=>{ scen('offline'); toggleMenu(); }},
+    {t:'Идёт загрузка', s:'Проценты на кнопке и в меню', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); toggleMenu(); }}]},
+  {g:'A. Обновление по сети', items:[
+    {t:'Доступно обновление', s:'Версия, изменения, бэкап, перезапуск', run:()=>{ scen('avail'); openNet(); }},
+    {t:'Проверка обновлений', s:'Короткое ожидание ответа сервера', run:()=>{ scen('avail'); S.checking=true; open('net','checking'); }},
+    {t:'Автопроверка выключена', s:'Заказчики без запросов наружу', run:()=>{ scen('avail',()=>{ S.checked=false; }); open('net','unchecked'); }},
+    {t:'Установлена последняя версия', s:'', run:()=>{ scen('latest'); openNet(); }},
+    {t:'Нет доступа к сети', s:'Восстановить связь или обновиться из файла', run:()=>{ scen('offline'); openNet(); }},
+    {t:'Сервер обновлений недоступен', s:'Could not resolve host — шлюз и DNS', run:()=>{ scen('nohost'); openNet(); }},
+    {t:'Версия слишком старая', s:'По шагам или переустановка', run:()=>{ scen('old'); openNet(); }},
+    {t:'Не хватает места', s:'Проверяем до загрузки', run:()=>{ scen('space'); openNet(); }}]},
+  {g:'B. Обновление из файла', items:[
+    {t:'Найдены файлы', s:'Рекомендованный отмечен, неподходящие — с причиной', run:()=>{ scen('avail'); openFile(); }},
+    {t:'Неподходящий файл', s:'Для другой программы', run:()=>{ scen('avail'); openFile(); S.fileSel=3; draw(); }},
+    {t:'Не файл обновления', s:'File format unrecognized', run:()=>{ scen('avail'); openFile(); S.pickN=0; ACT.browse(); }},
+    {t:'Файл повреждён', s:'Signature check failed', run:()=>{ scen('avail'); openFile(); S.pickN=1; ACT.browse(); }},
+    {t:'Версия старше установленной', s:'Service pack already installed', run:()=>{ scen('avail'); openFile(); S.pickN=2; ACT.browse(); }},
+    {t:'Файлов не нашлось', s:'Где скачать и куда положить', run:()=>{ scen('avail'); S.files='none'; $('sFiles').value='none'; openFile(); }}]},
+  {g:'C. Загрузка', items:[
+    {t:'Загрузка по сети', s:'Прогресс, объём, время', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); open('dl','run'); }},
+    {t:'Передача файла на сервер', s:'С компьютера на регистратор', run:()=>{ scen('avail',()=>frozenDl('file',.18,'run')); open('dl','run'); }},
+    {t:'Окно свёрнуто', s:'Работа продолжается, прогресс на кнопке', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); renderParent(); }},
+    {t:'Связь прервалась', s:'Продолжим с места остановки', run:()=>{ scen('avail',()=>frozenDl('net',.42,'paused')); open('dl','paused'); }},
+    {t:'Отменить загрузку?', s:'Оставить загруженную часть', run:()=>{ scen('avail',()=>frozenDl('net',.42,'run')); S.cancelFrom='run'; open('dl','cancel'); }},
+    {t:'Загрузка не удалась', s:'Повторить или обновиться из файла', run:()=>{ scen('avail',()=>frozenDl('net',.6,'fail')); open('dl','fail'); }}]},
+  {g:'D. Установка', items:[
+    {t:'Готово к установке', s:'Перезапустить сейчас или позже', run:()=>{ scen('avail',()=>{ S.ready={target:LATEST}; }); open('ready'); }},
+    {t:'Сервер перезапускается', s:'Статус и шаги установки', run:()=>{ scen('avail',()=>{ S.busy={kind:'install',from:S.cur,to:LATEST,step:1}; }); open('restart'); }},
+    {t:'Обновление установлено', s:'Что нового и возврат прошлой версии', run:()=>{ scen('avail',()=>{ S.cur=LATEST; S.build=CH[LATEST].b; S.log.unshift({t:'29.10.2026 14:41',a:'Обновление',from:'4.9.13.0',to:LATEST,ok:true,who:'admin',bk:true}); }); open('done','ok'); }},
+    {t:'Не установилось', s:'Сервер сам вернул прошлую версию', run:()=>{ scen('avail',()=>{ S.failTo=LATEST; S.log.unshift({t:'29.10.2026 14:41',a:'Обновление',from:'4.9.13.0',to:LATEST,ok:false,who:'admin',why:'Ошибка установки пакета (код 0x2F). Сервер автоматически вернулся на 4.9.13.0'}); }); open('done','fail'); }},
+    {t:'Прошлая версия возвращена', s:'После отката из журнала', run:()=>{ scen('avail',()=>{ S.rbFrom='21.10.2026 10:02'; }); open('done','rolled'); }}]},
+  {g:'E. Список изменений', items:[
+    {t:'Изменения с текущей версии', s:'Установлена и доступные', run:()=>{ scen('avail'); open('changes','list'); }},
+    {t:'Нет сети', s:'Куда посмотреть', run:()=>{ scen('offline'); open('changes','offline'); }}]},
+  {g:'F. Журнал обновлений', items:[
+    {t:'Журнал', s:'Статус, пользователь, возврат', run:()=>{ scen('avail'); open('log','table'); }},
+    {t:'Вернуть прошлую версию?', s:'Подтверждение', run:()=>{ scen('avail'); open('log','confirm'); }}]}
+];
+$('galList').innerHTML = GAL.map((g,gi)=>`<div class="ugal-g">${g.g}</div>`+g.items.map((it,ii)=>`<button type="button" class="ugal-i" data-gal="${gi}.${ii}">${it.t}${it.s?`<span>${it.s}</span>`:''}</button>`).join('')).join('');
+$('galList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-gal]'); if(!b) return; e.stopPropagation();
+  const [gi,ii]=b.dataset.gal.split('.').map(Number);
+  document.querySelectorAll('.ugal-i.sel').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
+  closeMenu(); GAL[gi].items[ii].run();
+});
+
+reset();
+
+</script>
+</body>
+</html>
