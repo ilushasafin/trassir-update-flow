@@ -175,7 +175,7 @@
 
 .ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .way{border:1px solid var(--cell-bd);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-.way.rec{border-color:var(--pri-200);background:var(--box-info)}
+.way.best{border-color:var(--pri-200);background:var(--box-info)}
 .way b{font-size:12.5px}
 .way .fine{margin-top:-2px}
 .way ol{margin:0;padding-left:18px}

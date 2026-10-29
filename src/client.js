@@ -205,7 +205,7 @@ const WIN = {
       return {t:T, left:autoRow(),
         body:sh('warn',`Сразу до ${LATEST} обновиться нельзя`,`Установлена ${S.cur}. Обновлять нужно по порядку: ${ch.length} шага, по одной ветке за раз.`)
           +`<div class="ways">
-            <div class="way rec"><b>Обновить по шагам${hint(W().stepsHint)}</b>
+            <div class="way best"><b>Обновить по шагам${hint(W().stepsHint)}</b>
               <ol>${ch.map((v,i)=>`<li>${i===0?`<b>${v}</b> — сейчас`:v}</li>`).join('')}</ol>
               ${br(ch[0])==='4.7'?`<span class="fine" style="color:var(--warn)">На 4.7 меняется формат базы данных — <a class="lnk" href="#" onclick="return false">прочитайте инструкцию</a>.</span>`:''}</div>
             <div class="way"><b>Переустановить ПО${hint(W().reinstallHint)}</b>
@@ -734,3 +734,9 @@ $('galList').addEventListener('click',e=>{
 });
 
 reset();
+// ?gal=1.0 — сразу открыть состояние из раскадровки (ссылки для обсуждения и снимки для Figma); ?bare — без раскадровки
+try{
+  const q=new URLSearchParams(location.search), g=q.get('gal');
+  if(g){ const [gi,ii]=g.split('.').map(Number); const it=GAL[gi]&&GAL[gi].items[ii]; if(it){ closeMenu(); it.run(); document.querySelector(`[data-gal="${g}"]`)?.classList.add('sel'); } }
+  if(q.has('bare')){ document.body.classList.remove('gal-on'); $('galShow').hidden=false; }
+}catch(e){}
