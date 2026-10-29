@@ -24,6 +24,10 @@
 .gal-on .stage{left:var(--gal-w)}
 .upw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1140px,calc(100% - 32px));height:min(700px,calc(100% - 32px));
   display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 18px 50px rgba(20,30,50,.28),0 2px 8px rgba(20,30,50,.12)}
+/* перемещение и размер окон: ручки .rh — из базовых стилей прототипа; развёрнутое окно — без тени и ручек */
+.upw .tbar,.uw .tbar{cursor:default}
+.wmax{box-shadow:none!important}
+.wmax .rh{display:none}
 .upw-b{flex:1;min-height:0;display:flex;gap:6px;margin:6px 6px 0}
 .usrv{flex:none;width:210px;background:#fff;border:.7px solid var(--bd);display:flex;flex-direction:column;overflow:auto}
 .usrv-h{font-size:15px;font-weight:600;padding:14px 14px 12px;border-bottom:1px solid var(--cell-bd)}
@@ -96,7 +100,7 @@
 /* ---------- окно обновления ---------- */
 .ubg{position:absolute;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(20,26,40,.16)}
 .ubg.show{display:flex}
-.uw{width:min(var(--uw-w),calc(100% - 24px));max-height:calc(100% - 24px);display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 18px 50px rgba(20,30,50,.3),0 2px 8px rgba(20,30,50,.12)}
+.uw{position:relative;width:min(var(--uw-w),calc(100% - 24px));max-height:calc(100% - 24px);display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 18px 50px rgba(20,30,50,.3),0 2px 8px rgba(20,30,50,.12)}
 .uw.wide{--uw-w:var(--uw-wide)}
 .uw .tbar .ttl{font-weight:500}
 .uw .wbtn:disabled{opacity:.35;cursor:default;background:transparent}

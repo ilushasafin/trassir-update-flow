@@ -349,9 +349,11 @@ const WIN = {
 
 /* ================= отрисовка ================= */
 // open — новое окно (стек «назад» сбрасывается); openSub — окно поверх текущего: «Закрыть»/✕ вернут обратно
-function open(key,st){ S.back=[]; S.exp={}; CUR={key,st}; closeMenu(); draw(); }
-function openSub(key,st){ if(CUR) S.back.push(CUR); CUR={key,st}; closeMenu(); draw(); }
-function close(){ if(S.back.length){ CUR=S.back.pop(); draw(); return; } CUR=null; draw(); }
+function open(key,st){ S.back=[]; S.exp={}; keepPos(key); CUR={key,st}; closeMenu(); draw(); }
+function openSub(key,st){ if(CUR) S.back.push(CUR); keepPos(key); CUR={key,st}; closeMenu(); draw(); }
+function close(){ if(S.back.length){ CUR=S.back.pop(); draw(); return; } CUR=null; resetGeom(DW); draw(); }
+// другое окно открывается там, куда пользователь передвинул прошлое, но со своим размером по умолчанию
+function keepPos(key){ if(CUR&&CUR.key!==key){ DW.sized=false; DW.max=false; } }
 const closeLbl = () => S.back.length ? 'Назад' : 'Закрыть';
 function draw(){
   hideTip();
@@ -365,6 +367,7 @@ function draw(){
     <div class="uw-b">${w.body}</div>
     <div class="uw-f"><div class="l">${w.left||''}</div>${w.btns.map((b,i)=>`<button type="button" class="btn${b.pri?' pri':''}" data-b="${i}"${b.dis?' disabled':''}>${b.t}</button>`).join('')}</div></div>`;
   bg.classList.add('show');
+  makeWin(bg.querySelector('.uw'), DW, DLG_MIN);
   renderParent();
 }
 // во время загрузки обновляем только прогресс, чтобы не сбивать фокус и наведение
@@ -585,6 +588,60 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){ if(!$('menu').hidden) closeMenu(); else if(CUR && !$('dlgBg').querySelector('[data-x]:disabled')) ONX(); }
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('a.lnk[data-act]')){ e.preventDefault(); e.target.click(); }
 });
+
+/* ---------- перемещение и изменение размера окон ----------
+   Тянуть за заголовок — переместить, за края и углы — изменить размер, двойной клик по заголовку — развернуть на всю сцену.
+   Положение хранится в PW (окно «Настройки») и DW (окно обновления; DW сбрасывается, когда окно закрыто). */
+const PW={}, DW={}, PW_MIN={w:760,h:480}, DLG_MIN={w:420,h:200};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function resetGeom(g){ Object.keys(g).forEach(k=>delete g[k]); }
+function applyGeom(el,g){
+  const st=el.style; el.classList.toggle('wmax',!!g.max);
+  if(g.max){ Object.assign(st,{position:'absolute',left:'0px',top:'0px',width:'100%',height:'100%',transform:'none',maxHeight:'none'}); return; }
+  if(!g.custom){ ['position','left','top','width','height','transform','maxHeight'].forEach(k=>st[k]=''); return; }
+  Object.assign(st,{position:'absolute',left:g.x+'px',top:g.y+'px',transform:'none',
+    width:g.sized?g.w+'px':'', height:g.sized?g.h+'px':'', maxHeight:g.sized?'none':''});
+}
+function takeGeom(el,g,sized){
+  const c=el.parentElement.getBoundingClientRect(), r=el.getBoundingClientRect();
+  if(!g.custom){ g.custom=true; g.x=r.left-c.left; g.y=r.top-c.top; }
+  if(sized&&!g.sized){ g.sized=true; g.w=r.width; g.h=r.height; }
+}
+function track(e,onMove){
+  const x0=e.clientX, y0=e.clientY, el=e.currentTarget, c=el.closest('.upw,.uw').parentElement.getBoundingClientRect();
+  try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  document.body.classList.add('is-dragging');
+  const mv=ev=>onMove(ev.clientX-x0, ev.clientY-y0, c);
+  const up=()=>{ document.body.classList.remove('is-dragging'); el.removeEventListener('pointermove',mv); el.removeEventListener('pointerup',up); el.removeEventListener('pointercancel',up); };
+  el.addEventListener('pointermove',mv); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
+  e.preventDefault();
+}
+function toggleMax(el,g){ if(g.max) g.max=false; else { takeGeom(el,g,false); g.max=true; } applyGeom(el,g); }
+function makeWin(el,g,min){
+  if(!el.querySelector(':scope>.rh')) ['n','s','e','w','ne','nw','se','sw'].forEach(d=>{ const h=document.createElement('div'); h.className='rh '+d; h.dataset.rh=d; el.appendChild(h); });
+  applyGeom(el,g);
+  const tb=el.querySelector(':scope>.tbar');
+  tb.onpointerdown=e=>{
+    if(e.button!==0||e.target.closest('button')||g.max) return;
+    takeGeom(el,g,false); const sx=g.x, sy=g.y, w=el.offsetWidth;
+    track(e,(dx,dy,c)=>{ g.x=clamp(sx+dx, 80-w, c.width-80); g.y=clamp(sy+dy, 0, c.height-30); applyGeom(el,g); }); // заголовок всегда остаётся на сцене
+  };
+  tb.ondblclick=e=>{ if(!e.target.closest('button')) toggleMax(el,g); };
+  el.querySelectorAll(':scope>.rh').forEach(h=>h.onpointerdown=e=>{
+    if(e.button!==0||g.max) return; e.stopPropagation();
+    takeGeom(el,g,true); const d=h.dataset.rh, s0={x:g.x,y:g.y,w:g.w,h:g.h};
+    track(e,(dx,dy,c)=>{
+      if(d.includes('e')) g.w=clamp(s0.w+dx, min.w, c.width-s0.x);
+      if(d.includes('s')) g.h=clamp(s0.h+dy, min.h, c.height-s0.y);
+      if(d.includes('w')){ const w=clamp(s0.w-dx, min.w, s0.x+s0.w); g.x=s0.x+s0.w-w; g.w=w; }
+      if(d.includes('n')){ const hh=clamp(s0.h-dy, min.h, s0.y+s0.h); g.y=s0.y+s0.h-hh; g.h=hh; }
+      applyGeom(el,g);
+    });
+  });
+}
+makeWin($('pw'), PW, PW_MIN);
+document.querySelector('#pw .wbtn[aria-label="Развернуть"]').addEventListener('click',()=>toggleMax($('pw'),PW));
+$('sWin').addEventListener('click',()=>{ resetGeom(PW); applyGeom($('pw'),PW); resetGeom(DW); const u=document.querySelector('#dlgBg .uw'); if(u) applyGeom(u,DW); });
 
 /* ---------- подсказки ⓘ ---------- */
 function showTip(el){
