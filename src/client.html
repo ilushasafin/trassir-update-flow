@@ -12,63 +12,37 @@
 /*__UCSS__*/
 </style>
 </head>
-<!-- Окно обновления ПО в клиенте TRASSIR (бриф продукта 29.10.2026, заметки в Figma HBuvq4rJPBkOk1mnNANrCZ / 29767:43503).
-     Родительское окно — «Настройки» сервера по наброску продукта; окна обновления открываются из меню «Обновление ПО». -->
+<!-- Окно обновления ПО в клиенте TRASSIR, второй подход (встреча с продуктом, ноябрь 2026).
+     Окно настроек — по макету Figma HBuvq4rJPBkOk1mnNANrCZ / 30181:111420 (заголовок с путём, дерево, вкладки, шрифт в натуральную величину).
+     Обновление по сети: загрузка и установка идут в фоне — их видно в строке под кнопками и у «vms» в дереве; окон — минимум. -->
 <body class="u-page gal-on">
 <div class="desk"></div>
 
-<!-- раскадровка: все окна и состояния -->
+<!-- раскадровка: шаги сценария -->
 <aside class="ugal" id="gal" aria-label="Раскадровка">
-  <div class="ugal-h"><b>Раскадровка</b><span>Все окна и состояния. Клик открывает окно в этом состоянии.</span></div>
+  <div class="ugal-h"><b>Раскадровка</b><span>Шаги сценария. Клик открывает окно в этом состоянии.</span></div>
   <div class="ugal-list" id="galList"></div>
   <div class="ugal-f"><a class="lnk" href="site.html" target="_blank">Страница загрузок на сайте ↗</a><button type="button" class="btn sm" id="galHide">Скрыть раскадровку</button></div>
 </aside>
 <button type="button" class="btn ugal-show" id="galShow" hidden>Раскадровка</button>
 
 <div class="stage" id="stage">
-  <div class="pw upw" id="pw">
-    <div class="tbar"><div class="ttl" id="pTitle">Настройки - Admin - VMS-DEMOSTAND-1</div>
-      <div class="wctl"><button class="wbtn" type="button" aria-label="Свернуть"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 5.5h8" stroke="#333"/></svg></button><button class="wbtn" type="button" aria-label="Развернуть"><svg width="10" height="10" viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="#333"/></svg></button><button class="wbtn close" type="button" aria-label="Закрыть"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1L1 9" stroke="#333"/></svg></button></div>
+  <div class="swin" id="pw">
+    <div class="tbar nw-t"><div class="ttl"><img src="__ASSET:win-gear__" width="18" height="18" alt=""><span id="pTitle"></span></div>
+      <div class="wctl"><button class="wbtn" type="button" aria-label="Развернуть" id="pMax"><svg width="10" height="10" viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="#333"/></svg></button><button class="wbtn close" type="button" aria-label="Закрыть"><img src="__ASSET:win-close__" width="12" height="12" alt=""></button></div>
     </div>
-    <div class="upw-b">
-      <nav class="usrv" aria-label="Серверы" id="srvList">
-        <div class="usrv-h">Все сервера</div>
-        <button type="button" data-srv="Клиент">Клиент</button>
-        <button type="button" data-srv="admin@admin.ru">admin@admin.ru</button>
-        <button type="button" data-srv="VMS-DEMOSTAND-1" class="on">VMS-DEMOSTAND-1</button>
-        <button type="button" data-srv="VMS-DEMOSTAND-2">VMS-DEMOSTAND-2</button>
-        <button type="button" data-srv="VMS-DEMOSTAND-3">VMS-DEMOSTAND-3</button>
-      </nav>
-      <!-- правая панель — по макету Figma 0wSTs8LIKyjRW7N4P9IX4k / 361:438; размеры в px макета, вся панель уменьшается через zoom (--qz) -->
-      <div class="umain">
-        <div class="qp">
-          <div class="qtabs"><span class="qtab on">Настройка</span><span class="qtab">Справка</span><b class="qnews">Новости</b></div>
-          <div class="qbody">
-            <div class="ubanner" id="pBanner" hidden></div>
-            <div class="qtop">
-              <div class="qver"><span>Версия ПО:</span><b id="pVer"></b><span class="r">Сборка:</span><span id="pBuild"></span></div>
-              <div class="qbtns">
-                <div class="umenu-w">
-                  <button type="button" class="qbtn uupd" id="updBtn" aria-haspopup="menu" aria-expanded="false"></button>
-                  <div class="umenu" id="menu" role="menu" hidden></div>
-                </div>
-                <button type="button" class="qbtn"><img src="__ASSET:qube__" width="24" height="24" alt="">Журналы &amp; дампы падений...</button>
-                <button type="button" class="qbtn" id="pRestart">Перезагрузка</button>
-              </div>
-            </div>
-            <div class="qgroups">
-              <fieldset class="qgrp"><legend>Индикаторы здоровья</legend><div class="qhealth" id="pHealth"></div></fieldset>
-              <fieldset class="qgrp"><legend id="pSetT"></legend><div class="qform" id="pSet"></div></fieldset>
-            </div>
-            <div class="qbk">
-              <button type="button" class="qbtn"><img src="__ASSET:arrow-down__" width="24" height="24" alt="">Сохранить бэкап</button>
-              <button type="button" class="qbtn"><img src="__ASSET:warning__" width="24" height="24" alt="">Восстановить бэкап</button>
-            </div>
-          </div>
-        </div>
+    <div class="nw-b">
+      <div class="nw-side">
+        <button type="button" class="nw-srv"><img src="__ASSET:srv-all__" width="22" height="19" alt=""><b>Все сервера</b><img class="chev" src="__ASSET:srv-chev__" width="7" height="4" alt=""></button>
+        <nav class="nw-tree" id="tree" aria-label="Разделы"></nav>
+        <input class="nw-find" type="search" placeholder="[быстрый поиск]" aria-label="Быстрый поиск">
+      </div>
+      <div class="nw-main">
+        <div class="nw-tabs"><span class="ntab on">Настройка</span><span class="ntab">Справка</span><b class="nnews">Новости</b></div>
+        <div class="nw-page" id="page"></div>
       </div>
     </div>
-    <div class="upw-f"><button type="button" class="btn">Закрыть</button></div>
+    <div class="nw-f"><button type="button" class="nbtn">Закрыть</button></div>
   </div>
   <div class="ubg" id="dlgBg"></div>
 </div>
@@ -78,22 +52,18 @@
 <div class="uscn" id="scn">
   <button type="button" class="uscn-t" id="scnTog" aria-expanded="false">Сценарии</button>
   <div class="uscn-b" id="scnBody" hidden>
-    <label>Обновление по сети<select id="sNet">
-      <option value="avail">Доступно обновление</option><option value="latest">Уже последняя версия</option>
+    <label>Установка<select id="sOut"><option value="ok">Успешно</option><option value="fail">Ошибка — сервер вернёт прошлую версию</option></select></label>
+    <label>Файлы на компьютере<select id="sFiles"><option value="found">Найдены</option><option value="none">Не найдены</option></select></label>
+    <label>Подсветка кнопки «Обновление ПО»<select id="fHot"><option value="yellow">Жёлтая (как у продукта)</option><option value="warn">Значок ⚠ (как в макете QT)</option></select></label>
+    <div class="uscn-g">Проблемные сценарии — позже</div>
+    <label>Сеть<select id="sNet"><option value="avail">Доступно обновление</option><option value="latest">Уже последняя версия</option>
       <option value="offline">Нет доступа к сети</option><option value="nohost">Сервер обновлений недоступен</option>
       <option value="old">Версия слишком старая (4.6.9.0)</option><option value="space">Не хватает места на диске</option></select></label>
-    <label>Файлы на компьютере<select id="sFiles"><option value="found">Найдены</option><option value="none">Не найдены</option></select></label>
     <label>Загрузка<select id="sDl"><option value="ok">Проходит</option><option value="fail">Обрывается на 60%</option></select></label>
-    <label>Установка<select id="sOut"><option value="ok">Успешно</option><option value="fail">Ошибка — сервер вернёт прошлую версию</option></select></label>
     <button type="button" class="btn sm" id="sDrop" disabled>Оборвать связь во время загрузки</button>
-    <div class="uscn-g">Спорные варианты</div>
-    <label>Галочка автопроверки<select id="fAuto"><option value="dialog">В окне «Обновление по сети»</option><option value="menu">Строкой в меню</option><option value="off">Убрать (заметка продукта)</option></select></label>
-    <label>Окно загрузки<select id="fMin"><option value="yes">Можно свернуть и работать</option><option value="no">Модальное до конца</option></select></label>
-    <label>Отмена загрузки<select id="fCancel"><option value="ask">Спросить про загруженную часть</option><option value="now">Отменять сразу</option></select></label>
-    <label>Помощь специалиста<select id="fHelp"><option value="errors">Контакты при ошибках</option><option value="always">Кнопка на итоговых экранах</option><option value="none">Не показывать</option></select></label>
     <button type="button" class="btn sm" id="sWin">Вернуть окна на место</button>
     <button type="button" class="btn sm" id="sReset">Начать сначала</button>
-    <p>Прототип. Тексты ошибок — по статье техподдержки; время установки, пути к настройкам и записи журнала условные.</p>
+    <p>Прототип. Номера сборок, время установки, пути к настройкам и записи журнала условные.</p>
   </div>
 </div>
 

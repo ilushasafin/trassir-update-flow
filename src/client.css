@@ -2,96 +2,110 @@
    Базовые токены и компоненты (.tbar, .btn, .cb, .pill, .banner, иконки статусов) — из стилей прототипа настроек, подставляются сборкой.
    Здесь — раскладка родительского окна, окна обновления и служебные панели. */
 .u-page{
-  --gal-w:256px; --uw-w:540px; --uw-wide:780px;
-  --pbar-h:8px; --pbar-bg:#e3e6ec; --pbar-fill:var(--pri);
-  --hot-bg:#fde6c8; --hot-bd:#e8a35a;                      /* кнопка «Обновление ПО», когда есть что делать (набросок продукта) */
+  --gal-w:256px; --uw-w:560px; --uw-wide:780px;
+  --pbar-h:6px; --pbar-bg:#e3e6ec; --pbar-fill:var(--pri);
   --chip-ok-bg:#e3f3e7; --chip-ok:#23743a; --chip-n-bg:#eceef1; --chip-n:#5d6169; --chip-w-bg:#fff1d6; --chip-w:#8a5a00;
   --box-info:#eef2fb; --box-info-bd:#c9d3ee; --box-warn:#fff7e3; --box-warn-bd:#efd69a; --box-err:#fdf0f2; --box-err-bd:#efc0c9;
   --u-gap:12px; --u-txt:12px;
-  /* правая панель настроек — по макету Figma (VMS | QT new, 361:438). Размеры ниже — в px макета, панель уменьшается целиком */
-  --qz:.7;                                  /* масштаб: шрифт макета 17 px → 12 px, как в остальном прототипе */
-  --q-bd:var(--bd);                         /* обводки панели и вкладок — серые, как во всём интерфейсе (29.10: в макете синие primary/600 и primary/200 — слишком контрастно) */
-  --grp-bd:#d5d5d6;                         /* рамка групп «Индикаторы здоровья», «Настройки…» (neutral/200) */
-  --pos:#158d2d; --neg:#c02f2f; --na:#8f9093; /* значения индикаторов: positive/base, negative/base, neutral/500 */
-  --chk-bd:#1f2126;                         /* рамка чекбокса (neutral/900) */
-  --q-txt:17px; --q-row:29px; --q-btn:36px; --q-icon:24px;
+  /* окно настроек нового формата — по макету Figma 30181:111420, в натуральную величину */
+  --n-txt:13px; --n-ink:#1c1c1c; --n-tree-bd:#b6b6b6; --n-tree-sel:#e3e3e3; --n-bd:#c3c3c3;
+  --pos:#158d2d; --neg:#c02f2f; --na:#8f9093;
+  --hot-bg:#fff0c2; --hot-bd:#e2b33c;   /* «Обновление ПО» подсвечена жёлтым, когда пришло обновление (набросок продукта) */
 }
 .u-page .lnk{color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .u-page .lnk:hover{color:#2f437c}
 
-/* ---------- сцена и родительское окно ---------- */
+/* ---------- сцена и окно настроек ---------- */
 .stage{position:fixed;top:0;bottom:0;right:0;left:0}
 .gal-on .stage{left:var(--gal-w)}
-.upw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1140px,calc(100% - 32px));height:min(700px,calc(100% - 32px));
-  display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 18px 50px rgba(20,30,50,.28),0 2px 8px rgba(20,30,50,.12)}
+.swin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1300px,calc(100% - 32px));height:min(800px,calc(100% - 32px));
+  display:flex;flex-direction:column;background:var(--win-bg);border:1px solid #9aa3b3;box-shadow:0 18px 50px rgba(20,30,50,.28),0 2px 8px rgba(20,30,50,.12);font-size:var(--n-txt);color:var(--n-ink)}
+.nw-t{height:32px;padding:0 0 0 10px;background:var(--title-bg);border-bottom:1px solid var(--n-bd)}
+.nw-t .ttl{gap:6px;font-size:12px;color:#212121}
+.nw-t .ttl img{flex:none}
 /* перемещение и размер окон: ручки .rh — из базовых стилей прототипа; развёрнутое окно — без тени и ручек */
-.upw .tbar,.uw .tbar{cursor:default}
+.swin .tbar,.uw .tbar{cursor:default}
 .wmax{box-shadow:none!important}
 .wmax .rh{display:none}
-.upw-b{flex:1;min-height:0;display:flex;gap:6px;margin:6px 6px 0}
-.usrv{flex:none;width:210px;background:#fff;border:.7px solid var(--bd);display:flex;flex-direction:column;overflow:auto}
-.usrv-h{font-size:15px;font-weight:600;padding:14px 14px 12px;border-bottom:1px solid var(--cell-bd)}
-.usrv button{border:0;background:none;text-align:left;padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
-.usrv button:hover{background:var(--hover)}
-.usrv button.on{background:var(--sel)}
-.usrv .lnm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* отметки в списке слева: «подарочек» — есть обновление (как в продукте сейчас), «обновляется…» — идёт установка */
-.usrv .lst{margin-left:auto;display:inline-flex;align-items:center;gap:4px;color:var(--amber);flex:none}
-.usrv button:has(.lst.busy){flex-wrap:wrap;row-gap:2px}
-.usrv .lst.busy{flex-basis:100%;margin-left:0;color:#8a6400;font-size:11px;font-weight:400} /* статус — второй строкой, чтобы имя сервера не обрезалось */
-.usrv .lst.busy svg{animation:spin 1s linear infinite}
-.usrv .gift{display:block}
-.upw-f{flex:none;display:flex;justify-content:flex-end;padding:6px}
+.nw-b{flex:1;min-height:0;display:flex;gap:7px;padding:5px 7px 0}
+.nw-side{flex:none;width:256px;display:flex;flex-direction:column;gap:8px}
+.nw-srv{height:43px;display:flex;align-items:center;gap:8px;padding:0 10px 0 8px;background:#fff;border:.7px solid var(--n-bd);border-radius:1px;font:inherit;font-size:12px;cursor:pointer;text-align:left}
+.nw-srv b{flex:1;color:var(--txt)}
+.nw-tree{flex:1;min-height:0;overflow:auto;background:#fff;border:1px solid var(--n-tree-bd);padding-top:6px}
+.ti{display:flex;align-items:center;gap:6px;width:100%;border:0;background:none;padding:0 8px 0 0;text-align:left;font:inherit;color:var(--n-ink);cursor:pointer;white-space:nowrap}
+.ti.big{height:36px;font-size:15px;font-weight:700}
+.ti.sm{height:23px;font-size:13px}
+.ti.sm.bold{font-weight:700}
+.ti:hover{background:#f0f2f6}
+.ti.on{background:var(--n-tree-sel)}
+.ti .cs{width:14px;height:14px;flex:none;display:grid}
+.ti .ic{width:26px;height:26px;flex:none}
+.ti .tl{min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* отметки у «vms»: подарочек — есть что установить, проценты — идёт загрузка, «обновляется» — идёт установка */
+.ti .vmk{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--amber);flex:none}
+.ti .vmk.run{color:var(--pri);font-variant-numeric:tabular-nums}
+.ti .vmk.busy{color:#8a6400}
+.ti .vmk.busy svg{animation:spin 1s linear infinite}
+.ti .vmk.err{color:var(--err)}
+.gift{display:block}
+.nw-find{height:19px;border:1px solid #d5d5d6;background:#fff;font:inherit;font-size:10.5px;color:var(--grey);padding:0 4px}
+.nw-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
+.nw-tabs{flex:none;display:flex;align-items:flex-end;gap:2px;padding:3px 0 0 12px}
+.ntab{height:29px;padding:0 24px;display:flex;align-items:center;border:1px solid var(--n-bd);border-bottom:0;border-radius:4px 4px 0 0;background:#fff;color:var(--pri);font-weight:700;margin-bottom:-1px;position:relative;z-index:1}
+.ntab:not(.on){background:var(--pri-50);border-color:var(--pri-200);border-radius:6px 6px 0 0;z-index:0}
+.nnews{margin-left:auto;align-self:center;font-weight:700;padding-right:16px}
+.nw-page{flex:1;min-height:0;overflow:auto;background:#fff;border:1px solid var(--n-bd);padding:16px 14px 16px}
+.nw-f{flex:none;display:flex;justify-content:flex-end;padding:12px 14px 14px}
+.nbtn{height:25px;padding:0 11px;border:1px solid var(--btn-bd);background:var(--btn-grad);color:var(--black);font:inherit;font-size:var(--n-txt);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer}
+.nbtn:hover{background:var(--btn-grad-hover);border-color:#8d97b5}
+.nbtn:active{background:#dfe2e8}
+.nbtn:disabled{color:#9a9ca2;cursor:default;background:var(--btn-grad);border-color:#c9cacc}
+.nbtn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
+.nbtn img{flex:none;width:16px;height:16px}
 
-/* ---------- правая панель (макет Figma, px макета × --qz) ---------- */
-.umain{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
-.qp{zoom:var(--qz);flex:1;min-height:0;display:flex;flex-direction:column;font-size:var(--q-txt);color:var(--txt);line-height:normal}
-.qtabs{flex:none;display:flex;align-items:flex-end;gap:2px;position:relative}
-.qtab{padding:10px 24px;border:1px solid var(--q-bd);border-bottom:0;border-radius:16px 16px 0 0;background:var(--pri-50);color:var(--pri);font-weight:700;margin-bottom:-1px;position:relative;cursor:default}
-.qtab.on{background:#fff;z-index:1}
-.qtab.on::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;background:#fff} /* активная вкладка сливается с панелью: линии под ней нет */
-.qnews{margin-left:auto;align-self:center;font-weight:700;color:#000;padding-right:14px}
-.qbody{flex:1;min-height:0;overflow:auto;background:#fff;border:1px solid var(--q-bd);padding:34px 22px 22px;display:flex;flex-direction:column}
-.qtop{display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap}
-.qver{display:grid;grid-template-columns:auto auto;column-gap:13px;row-gap:14px;white-space:nowrap}
-.qver .r{text-align:right}
-.qver b{font-weight:700}
-.qbtns{display:flex;gap:11px;flex-wrap:wrap;margin-top:14px}
-.qbtn{height:var(--q-btn);padding:0 16px;border:1px solid var(--btn-bd);background:var(--btn-grad);color:var(--black);display:inline-flex;align-items:center;justify-content:center;gap:2px;font-size:var(--q-txt);line-height:20px;white-space:nowrap;cursor:pointer}
-.qbtn:hover{background:var(--btn-grad-hover);border-color:#8d97b5}
-.qbtn:active{background:#dfe2e8}
-.qbtn:disabled{color:#9a9ca2;cursor:default;background:var(--btn-grad);border-color:#c9cacc}
-.qbtn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:1px}
-.qbtn img{flex:none;width:var(--q-icon);height:var(--q-icon)}
-.qbtn[hidden]{display:none}
+/* ---------- страница «vms»: версия, кнопки, фоновая строка обновления, индикаторы ---------- */
+.pg-top{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+.pg-ver{display:grid;grid-template-columns:auto auto;gap:8px 10px;white-space:nowrap}
+.pg-ver .r{text-align:right}
+.pg-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .umenu-w{position:relative}
-.qgroups{display:grid;grid-template-columns:minmax(0,476fr) minmax(0,731fr);gap:28px;margin-top:86px}
-.qgrp{margin:0;min-width:0;min-height:410px;border:1px solid var(--grp-bd);background:#fff;padding:20px 18px 22px}
-.qgrp legend{padding:0 0 0 0;margin-left:-9px;background:#fff;font-size:var(--q-txt)}
-.qhealth{display:grid;grid-template-columns:147px 91px 147px auto;row-gap:9px;padding:6px 0 0 4px;white-space:nowrap}
-.qhealth b{font-weight:700}
-.qhealth .pos{color:var(--pos)} .qhealth .neg{color:var(--neg)} .qhealth .na{color:var(--na)}
-.qform{display:grid;gap:11px;padding-top:0}
-.qrow{display:grid;grid-template-columns:minmax(200px,360px) minmax(180px,334px);align-items:center;min-height:var(--q-row)}
-.qf{height:var(--q-row);border:1px solid var(--btn-bd);background:#fff;padding:0 24px 0 4px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;color:var(--black)}
-.qf.sel{background:#fff url("__ASSET:select__") right -1px top -1px/20px 29px no-repeat}
-.qchk{width:20px;height:20px;border:1px solid var(--chk-bd);background:#fff}
-.qrow .qbtn{grid-column:2;justify-self:end;width:162px;margin-top:-2px}
-.qbk{display:flex;gap:13px;margin-top:15px}
-.ubanner{display:flex;gap:10px;align-items:center;margin:-16px 0 18px;padding:10px 14px;background:var(--box-warn);border:1px solid var(--box-warn-bd);color:#5f4100}
-.ubanner[hidden]{display:none}
-.ubanner svg{animation:spin 1s linear infinite;flex:none;width:20px;height:20px}
+.uupd.hot{background:var(--hot-bg);border-color:var(--hot-bd)}
+.uupd .warn{width:16px;height:16px}
+.pg-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;margin-top:28px}
+.pg-h{margin:0 0 6px}
+.pg-box{border:1px solid var(--n-bd);background:#fff;padding:9px 11px}
+.hl{display:grid;grid-template-columns:auto auto auto auto;justify-content:start;gap:6px 16px;white-space:nowrap}
+.hl b{font-weight:700}
+.hl .pos{color:var(--pos)} .hl .neg{color:var(--neg)} .hl .na{color:var(--na)}
+.prm{display:grid;grid-template-columns:200px minmax(140px,280px);gap:8px 12px;align-items:center}
+.prm .f{height:24px;border:1px solid var(--btn-bd);background:#fff;padding:0 7px;display:flex;align-items:center;white-space:nowrap;overflow:hidden}
+.prm .f.sel::after{content:"▾";margin-left:auto;padding-left:8px;font-size:10px;color:#555}
+.pg-bk{display:flex;gap:8px;margin-top:16px}
+.pg-blank{display:grid;place-items:center;height:100%;color:var(--grey);text-align:center;line-height:1.5}
 
-/* меню «Обновление ПО» живёт внутри уменьшенной панели — размеры тоже в px макета */
-.umenu{position:absolute;left:0;top:calc(100% + 3px);z-index:30;width:530px;background:#fff;border:1px solid #b9bcc3;box-shadow:0 8px 26px rgba(20,30,50,.18);padding:6px 0}
+/* фоновая строка обновления: загрузка, передача файла, установка, итог — без отдельных окон */
+.bgp{margin-top:14px;max-width:720px;display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:9px 12px;border:1px solid var(--box-info-bd);background:var(--box-info);font-size:12px}
+.bgp[hidden]{display:none}
+.bgp.ok{background:#eef8f0;border-color:#bfe0c7}
+.bgp.warn{background:var(--box-warn);border-color:var(--box-warn-bd)}
+.bgp.err{background:var(--box-err);border-color:var(--box-err-bd)}
+.bgp .bi{display:grid;place-items:center;color:var(--pri)}
+.bgp.ok .bi{color:var(--st-ok)} .bgp.warn .bi{color:#8a6400} .bgp.err .bi{color:var(--err)}
+.bgp .bi svg{width:16px;height:16px}
+.bgp .bi.spin svg{animation:spin 1s linear infinite}
+.bgp .bt b{font-weight:600}
+.bgp .bm{color:#4b5060;font-variant-numeric:tabular-nums}
+.bgp .ba{display:flex;gap:12px;align-items:center;white-space:nowrap}
+.bgp .ba .x{border:0;background:none;padding:0 2px;cursor:pointer;color:var(--grey);font-size:15px;line-height:1}
+.bgp .pbar{grid-column:2/4}
+
+/* меню «Обновление ПО» */
+.umenu{position:absolute;left:0;top:calc(100% + 2px);z-index:30;width:360px;background:#fff;border:1px solid #b9bcc3;box-shadow:0 6px 18px rgba(20,30,50,.18);padding:4px 0}
 .umenu[hidden]{display:none}
-.umenu .mi{display:flex;align-items:center;gap:14px;width:100%;height:48px;padding:0 20px;border:0;background:none;text-align:left;font-size:var(--q-txt);cursor:pointer}
+.umenu .mi{display:flex;align-items:center;gap:10px;width:100%;height:32px;padding:0 14px;border:0;background:none;text-align:left;font:inherit;font-size:var(--n-txt);cursor:pointer}
 .umenu .mi:hover,.umenu .mi:focus-visible{background:var(--hover);outline:0}
-.umenu .mi .chip{margin-left:auto;height:28px;padding:0 13px;border-radius:14px;font-size:15px}
-.umenu .msub{display:flex;align-items:center;gap:11px;padding:2px 20px 12px 40px;color:var(--grey);font-size:15px;cursor:pointer}
-.umenu .msub .ck{grid-template-columns:20px minmax(0,1fr);gap:11px}
-.umenu .msub .cb{width:20px;height:20px}
-.umenu .sep{height:1px;background:var(--cell-bd);margin:6px 0}
+.umenu .mi .chip{margin-left:auto}
+.umenu .sep{height:1px;background:var(--cell-bd);margin:4px 0}
 .chip{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 9px;border-radius:10px;font-size:10.5px;font-weight:500;white-space:nowrap;background:var(--chip-n-bg);color:var(--chip-n)}
 .chip.ok{background:var(--chip-ok-bg);color:var(--chip-ok)}
 .chip.w{background:var(--chip-w-bg);color:var(--chip-w)}
@@ -171,6 +185,15 @@
 .frow .fo{color:var(--chip-ok);font-size:11px}
 .frow.bad .fn{color:#6d7078}
 .frow .sz{color:var(--grey);font-size:11px;white-space:nowrap}
+.fsrc .spin{display:inline-grid;vertical-align:-3px;margin-right:6px}
+.fsrc .spin svg{animation:spin 1s linear infinite}
+/* окно «из файла»: поиск и «не найдены» — заголовок в одну строку, пояснения в подсказке */
+.fstate{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.fstate .t{display:flex;align-items:center;gap:8px;min-width:0}
+.fstate .t b{font-size:13.5px;font-weight:600}
+.fstate .t>svg,.fstate .spin{flex:none;width:20px;height:20px;display:grid;place-items:center}
+.fstate .spin svg{animation:spin 1s linear infinite}
+.fnote{margin:0 0 0 28px;color:#4b5060}
 .fsrc{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--grey);font-size:11px}
 
 .ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
