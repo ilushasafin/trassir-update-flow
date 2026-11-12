@@ -78,6 +78,9 @@ section{margin-top:32px;scroll-margin-top:16px}
 /* «ПО TRASSIR», «Мобильный клиент», «Драйверы», «Утилиты» — разделы одного уровня; подбор и файлы — подразделы ПО TRASSIR */
 main > section{margin-top:40px}
 main > section#soft{margin-top:24px}
+/* «ПО TRASSIR» — белый лист с тонкой рамкой, как карточки на dssl.ru: версия, подбор и файлы читаются одним блоком, остальные разделы — снаружи */
+#soft{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 24px 24px}
+#soft .card,#soft .acc details{box-shadow:none}
 .sub-s{margin-top:24px}
 h3.t{font-size:17px;margin:0 0 4px}
 
@@ -227,6 +230,8 @@ select.inp{padding:0 8px;cursor:pointer}
 .mpick{margin:12px 0 4px}
 .mpick .lbl{display:block;font-weight:500;margin:0 0 6px;font-size:13px}
 .row[hidden]{display:none}
+/* у последней видимой строки списка нижней линии нет — список и так закрыт рамкой карточки (учитывает и строки, скрытые поиском) */
+.rows .row:not([hidden]):not(:has(~ .row:not([hidden]))){border-bottom:0;padding-bottom:4px}
 
 .acc{margin-top:12px}
 .acc details{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);margin-bottom:8px;box-shadow:var(--shadow)}
@@ -263,6 +268,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
   .row .ds ul{columns:1}
 }
 @media (max-width:560px){
+  #soft{padding:16px 12px;margin-left:-4px;margin-right:-4px}
   .rc-h,.rc-b{padding-left:14px;padding-right:14px}
   :root{--pad:16px}
   .rel{grid-template-columns:minmax(0,1fr);gap:12px}
@@ -320,7 +326,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
       <section id="pick" class="sub-s">
         <div class="card pick">
           <h3 class="t">Подобрать обновление</h3>
-          <p class="sub" style="margin:0">Укажите текущую версию TRASSIR и платформу — покажем, какие файлы скачать и в каком порядке ставить, чтобы дойти до последней версии.</p>
+          <p class="sub" style="margin:0">Укажите текущую версию — покажем, какие файлы скачать и в каком порядке ставить.</p>
           <div class="ptabs" role="tablist" aria-label="Как искать">
             <button type="button" role="tab" data-mode="build" aria-selected="true">По номеру сборки</button>
             <button type="button" role="tab" data-mode="steps" aria-selected="false">По шагам</button>
@@ -847,7 +853,7 @@ function tosRows(list){
 }
 function renderSoft(){
   const plat = (id,title,small,req,body,open,q) => `<details data-plat="${id}" data-q="${esc(lc(title+' '+req+' '+(q||'')))}"${open?' open':''}><summary><h3>${title}</h3><small>${small}</small></summary><div class="body">
-    <p class="req"><span>${req}</span><a href="#">Как установить и обновить</a></p><div class="rows">${body}</div></div></details>`;
+    <p class="req"><span>${req}</span></p><div class="rows">${body}</div></div></details>`;
   const prog = (D) => D.items.map(i=>row(i.n, `${LATEST.v} · ${LATEST.date} · ${i.m}`, i.d)).join('');
   const parts = [plat('win','Windows x64','Client и Server · '+LATEST.v, DIST.win.req, prog(DIST.win), true)];
   if(FLAGS.linux==='1'){
