@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Демо: окно обновления</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--txt:#1d2230;--muted:#6b6f76;--line:#e1e4ea;--pri:#445b9c;--pri-50:#eef1f8;--r:10px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 Inter,system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:48px 16px 64px}
+.back{font-size:13px;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--pri)}
+h1{font-size:26px;font-weight:600;margin:12px 0 8px}
+.sub{color:var(--muted);margin:0 0 28px}
+h2{font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:32px 0 12px}
+ol{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+li{counter-increment:s}
+a.step{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px 18px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);color:inherit;text-decoration:none;transition:border-color .15s,box-shadow .15s}
+a.step:hover{border-color:var(--pri);box-shadow:0 4px 16px rgba(68,91,156,.12)}
+a.step::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--pri-50);color:var(--pri);display:grid;place-items:center;font-size:13px;font-weight:600}
+.step b{display:block;font-weight:600}
+.step span{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.step q{display:block;margin-top:8px;padding-left:10px;border-left:2px solid var(--line);color:var(--muted);font-size:13px;quotes:none}
+.step i{font-style:normal;color:var(--pri);font-weight:500;white-space:nowrap;font-size:14px}
+.note{margin-top:32px;color:var(--muted);font-size:13px}
+@media (max-width:560px){ a.step{grid-template-columns:28px minmax(0,1fr)} .step i{grid-column:2} }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="index.html">← Все прототипы</a>
+  <h1>Демо: окно обновления</h1>
+  <p class="sub">Что поменялось в окне обновления после встречи с Егором. Шаги идут по порядку показа: каждая ссылка открывает окно сразу в нужном состоянии. Под шагом — какой комментарий он закрывает. Слева в прототипе можно открыть всю раскадровку.</p>
+
+  <h2>Обновление по сети</h2>
+  <ol>
+    <li><a class="step" href="client.html?gal=0.0&amp;bare"><div><b>Пришло обновление</b><span>Подарочек на кнопке «Обновление ПО» и у «vms» в дереве. Жёлтой подсветки больше нет.</span><q>Если показываем подарок в дереве — на кнопке тоже иконку.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=0.2&amp;bare"><div><b>Окно «Обновление по сети»</b><span>«Что изменилось в 4.9.15.0» свёрнуто — раскрывается по клику. Галочки автопоиска здесь больше нет.</span><q>«Что изменилось» — разворачивающимся списком; галочку лучше отсюда вынести.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=0.3&amp;bare"><div><b>Загрузка в фоне</b><span>Окно закрылось, ход загрузки — строкой под кнопками и у «vms» в дереве.</span><q>Лоудер нравится; мегабайты покажем, минуты — обсудим с разработкой.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=0.5&amp;bare"><div><b>«Перезапустить и установить»</b><span>Можно отложить («Позже») или удалить загруженное.</span><q>Сделать кнопку «Удалить это обновление».</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=0.6&amp;bare"><div><b>Установка позже</b><span>Загруженное ждёт в строке под кнопками: «Перезапустить и установить» или «Удалить».</span><q>Загрузить днём, а установить вечером, когда операторы ушли.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=0.7&amp;bare"><div><b>Пока ждали — вышла версия новее</b><span>Окно предлагает удалить загруженную 4.9.15.0 и загрузить 4.9.16.0.</span><q>Написать, что вышла новая версия: можно загрузить её, а старую удалить.</q></div><i>Открыть →</i></a></li>
+  </ol>
+
+  <h2>Автопоиск обновлений</h2>
+  <ol>
+    <li><a class="step" href="client.html?gal=2.0&amp;bare"><div><b>Настройка в разделе «Сеть»</b><span>Раздел по реальному интерфейсу, галочка «Автоматически искать обновления ПО» — под «Шифрованием портов».</span><q>В настройках сети эту галочку добавить.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=2.1&amp;bare"><div><b>Автопоиск выключен — окно «по сети»</b><span>Вместо обновления — «Автоматический поиск выключен» и кнопки «Включить» (сразу ищет) или «Обновить из файла».</span><q>Нажимаю «Включить» — он включается и начинается поиск.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=2.2&amp;bare"><div><b>Автопоиск выключен — список изменений</b><span>Та же просьба включить поиск.</span><q>Здесь тоже, если выключен, — просьба включить.</q></div><i>Открыть →</i></a></li>
+  </ol>
+
+  <h2>Обновление из файла</h2>
+  <ol>
+    <li><a class="step" href="client.html?gal=1.0&amp;bare"><div><b>Поиск файлов</b><span>Пока ищем — «Если поиск идёт долго, выберите файл вручную» и «Обзор…».</span><q>Если файл долго ищется — выбрать вручную, и тогда уже «Обзор».</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=1.2&amp;bare"><div><b>Файл выбран вручную</b><span>В списке только выбранный файл. Галочки автопоиска нет.</span><q>Если выбрал вручную — тут будет один файл.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=1.3&amp;bare"><div><b>Ничего не нашлось</b><span>Адрес сайта — видимым текстом, чтобы набрать с телефона.</span><q>Ссылку текстом поставить, чтобы мог ввести сам.</q></div><i>Открыть →</i></a></li>
+  </ol>
+
+  <h2>Справка</h2>
+  <ol>
+    <li><a class="step" href="client.html?gal=3.0&amp;bare"><div><b>Список изменений</b><span>«Доступна» — только у последней версии, у промежуточных отметок нет.</span><q>«Доступна» писать только для последней.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="client.html?gal=3.1&amp;bare"><div><b>Журнал обновлений</b><span>Весь список сразу, без отката и без «Сохранить для техподдержки».</span><q>Возвращение пока уберём; список — сразу весь; лишнее урезать.</q></div><i>Открыть →</i></a></li>
+  </ol>
+
+  <p class="note">«Осталось ~N мин» при загрузке и полоса при передаче файла на сервер — вопросы к разработке. Номера версий, размеры и записи журнала условные.</p>
+</main>
+</body>
+</html>

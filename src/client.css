@@ -8,7 +8,7 @@
   --box-info:#eef2fb; --box-info-bd:#c9d3ee; --box-warn:#fff7e3; --box-warn-bd:#efd69a; --box-err:#fdf0f2; --box-err-bd:#efc0c9;
   --u-gap:12px; --u-txt:12px;
   /* окно настроек нового формата — по макету Figma 30181:111420, в натуральную величину */
-  --n-txt:13px; --n-ink:#1c1c1c; --n-tree-bd:#b6b6b6; --n-tree-sel:#e3e3e3; --n-bd:#c3c3c3;
+  --n-txt:13px; --n-ink:#1c1c1c; --n-tree-bd:#b6b6b6; --n-tree-sel:#e3e3e3; --n-bd:#c3c3c3; --n-grid:#d9d9d9; --n-head:#f3f3f3;
   --pos:#158d2d; --neg:#c02f2f; --na:#8f9093;
   --hot-bg:#fff0c2; --hot-bd:#e2b33c;   /* «Обновление ПО» подсвечена жёлтым, когда пришло обновление (набросок продукта) */
 }
@@ -69,7 +69,7 @@
 .pg-ver .r{text-align:right}
 .pg-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .umenu-w{position:relative}
-.uupd.hot{background:var(--hot-bg);border-color:var(--hot-bd)}
+.uupd .gift{color:var(--amber)}
 .uupd .warn{width:16px;height:16px}
 .pg-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;margin-top:28px}
 .pg-h{margin:0 0 6px}
@@ -194,6 +194,9 @@
 .fstate .t>svg,.fstate .spin{flex:none;width:20px;height:20px;display:grid;place-items:center}
 .fstate .spin svg{animation:spin 1s linear infinite}
 .fnote{margin:0 0 0 28px;color:#4b5060}
+/* «из файла»: пока идёт поиск — можно выбрать файл вручную */
+.fman{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-left:28px;color:#4b5060}
+.lnk.url{word-break:break-all}
 .fsrc{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--grey);font-size:11px}
 
 .ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -255,3 +258,23 @@
 .uscn p{margin:2px 0 0;color:var(--grey);line-height:1.35}
 
 @media (max-width:1100px){ .gal-on .stage{left:0} .ugal{box-shadow:4px 0 20px rgba(0,0,0,.15)} }
+
+/* ---------- раздел «Сеть» — по скриншоту реального интерфейса ---------- */
+.netp{display:flex;flex-direction:column;gap:4px;min-height:100%}
+.netp .cap{margin:6px 0 2px}
+.ntbl{flex:1;min-height:110px;border:1px solid var(--n-bd);background:#fff;display:flex;flex-direction:column;font-size:12px}
+.ntbl .th,.ntbl .tr{display:grid;grid-template-columns:minmax(0,1fr) 100px 100px 100px}
+.ntbl .th{background:var(--n-head);border-bottom:1px solid var(--n-grid)}
+.ntbl .th span{padding:4px 6px;border-right:1px solid var(--n-grid)}
+.ntbl .tr span{padding:4px 6px}
+.ntbl .tr .ind{padding-left:26px}
+.gbox{border:1px solid var(--n-grid);margin:8px 0 0;padding:4px 10px 8px;min-width:0}
+.gbox legend{padding:0 4px;font-size:12px}
+.gbox p{margin:4px 0}
+.gbox .gr{display:flex;align-items:center;gap:8px;margin:6px 0}
+.netp .mut{color:var(--grey)}
+.nsel{height:22px;min-width:68px;border:1px solid var(--btn-bd);background:#fff;padding:0 6px;display:inline-flex;align-items:center;font-size:12px}
+.nsel::after{content:"▾";margin-left:auto;padding-left:8px;font-size:10px;color:#555}
+.netupd{padding:10px 2px 2px}
+.nmore{display:flex;align-items:center;gap:8px;padding:6px 2px 0}
+.nmore::before{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #555}
