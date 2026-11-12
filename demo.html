@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Демо: страница загрузок</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--txt:#1d2230;--muted:#6b6f76;--line:#e1e4ea;--pri:#445b9c;--pri-50:#eef1f8;--r:10px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 Inter,system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:48px 16px 64px}
+.back{font-size:13px;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--pri)}
+h1{font-size:26px;font-weight:600;margin:12px 0 8px}
+.sub{color:var(--muted);margin:0 0 28px}
+h2{font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:32px 0 12px}
+ol{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+li{counter-increment:s}
+a.step{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px 18px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);color:inherit;text-decoration:none;transition:border-color .15s,box-shadow .15s}
+a.step:hover{border-color:var(--pri);box-shadow:0 4px 16px rgba(68,91,156,.12)}
+a.step::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--pri-50);color:var(--pri);display:grid;place-items:center;font-size:13px;font-weight:600}
+.step b{display:block;font-weight:600}
+.step span{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.step q{display:block;margin-top:8px;padding-left:10px;border-left:2px solid var(--line);color:var(--muted);font-size:13px;quotes:none}
+.step i{font-style:normal;color:var(--pri);font-weight:500;white-space:nowrap;font-size:14px}
+.note{margin-top:32px;color:var(--muted);font-size:13px}
+@media (max-width:560px){ a.step{grid-template-columns:28px minmax(0,1fr)} .step i{grid-column:2} }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="index.html">← Все прототипы</a>
+  <h1>Демо: страница загрузок</h1>
+  <p class="sub">Что поменялось на сайте после встречи с Егором. Шаги идут по порядку показа: каждая ссылка открывает сайт сразу в нужном состоянии. Под шагом — какой комментарий он закрывает.</p>
+
+  <h2>Страница</h2>
+  <ol>
+    <li><a class="step" href="site.html"><div><b>Страница целиком</b><span>Без синей подложки, в стиле сайта. «ПО TRASSIR», «Мобильный клиент», «Драйверы», «Утилиты» — заголовки одного уровня, «Другие программы» убрали.</span><q>Убрать синий фон, сделать в едином стиле; заголовки должны быть равнозначны.</q></div><i>Открыть →</i></a></li>
+  </ol>
+
+  <h2>Подбор по номеру сборки</h2>
+  <ol>
+    <li><a class="step" href="site.html?res=b_single"><div><b>Одно обновление — сухая выдача</b><span>Только файлы: имя, версия, дата, размер. Имя — ссылка (копируется правой кнопкой), рядом «Копировать ссылку» и «Скачать». Сервер и клиент — одним списком, без вкладок. Подсказка ⓘ у поля — где посмотреть номер сборки.</span><q>Максимально упростить выдачу; без разделения на сервер и клиент; кнопка «Копировать ссылку».</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="site.html?res=b_chain"><div><b>Обновление в 3 шага</b><span>Шаги по порядку, на каждом — файлы. Без плюсов и минусов и второй колонки «Установить заново» — она стала одной строкой.</span><q>Убрать «можно удалённо», «ехать не нужно» и прочие пояснения.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="site.html?res=b_serial"><div><b>Серийный номер — только когда нужен</b><span>Сборка стояла на нескольких моделях: поле серийного номера появляется в результате, с объяснением зачем и подсказкой, где его найти. В форме поиска поля больше нет.</span><q>Серийный номер появляется, только когда это необходимо, и где его посмотреть.</q></div><i>Открыть →</i></a></li>
+  </ol>
+
+  <h2>Подбор по шагам</h2>
+  <ol>
+    <li><a class="step" href="site.html?res=arm"><div><b>Регистратор: модель — второй шаг</b><span>Платформа → модель регистратора из списка → версия ПО. Новый подзаголовок объясняет, зачем вводить свою версию.</span><q>Для TRASSIR OS вторым шагом — модель регистратора; подзаголовок сделать понятнее.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="site.html?res=ambig"><div><b>Модель с разными прошивками</b><span>У MiniNVR 3216R есть исполнения с разными прошивками — тогда спрашиваем серийный номер. Для демо можно нажать один из номеров под полем.</span><q>Серийный номер — опционально, только если без него не подобрать.</q></div><i>Открыть →</i></a></li>
+  </ol>
+
+  <h2>Скачать ПО TRASSIR</h2>
+  <ol>
+    <li><a class="step" href="site.html?q=4216"><div><b>Поиск по всем полям</b><span>Ищет по модели, платформе, программе и имени файла, подсвечивает найденное. Можно несколько слов — например, «astra client».</span><q>Поиск по всем полям, который фильтрует список.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="site.html?models=inline&amp;open=tos"><div><b>Модели регистраторов — вариант Б: строкой</b><span>Модели одной строкой под файлом, длинный список — «и ещё N». Предлагаем по умолчанию.</span><q>Список моделей растёт — сделать компактнее, без смещения на два столбца; показать варианты.</q></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="site.html?models=table&amp;open=tos"><div><b>Вариант А: таблица «модель → файл»</b><span>Строка на модель — свою легко найти глазами, но таблица длинная.</span></div><i>Открыть →</i></a></li>
+    <li><a class="step" href="site.html?models=pick&amp;open=tos"><div><b>Вариант В: выбор модели</b><span>Только файлы, модель выбирается из списка — остаётся один файл.</span></div><i>Открыть →</i></a></li>
+  </ol>
+
+  <p class="note">Все состояния есть и в переключателе «Сценарии» внизу слева на странице. Номера сборок, серийные номера и правила подбора условные.</p>
+</main>
+</body>
+</html>
