@@ -83,16 +83,6 @@ main > section#soft{margin-top:24px}
 #soft .card,#soft .acc details{box-shadow:none}
 .sub-s{margin-top:24px}
 h3.t{font-size:17px;margin:0 0 4px}
-/* два пути внутри «ПО TRASSIR»: А — три карточки-входа, Б — вкладки, В — без разделения */
-.paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
-.path{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:center;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);color:inherit}
-.path:hover{border-color:var(--navy);text-decoration:none}
-.path b{font-weight:500;font-size:15px;color:var(--text)}
-.path span{grid-column:1;font-size:13px;color:var(--muted-2)}
-.path i{grid-column:2;grid-row:1/span 2;font-style:normal;color:var(--link);font-size:18px}
-.stabs{margin:16px 0 0}
-.stabs button{font-size:15px}
-.off{display:none!important}
 /* инструкции */
 .guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 32px;padding:18px var(--pad)}
 .guides h4{font-size:14px;font-weight:500;margin:0 0 8px}
@@ -290,7 +280,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
   .inp,.filter .inp{width:100%}
   .file{grid-template-columns:minmax(0,1fr)}
   .fa{justify-self:start}
-  .paths,.guides{grid-template-columns:minmax(0,1fr)}
+  .guides{grid-template-columns:minmax(0,1fr)}
   .mhead{display:none}
   .help{grid-template-columns:minmax(0,1fr)}
   .chip{flex:1 1 calc(50% - 8px)}
@@ -338,9 +328,6 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
           <div class="links"><a href="#">Полный список изменений</a><a href="#">Изменения в прошлых версиях</a></div>
         </div>
       </div>
-
-      <!-- два пути: обновить установленный TRASSIR или скачать файлы и поставить с нуля; плюс инструкции. Вид — флаг paths -->
-      <div id="paths"></div>
 
       <!-- подбор обновления -->
       <section id="pick" class="sub-s">
@@ -468,8 +455,6 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
     <option value="badver">Неверный формат версии</option>
     </optgroup>
   </select>
-  <label for="fPaths">Два пути: обновить или установить с нуля</label>
-  <select id="fPaths"><option value="cards">А. Три карточки-входа (предлагаем)</option><option value="tabs">Б. Вкладки</option><option value="plain">В. Без разделения, инструкции внизу</option></select>
   <label for="fModels">Модели в «Скачать ПО TRASSIR»</label>
   <select id="fModels"><option value="inline">Б. Строкой под файлом (предлагаем)</option><option value="table">А. Таблица «модель → файл»</option><option value="pick">В. Выбор модели из списка</option><option value="cols">Было: список в два столбца</option></select>
   <label for="fLinux">Astra Linux и Debian</label>
@@ -587,7 +572,7 @@ const UTILS = [
 ];
 
 /* ================= флаги ================= */
-const FLAGS = {paths:'cards', models:'inline', linux:'1', help:'errors'};
+const FLAGS = {models:'inline', linux:'1', help:'errors'};
 try{ const q=new URLSearchParams(location.search); for(const k in FLAGS) if(q.get(k)) FLAGS[k]=q.get(k); }catch(e){}
 function saveFlags(){
   try{ const q=new URLSearchParams(location.search); for(const k in FLAGS) q.set(k,FLAGS[k]); history.replaceState(null,'','?'+q.toString()+location.hash); }catch(e){}
@@ -954,38 +939,15 @@ function applyPreset(k){
     $('#model').value=p.model||''; $('#ver').value=p.ver; run(false);
   }
   if(p.sn && RC && RC.ask){ RC.rec=SERIALS[p.sn]; drawRC(false); }
-  showPath('pick'); $('#pick').scrollIntoView({behavior:'smooth'});
+  $('#pick').scrollIntoView({behavior:'smooth'});
 }
-function syncFlagUI(){ $('#fPaths').value=FLAGS.paths; $('#fModels').value=FLAGS.models; $('#fLinux').value=FLAGS.linux; $('#fHelp').value=FLAGS.help; }
+function syncFlagUI(){ $('#fModels').value=FLAGS.models; $('#fLinux').value=FLAGS.linux; $('#fHelp').value=FLAGS.help; }
 $('#scnBtn').addEventListener('click', ()=>{ const s=$('#scn'); s.hidden=!s.hidden; $('#scnBtn').setAttribute('aria-expanded', String(!s.hidden)); });
 $('#fRes').addEventListener('change', e=>{ applyPreset(e.target.value); try{ const q=new URLSearchParams(location.search); e.target.value?q.set('res',e.target.value):q.delete('res'); history.replaceState(null,'','?'+q.toString()); }catch(_){} });
-[['fPaths','paths'],['fModels','models'],['fLinux','linux'],['fHelp','help']].forEach(([id,k])=>$('#'+id).addEventListener('change', e=>{
-  FLAGS[k]=e.target.value; saveFlags(); renderChips(); renderSoft(); renderHelpAlways(); renderPaths();
+[['fModels','models'],['fLinux','linux'],['fHelp','help']].forEach(([id,k])=>$('#'+id).addEventListener('change', e=>{
+  FLAGS[k]=e.target.value; saveFlags(); renderChips(); renderSoft(); renderHelpAlways();
   if(RC && !RC.notfound) drawRC(false);
 }));
-
-/* ---------- два пути: обновить установленный TRASSIR или скачать файлы; плюс инструкции ---------- */
-const PATHS = [
-  {id:'pick', t:'Обновить TRASSIR', d:'Подбор нужных файлов', tab:'Обновить'},
-  {id:'files', t:'Установить с нуля', d:'Файлы по платформам', tab:'Скачать файлы'},
-  {id:'guides', t:'Инструкции', d:'Установка и обновление', tab:'Инструкции'}
-];
-let curPath='pick';
-function renderPaths(){
-  const box=$('#paths');
-  if(FLAGS.paths==='cards') box.innerHTML = `<div class="paths">${PATHS.map(p=>`<a class="path" href="#${p.id}"><b>${p.t}</b><span>${p.d}</span><i aria-hidden="true">→</i></a>`).join('')}</div>`;
-  else if(FLAGS.paths==='tabs') box.innerHTML = `<div class="ptabs stabs" role="tablist" aria-label="Что нужно">${PATHS.map(p=>`<button type="button" role="tab" data-path="${p.id}" aria-selected="${p.id===curPath}">${p.tab}</button>`).join('')}</div>`;
-  else box.innerHTML='';
-  showPath(curPath);
-}
-// во вкладках виден только выбранный раздел; в остальных вариантах — все
-function showPath(id){
-  curPath=id; const tabs=FLAGS.paths==='tabs';
-  PATHS.forEach(p=>$('#'+p.id).classList.toggle('off', tabs && p.id!==id));
-  document.querySelectorAll('[data-path]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.path===id)));
-}
-$('#paths').addEventListener('click', e=>{ const b=e.target.closest('[data-path]'); if(b) showPath(b.dataset.path); });
-document.addEventListener('click', e=>{ const a=e.target.closest('a[href^="#"]'); if(!a) return; const id=a.getAttribute('href').slice(1); if(PATHS.some(p=>p.id===id)) showPath(id); });
 
 /* ---------- подсказки ⓘ и копирование ссылок ---------- */
 const tip = document.createElement('div'); tip.className='tip'; tip.setAttribute('role','tooltip'); document.body.appendChild(tip);
@@ -1013,14 +975,14 @@ $('#latestV').textContent = LATEST.v;
 $('#latestD').textContent = 'от ' + LATEST.date;
 $('#latestChanges').innerHTML = CHANGES.map(c=>`<li>${c}</li>`).join('');
 document.querySelectorAll('.qi').forEach(q=>{ if(!q.innerHTML) q.innerHTML=IC.i; });
-renderModels(); syncFlagUI(); renderChips(); renderSoft(); renderHelpAlways(); renderPaths();
+renderModels(); syncFlagUI(); renderChips(); renderSoft(); renderHelpAlways();
 try{ const r=new URLSearchParams(location.search).get('res'); if(r&&PRESETS[r]){ $('#fRes').value=r; applyPreset(r); } }catch(e){}
 // ссылки для демо: ?open=tos — раскрыть регистраторы в «Скачать ПО TRASSIR», ?q=4216 — сразу заполнить поиск по файлам
 try{
   const q=new URLSearchParams(location.search), open=q.get('open'), find=q.get('q');
   if(open==='tos') document.querySelectorAll('#softList details[data-plat=tos2],#softList details[data-plat=arm]').forEach(d=>d.open=true);
   if(find){ $('#modelFilter').value=find; filterSoft(find); }
-  if(open||find){ showPath('files'); setTimeout(()=>$('#files').scrollIntoView({block:'start'}),50); }
+  if(open||find) setTimeout(()=>$('#files').scrollIntoView({block:'start'}),50);
 }catch(e){}
 
 </script>
