@@ -85,11 +85,11 @@ main > section#soft{margin-top:24px}
 h3.t{font-size:17px;margin:0 0 4px}
 /* два пути внутри «ПО TRASSIR»: А — три карточки-входа, Б — вкладки, В — без разделения */
 .paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
-.path{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);color:inherit}
+.path{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:center;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);color:inherit}
 .path:hover{border-color:var(--navy);text-decoration:none}
 .path b{font-weight:500;font-size:15px;color:var(--text)}
-.path span{font-size:13px;color:var(--muted-2)}
-.path i{font-style:normal;color:var(--link);font-size:13px;margin-top:auto;padding-top:6px}
+.path span{grid-column:1;font-size:13px;color:var(--muted-2)}
+.path i{grid-column:2;grid-row:1/span 2;font-style:normal;color:var(--link);font-size:18px}
 .stabs{margin:16px 0 0}
 .stabs button{font-size:15px}
 .off{display:none!important}
@@ -966,14 +966,14 @@ $('#fRes').addEventListener('change', e=>{ applyPreset(e.target.value); try{ con
 
 /* ---------- два пути: обновить установленный TRASSIR или скачать файлы; плюс инструкции ---------- */
 const PATHS = [
-  {id:'pick', t:'Обновить установленный TRASSIR', d:'Подберём файлы и порядок установки по номеру сборки или версии.', a:'Подобрать обновление', tab:'Обновить'},
-  {id:'files', t:'Установить с нуля', d:'Файлы по платформам. Ими же можно и обновиться.', a:'К файлам', tab:'Скачать файлы'},
-  {id:'guides', t:'Инструкции', d:'Как установить с нуля и как обновить.', a:'Открыть', tab:'Инструкции'}
+  {id:'pick', t:'Обновить TRASSIR', d:'Подбор нужных файлов', tab:'Обновить'},
+  {id:'files', t:'Установить с нуля', d:'Файлы по платформам', tab:'Скачать файлы'},
+  {id:'guides', t:'Инструкции', d:'Установка и обновление', tab:'Инструкции'}
 ];
 let curPath='pick';
 function renderPaths(){
   const box=$('#paths');
-  if(FLAGS.paths==='cards') box.innerHTML = `<div class="paths">${PATHS.map(p=>`<a class="path" href="#${p.id}"><b>${p.t}</b><span>${p.d}</span><i>${p.a} →</i></a>`).join('')}</div>`;
+  if(FLAGS.paths==='cards') box.innerHTML = `<div class="paths">${PATHS.map(p=>`<a class="path" href="#${p.id}"><b>${p.t}</b><span>${p.d}</span><i aria-hidden="true">→</i></a>`).join('')}</div>`;
   else if(FLAGS.paths==='tabs') box.innerHTML = `<div class="ptabs stabs" role="tablist" aria-label="Что нужно">${PATHS.map(p=>`<button type="button" role="tab" data-path="${p.id}" aria-selected="${p.id===curPath}">${p.tab}</button>`).join('')}</div>`;
   else box.innerHTML='';
   showPath(curPath);
