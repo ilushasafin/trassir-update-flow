@@ -109,6 +109,7 @@ const sh = (k,title,text,tip) => `<div class="sh">${ICO(k)}<div><b>${title}${tip
 const box = (k,html) => `<div class="ubox ${k}">${html}</div>`;
 const ck = (key,label,sub) => `<label class="ck"><button type="button" class="cb" role="checkbox" aria-checked="${!!S[key]}" data-ck="${key}">${ICON.check}</button><span>${label}${sub?hint(sub):''}</span></label>`;
 const lnk = (act,t) => `<a class="lnk" data-act="${act}" tabindex="0">${t}</a>`;
+const bAct = (act,t) => `<button type="button" class="nbtn sm" data-act="${act}">${t}</button>`;
 const site = () => `<a class="lnk url" href="${SITE}" target="_blank">${SITE_TXT}</a>`;
 const ul = a => `<ul class="chg">${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
 const mb = v => v>=1000 ? (v/1000).toFixed(1).replace('.',',')+' ГБ' : Math.round(v)+' МБ';
@@ -290,6 +291,7 @@ function vmsMark(){
   const st=netState();
   if(st==='busy') return `<span class="vmk busy" data-tip="Сервер перезапускается для установки обновления">${SPIN}обновляется</span>`;
   if(st==='dl'){ const p=Math.floor(S.dl.done/S.dl.total*100);
+    if(S.dl.state==='stopped') return `<span class="vmk" data-tip="Загрузка остановлена">${GIFT}</span>`;
     if(S.dl.state==='paused') return `<span class="vmk" data-tip="Загрузка на паузе — нет связи">${GIFT}пауза</span>`;
     if(S.dl.state==='fail') return `<span class="vmk err" data-tip="Загрузка обновления не удалась">${GIFT}</span>`;
     return `<span class="vmk run" data-tip="${S.dl.src==='net'?'Загружаем':'Передаём на сервер'} ${S.dl.target}">↓ ${p}%</span>`; }
@@ -312,12 +314,12 @@ function pathOf(id){
 }
 function updBtnHtml(){
   const st=netState(); let attn=false, title='';
-  if(st==='dl'){ if(S.dl.state!=='run'){ attn=true; title=S.dl.state==='paused'?'Загрузка на паузе — нет связи':'Загрузка обновления не удалась'; } else title=`Загружаем ${S.dl.target} в фоне`; }
+  if(st==='dl'){ if(S.dl.state!=='run'){ attn=true; title=S.dl.state==='stopped'?'Загрузка остановлена':S.dl.state==='paused'?'Загрузка на паузе — нет связи':'Загрузка обновления не удалась'; } else title=`Загружаем ${S.dl.target} в фоне`; }
   else if(st==='ready'){ attn=true; title=`${S.ready.target} загружено и готово к установке`; }
   else if(st==='busy'){ title='Сервер перезапускается для установки обновления'; }
   else if(st==='avail'||st==='old'||st==='space'){ attn=true; title=`Доступно обновление до ${LATEST}`; }
   // подсветки нет — только подарочек, пока есть что загрузить или установить
-  const gift = attn && (st==='avail'||st==='old'||st==='space'||st==='ready');
+  const gift = attn && (st==='avail'||st==='old'||st==='space'||st==='ready'||(st==='dl'&&S.dl.state==='stopped'));
   const open = $('menu') && !$('menu').hidden;
   return `<button type="button" class="nbtn uupd" id="updBtn" aria-haspopup="menu" aria-expanded="${open}" title="${esc(title)}"${st==='busy'?' disabled':''}>${gift?GIFT:attn?WARN_IMG:''}Обновление ПО</button>`;
 }
@@ -329,17 +331,17 @@ function bgpHtml(){
     const step = steps[Math.min(b.step, steps.length-1)].t;
     return row('', BI.spin, `<b>Устанавливаем ${b.to}</b>`, `${step} · сервер недоступен около 5 минут`, '', '', true); }
   if(S.dl){ const d=S.dl, pct=Math.floor(d.done/d.total*100), what=d.src==='net'?'Загружаем':'Передаём на сервер';
-    if(d.state==='paused') return row('warn', BI.pause, '<b>Связь прервалась</b> — продолжим, когда она вернётся', `${mb(d.done)} из ${mb(d.total)}`, `${lnk('resume','Повторить сейчас')}${lnk('cancelDl','Отменить')}`, pbar(pct,'paused'));
-    if(d.state==='fail') return row('err', BI.err, '<b>Загрузка не удалась</b> — связь обрывалась слишком часто', `загруженное сохранено: ${mb(d.done)} из ${mb(d.total)}`, `${lnk('retry','Повторить')}${lnk('file','Обновить из файла')}`, pbar(pct,'fail'));
-    return row('', BI.dl, `<b>${what} ${d.target}</b>`, `${mb(d.done)} из ${mb(d.total)} · осталось ${left(d.total-d.done)}`, lnk('cancelDl','Отменить'), pbar(pct)); }
-  if(S.ready) return row('ok', BI.ok, `<b>${S.ready.target} загружено</b>`, S.newerOut&&newer(NEXT.v,S.ready.target)?`вышла версия новее — ${NEXT.v}`:'можно устанавливать', `${lnk('install','Перезапустить и установить')}${lnk('delReady','Удалить')}`);
+    // остановили сами: можно продолжить с того же места или удалить загруженное
+    if(d.state==='stopped') return row('', BI.pause, '<b>Загрузка остановлена</b>', `загружено ${mb(d.done)} из ${mb(d.total)}`, `${bAct('resume','Продолжить')}${bAct('delDl','Удалить загруженное')}`, pbar(pct,'paused'));
+    if(d.state==='paused') return row('warn', BI.pause, '<b>Связь прервалась</b> — продолжим, когда она вернётся', `${mb(d.done)} из ${mb(d.total)}`, `${lnk('resume','Повторить сейчас')}${bAct('stopDl','Остановить')}`, pbar(pct,'paused'));
+    if(d.state==='fail') return row('err', BI.err, '<b>Загрузка не удалась</b> — связь обрывалась слишком часто', `загруженное сохранено: ${mb(d.done)} из ${mb(d.total)}`, `${lnk('retry','Повторить')}${lnk('file','Обновить из файла')}${bAct('delDl','Удалить загруженное')}`, pbar(pct,'fail'));
+    return row('', BI.dl, `<b>${what} ${d.target}</b>`, `${mb(d.done)} из ${mb(d.total)} · осталось ${left(d.total-d.done)}`, bAct('stopDl','Остановить'), pbar(pct)); }
+  if(S.ready) return row('ok', BI.ok, `<b>${S.ready.target} загружено</b>`, S.newerOut&&newer(NEXT.v,S.ready.target)?`вышла версия новее — ${NEXT.v}`:'можно устанавливать', `${lnk('install','Перезапустить и установить')}${bAct('delReady','Удалить')}`);
   const n=S.note; if(!n) return '';
   const x = '<button type="button" class="x" data-act="dismiss" aria-label="Скрыть">×</button>';
-  if(n.k==='canceled') return row('', BI.dl, '<b>Загрузка отменена</b>', 'загруженная часть хранится 7 дней', `${lnk('resumeCanceled','Продолжить загрузку')}${x}`);
   if(n.k==='ok'){
     return row('ok', BI.ok, `<b>Установлена версия ${S.cur}</b>`, 'сервер работает', `${lnk('changes','Что нового')}${x}`); }
   if(n.k==='fail') return row('err', BI.err, `<b>${S.failTo} не установилась</b> — сервер сам вернулся на ${S.cur}`, 'подробности в журнале', `${lnk('log','Журнал обновлений')}${x}`);
-  if(n.k==='deleted') return row('', BI.dl, '<b>Загруженное обновление удалено</b>', 'загрузить снова — в «Обновление ПО»', x);
   return '';
 }
 function renderPage(){
@@ -397,7 +399,7 @@ function drawProgress(){
   const c=document.querySelector('#menu .chip.run'); if(c) c.textContent=`Загрузка ${pct}%`;
 }
 function chipFor(st){
-  if(st==='dl') return S.dl.state==='paused'?'<span class="chip w">Пауза — нет связи</span>':S.dl.state==='fail'?'<span class="chip w">Загрузка не удалась</span>':`<span class="chip run">Загрузка ${Math.floor(S.dl.done/S.dl.total*100)}%</span>`;
+  if(st==='dl') return S.dl.state==='stopped'?'<span class="chip">Загрузка остановлена</span>':S.dl.state==='paused'?'<span class="chip w">Пауза — нет связи</span>':S.dl.state==='fail'?'<span class="chip w">Загрузка не удалась</span>':`<span class="chip run">Загрузка ${Math.floor(S.dl.done/S.dl.total*100)}%</span>`;
   if(st==='busy') return '<span class="chip run">Устанавливается</span>';
   if(st==='ready') return '<span class="chip ok">Готово к установке</span>';
   if(st==='avail'||st==='space'||st==='old') return `<span class="chip ok">Доступна ${LATEST}</span>`;
@@ -449,7 +451,9 @@ function finishDl(){
   if(S.restartNow) return startRestart('install');  // галочка стояла — всё само, без окон
   if(!CUR) open('ready'); else renderPage();          // иначе — одно окно «Перезапустить и установить»
 }
-function cancelDl(){ clearTimeout(tDl); S.dl=null; S.note={k:'canceled'}; renderPage(); }
+// остановить загрузку — загруженное остаётся; удалить — чистим и возвращаемся к «доступно обновление»
+function stopDl(){ clearTimeout(tDl); if(S.dl){ S.dl.state='stopped'; S.dl.frozen=false; } renderPage(); }
+function delDl(){ clearTimeout(tDl); S.dl=null; S.note=null; renderPage(); }
 function dropConn(){ if(!S.dl||S.dl.state!=='run') return; clearTimeout(tDl); S.dl.state='paused'; renderPage(); }
 
 function restartSteps(){
@@ -490,13 +494,12 @@ const ACT = {
   refind:()=>startFind(),
   exp:a=>{ S.exp[a.dataset.k]=!S.exp[a.dataset.k]; draw(); },
   toArchive:()=>{ S.net='avail'; $('sNet').value='avail'; open('net','avail'); },
-  cancelDl:()=>cancelDl(),
+  stopDl:()=>stopDl(), delDl:()=>delDl(),
   resume:()=>{ S.dl.state='run'; S.dl.frozen=false; renderPage(); tickDl(); },
   retry:()=>{ S.dl.state='run'; S.dl.failed=true; S.dl.frozen=false; renderPage(); tickDl(); },
-  resumeCanceled:()=>{ S.note=null; S.dl={src:'net',target:LATEST,total:SIZE,done:SIZE*0.42,state:'run'}; renderPage(); tickDl(); },
   install:()=>open('ready'),
   // удалить загруженное: место освобождается, обновление снова «доступно»
-  delReady:()=>{ S.ready=null; S.note={k:'deleted'}; CUR=null; S.back=[]; draw(); },
+  delReady:()=>{ S.ready=null; S.note=null; CUR=null; S.back=[]; draw(); },
   swapNewer:()=>{ S.ready=null; startDl('net',NEXT.v,SIZE); },
   dismiss:()=>{ S.note=null; renderPage(); }
 };
@@ -617,7 +620,8 @@ const GAL = [
     {t:'7. Установка позже', s:'Загружено — в строке под кнопками', run:()=>scen('avail',()=>{ S.ready={target:LATEST}; })},
     {t:'8. Пока ждали — вышла версия новее', s:'Удалить эту и загрузить новую', run:()=>{ scen('avail',()=>{ S.ready={target:LATEST}; S.newerOut=true; $('sNewer').value='yes'; }); open('ready'); }},
     {t:'9. Установка в фоне', s:'«обновляется» у «vms» в дереве', run:()=>scen('avail',()=>{ S.busy={kind:'install',from:S.cur,to:LATEST,step:1,frozen:true}; })},
-    {t:'10. Готово', s:'Новая версия и «Что нового»', run:()=>scen('avail',doneOk)}]},
+    {t:'10. Готово', s:'Новая версия и «Что нового»', run:()=>scen('avail',doneOk)},
+    {t:'Загрузка остановлена', s:'Продолжить или удалить загруженное', run:()=>scen('avail',()=>frozenDl('net',.42,'stopped'))}]},
   {g:'Обновление из файла', items:[
     {t:'1. Поиск файлов', s:'Долго — можно выбрать вручную', run:()=>{ scen('avail'); open('file','search'); }},
     {t:'2. Найдены файлы', s:'Подходящий отмечен', run:()=>{ scen('avail'); open('file','found'); }},

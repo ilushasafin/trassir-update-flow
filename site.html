@@ -83,6 +83,20 @@ main > section#soft{margin-top:24px}
 #soft .card,#soft .acc details{box-shadow:none}
 .sub-s{margin-top:24px}
 h3.t{font-size:17px;margin:0 0 4px}
+/* два пути внутри «ПО TRASSIR»: А — три карточки-входа, Б — вкладки, В — без разделения */
+.paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.path{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);color:inherit}
+.path:hover{border-color:var(--navy);text-decoration:none}
+.path b{font-weight:500;font-size:15px;color:var(--text)}
+.path span{font-size:13px;color:var(--muted-2)}
+.path i{font-style:normal;color:var(--link);font-size:13px;margin-top:auto;padding-top:6px}
+.stabs{margin:16px 0 0}
+.stabs button{font-size:15px}
+.off{display:none!important}
+/* инструкции */
+.guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 32px;padding:18px var(--pad)}
+.guides h4{font-size:14px;font-weight:500;margin:0 0 8px}
+.guides ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13px}
 
 /* подсказка по иконке ⓘ — вместо раскрывающихся пояснений */
 .qi{display:inline-grid;place-items:center;width:18px;height:18px;margin-left:6px;vertical-align:-3px;color:var(--muted);cursor:help;border-radius:50%}
@@ -276,6 +290,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
   .inp,.filter .inp{width:100%}
   .file{grid-template-columns:minmax(0,1fr)}
   .fa{justify-self:start}
+  .paths,.guides{grid-template-columns:minmax(0,1fr)}
   .mhead{display:none}
   .help{grid-template-columns:minmax(0,1fr)}
   .chip{flex:1 1 calc(50% - 8px)}
@@ -306,7 +321,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
     <h1>Программное обеспечение TRASSIR</h1>
 
     <nav class="jump" id="jump" aria-label="На этой странице">
-      <a href="#pick">Подобрать обновление</a><a href="#files">Скачать ПО TRASSIR</a><a href="#mobile">Мобильный клиент</a><a href="#drivers">Драйверы</a><a href="#utils">Утилиты</a>
+      <a href="#pick">Подобрать обновление</a><a href="#files">Скачать ПО TRASSIR</a><a href="#guides">Инструкции</a><a href="#mobile">Мобильный клиент</a><a href="#drivers">Драйверы</a><a href="#utils">Утилиты</a>
     </nav>
 
     <!-- ===== ПО TRASSIR: актуальная версия, подбор обновления и файлы — в общем стиле сайта, без подложки ===== -->
@@ -322,6 +337,9 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
         </div>
       </div>
 
+      <!-- два пути: обновить установленный TRASSIR или скачать файлы и поставить с нуля; плюс инструкции. Вид — флаг paths -->
+      <div id="paths"></div>
+
       <!-- подбор обновления -->
       <section id="pick" class="sub-s">
         <div class="card pick">
@@ -334,8 +352,8 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
 
           <!-- быстрый поиск: номер сборки (или версия) сразу определяет платформу и версию; серийный номер спросим в результате, только если без него не подобрать -->
           <form id="bf" novalidate>
-            <label class="lbl" for="bn">Номер сборки или версия<span class="qi" tabindex="0" role="img" aria-label="Где посмотреть номер сборки" data-tip="В TRASSIR: «Настройки» → сервер или клиент в списке слева, строка «Сборка» под версией ПО. На регистраторе — на главной странице веб-интерфейса."></span></label>
-            <div class="field big"><input class="inp" id="bn" inputmode="numeric" autocomplete="off" placeholder="Например, 1319665 или 4.9.14.0"><button class="btn btn-pri" type="submit">Найти</button></div>
+            <label class="lbl" for="bn">Номер сборки<span class="qi" tabindex="0" role="img" aria-label="Где посмотреть номер сборки" data-tip="В TRASSIR: «Настройки» → сервер или клиент в списке слева, строка «Сборка» под версией ПО. У сервера и клиента номера сборки разные — по номеру поймём, что обновлять."></span></label>
+            <div class="field big"><input class="inp" id="bn" inputmode="numeric" autocomplete="off" placeholder="Например, 1319665"><button class="btn btn-pri" type="submit">Найти</button></div>
             <div class="ferr" id="eBn" hidden></div>
           </form>
 
@@ -379,6 +397,16 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
         <div class="acc" id="softList"></div>
         <div class="empty" id="modelEmpty" hidden>Ничего не нашли. Проверьте запрос — например, «4216R», «Astra» или «Client». Или <a href="#pick">подберите обновление</a>.</div>
       </section>
+
+      <!-- инструкции — закреплённый блок: как установить с нуля по платформам и как обновиться -->
+      <section id="guides" class="sub-s">
+        <h3 class="t">Инструкции</h3>
+        <p class="sub">Как установить TRASSIR с нуля и как обновить.</p>
+        <div class="card guides">
+          <div><h4>Установка с нуля</h4><ul><li><a href="#">TRASSIR для Windows</a></li><li><a href="#">TRASSIR для Astra Linux и Debian</a></li><li><a href="#">Регистраторы на TRASSIR OS</a></li></ul></div>
+          <div><h4>Обновление</h4><ul><li><a href="#">Из TRASSIR по сети</a></li><li><a href="#">Из TRASSIR из файла</a></li><li><a href="#">Регистраторы на TRASSIR OS</a></li><li><a href="#">Переход на TRASSIR OS 2.0</a></li></ul></div>
+        </div>
+      </section>
     </section>
 
     <!-- у этих программ свои версии; заголовки — того же уровня, что «ПО TRASSIR» -->
@@ -418,7 +446,8 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
     <option value="b_arm">1318402 — регистратор ARM</option>
     <option value="b_serial">1314884 — нужен серийный номер</option>
     <option value="b_serial_up">1314884 + номер — переход на OS 2.0</option>
-    <option value="b_version">4.9.12.0 — поиск по версии</option>
+    <option value="b_client">1319666 — клиент Windows</option>
+    <option value="b_version">4.9.12.0 — версия вместо номера сборки</option>
     <option value="b_notfound">9999999 — не найдено</option>
     <option value="b_bad">abc — неверный формат</option>
     </optgroup>
@@ -436,6 +465,8 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
     <option value="badver">Неверный формат версии</option>
     </optgroup>
   </select>
+  <label for="fPaths">Два пути: обновить или установить с нуля</label>
+  <select id="fPaths"><option value="cards">А. Три карточки-входа (предлагаем)</option><option value="tabs">Б. Вкладки</option><option value="plain">В. Без разделения, инструкции внизу</option></select>
   <label for="fModels">Модели в «Скачать ПО TRASSIR»</label>
   <select id="fModels"><option value="inline">Б. Строкой под файлом (предлагаем)</option><option value="table">А. Таблица «модель → файл»</option><option value="pick">В. Выбор модели из списка</option><option value="cols">Было: список в два столбца</option></select>
   <label for="fLinux">Astra Linux и Debian</label>
@@ -553,7 +584,7 @@ const UTILS = [
 ];
 
 /* ================= флаги ================= */
-const FLAGS = {models:'inline', linux:'1', help:'errors'};
+const FLAGS = {paths:'cards', models:'inline', linux:'1', help:'errors'};
 try{ const q=new URLSearchParams(location.search); for(const k in FLAGS) if(q.get(k)) FLAGS[k]=q.get(k); }catch(e){}
 function saveFlags(){
   try{ const q=new URLSearchParams(location.search); for(const k in FLAGS) q.set(k,FLAGS[k]); history.replaceState(null,'','?'+q.toString()+location.hash); }catch(e){}
@@ -584,20 +615,23 @@ const L = parseVer(LATEST.v);
 const fileUrl = n => 'https://www.dssl.ru/files/trassir/'+encodeURIComponent(n);
 const fileActs = n => `<div class="fa"><button type="button" class="btn btn-sec btn-cp" data-copy="${fileUrl(n)}" data-tip="Копировать ссылку" aria-label="Копировать ссылку">${IC.link}</button><a class="btn btn-dl" href="${fileUrl(n)}" onclick="return false">${IC.dl}Скачать</a></div>`;
 const fileRow = f => `<div class="file"><div><a class="fn" href="${fileUrl(f.name)}" onclick="return false">${esc(f.name)}</a><div class="fm">${esc(f.meta)}</div></div>${fileActs(f.name)}</div>`;
-const note = (kind,html) => `<div class="note ${kind}">${kind==='info'?IC.i:IC.warn}<p>${html}</p></div>`;
+const note = (kind,html) => `<div class="note ${kind}"><p>${html}</p></div>`; // без иконок — по замечанию продукта
 const rhead = (kind,icon,title,text,who) => `<div class="rhead"><div class="ric ${kind}">${icon}</div><div><h3>${title}</h3>${text?`<p>${text}</p>`:''}${who?`<div class="who">${who.map(w=>`<span>${esc(w)}</span>`).join('')}</div>`:''}</div></div>`;
 
 /* ================= подбор обновления: по номеру сборки и по шагам ================= */
 // условная база сборок для демо: номер сборки → версия, платформа (для TRASSIR OS — ещё семейство прошивки)
 const BUILDS = {
-  '1321840':{v:'4.9.15.0', plat:'win',    date:'28.10.2026'},
-  '1319665':{v:'4.9.14.0', plat:'win',    date:'14.10.2026'},
-  '1317308':{v:'4.9.13.0', plat:'win',    date:'30.09.2026'},
-  '1316200':{v:'4.9.12.0', plat:'win',    date:'16.09.2026'},
-  '1268000':{v:'4.6.9.0',  plat:'win',    date:'05.03.2025'},
-  '1205118':{v:'4.3.2.0',  plat:'win',    date:'14.02.2024'},
-  '1319671':{v:'4.9.14.0', plat:'astra',  date:'14.10.2026'},
-  '1319673':{v:'4.9.14.0', plat:'debian', date:'14.10.2026'},
+  // у сервера и клиента номера сборки разные — номер сам говорит, какую программу обновлять
+  '1321840':{v:'4.9.15.0', plat:'win',    prog:'server', date:'28.10.2026'},
+  '1319665':{v:'4.9.14.0', plat:'win',    prog:'server', date:'14.10.2026'},
+  '1319666':{v:'4.9.14.0', plat:'win',    prog:'client', date:'14.10.2026'},
+  '1317308':{v:'4.9.13.0', plat:'win',    prog:'server', date:'30.09.2026'},
+  '1316200':{v:'4.9.12.0', plat:'win',    prog:'server', date:'16.09.2026'},
+  '1268000':{v:'4.6.9.0',  plat:'win',    prog:'server', date:'05.03.2025'},
+  '1205118':{v:'4.3.2.0',  plat:'win',    prog:'server', date:'14.02.2024'},
+  '1319671':{v:'4.9.14.0', plat:'astra',  prog:'server', date:'14.10.2026'},
+  '1319672':{v:'4.9.14.0', plat:'astra',  prog:'daemon', date:'14.10.2026'},
+  '1319673':{v:'4.9.14.0', plat:'debian', prog:'server', date:'14.10.2026'},
   '1318402':{v:'4.9.10.0', plat:'tos',    date:'19.08.2026', fam:'a10'},
   '1317951':{v:'4.9.8.0',  plat:'tos',    date:'22.07.2026', fam:'high'},
   // старая TRASSIR OS: одна сборка стояла на разных моделях — без серийного номера файл не подобрать
@@ -612,8 +646,8 @@ const LEGACY = {
 const MODELS = {}; TOS.forEach(f=>f.models.forEach(m=>{ (MODELS[m]=MODELS[m]||[]).push(f.id); }));
 const famOf = id => TOS.find(f=>f.id===id);
 const short = m => m.replace('TRASSIR ','');
-const SN_WHERE = 'На наклейке на корпусе регистратора или в TRASSIR: «Настройки» → имя регистратора → «Лицензия».';
-const VER_WHERE = {tos:'В TRASSIR: «Настройки» → имя регистратора, строка «Версия ПО». Или на главной странице веб-интерфейса регистратора.',
+const SN_WHERE = 'На наклейке на корпусе регистратора.';
+const VER_WHERE = {tos:'В TRASSIR: «Настройки» → имя регистратора, строка «Версия ПО».',
   other:'В TRASSIR: «Настройки» → имя сервера или «Клиент» в списке слева, строка «Версия ПО».'};
 
 let mode='build', RC=null; // RC — что сейчас показано в карточке результата
@@ -683,19 +717,17 @@ $('#bf').addEventListener('submit', e=>{ e.preventDefault(); runBuild(true); });
 function findBuild(q){
   q=q.replace(/\s/g,'');
   const pair=q.match(/^\d\.\d{1,2}\.\d{1,3}\.\d{1,3}[-–](\d{6,8})$/); if(pair) q=pair[1]; // «4.9.14.0-1319665», как на портале
-  if(BUILDS[q]) return {build:q, ...BUILDS[q]};
-  const v=parseVer(q); if(!v) return null;
-  const e=Object.entries(BUILDS).find(([,x])=>x.v===fmtVer(v) && x.plat==='win');
-  return e ? {build:e[0], ...e[1]} : {build:null, v:fmtVer(v), plat:'win', date:null, guessed:true};
+  return BUILDS[q] ? {build:q, ...BUILDS[q]} : null;
 }
 function runBuild(scroll){
   const raw=$('#bn').value.trim(), e=$('#eBn');
-  if(!raw){ e.textContent='Введите номер сборки или версию'; e.hidden=false; $('#bn').classList.add('bad'); clearRes(); return; }
+  if(!raw){ e.textContent='Введите номер сборки'; e.hidden=false; $('#bn').classList.add('bad'); clearRes(); return; }
   const r=findBuild(raw);
-  if(!r && !/^\d{5,9}$/.test(raw)){ e.innerHTML='Не похоже на номер сборки. Номер сборки — 7 цифр, например <b>1319665</b>, версия — 4 числа через точку, например <b>4.9.14.0</b>'; e.hidden=false; $('#bn').classList.add('bad'); clearRes(); return; }
+  if(!r && parseVer(raw)){ e.innerHTML='Это версия, а нужен номер сборки — 7 цифр, например <b>1319665</b>. По версии можно подобрать во вкладке «По шагам».'; e.hidden=false; $('#bn').classList.add('bad'); clearRes(); return; }
+  if(!r && !/^\d{5,9}$/.test(raw)){ e.innerHTML='Не похоже на номер сборки. Номер сборки — 7 цифр, например <b>1319665</b>'; e.hidden=false; $('#bn').classList.add('bad'); clearRes(); return; }
   if(!r){ RC={notfound:raw}; drawRC(scroll); return; }
-  // программа по номеру сборки неизвестна — в выдаче файлы всех программ платформы
-  RC = {ctx:{...r, progs: r.plat==='tos' ? null : PLATFORMS.find(p=>p.id===r.plat).linux ? ['server','client','daemon'] : ['server','client']}};
+  // номер сборки определяет и платформу, и программу — в выдаче один пакет
+  RC = {ctx:{...r, progs:null}, prog:r.prog};
   if(r.plat==='tos'){ if(r.many) RC.ask={models:r.many}; else RC.rec={fam:r.fam, kind:famOf(r.fam).arm?'arm':'tos2', model:null}; }
   drawRC(scroll);
 }
@@ -724,7 +756,6 @@ function cardHtml(R){
       ${c.v!==LATEST.v?`<a href="#" onclick="return false">Что нового в ${LATEST.v}</a>`:''}</div>
     <div class="rc-b">
       <div class="rc-s"><div class="ric ${plan.kind==='steps'?'info':plan.kind}">${ic}</div><div><b>${plan.title}</b>${plan.sub?`<p>${plan.sub}</p>`:''}</div></div>
-      ${c.guessed?note('info','По одной версии платформу не определить — показываем файлы для Windows. Для Linux и регистраторов найдите обновление по номеру сборки или по шагам.'):''}
       ${plan.html||''}
     </div></div>` + helpBlock(plan.failed);
 }
@@ -769,7 +800,7 @@ function softPlan(plat, progs, v){
   const br = `${v[0]}.${v[1]}`, idx = BRANCHES.indexOf(br), minBr = P.linux ? '4.8' : '4.5';
   if(idx<0 || idx < BRANCHES.indexOf(minBr)) return {kind:'warn', failed:true,
     title:'Обновлением не получится — версия слишком старая',
-    sub:(P.linux ? `Для ${P.t} обновления выходят с версии 4.8.` : `Обновлений с ${fmtVer(v)} нет.`)+' Установите последнюю версию заново — тем же файлом.',
+    sub:'Установите последнюю версию заново — тем же файлом.',
     html: files(last) + howLink('Как установить заново')};
   // шаги: по одной ветке за раз, на каждой — её последняя сборка
   const steps = [];
@@ -779,7 +810,7 @@ function softPlan(plat, progs, v){
   const crosses47 = idx < BRANCHES.indexOf('4.7');
   return {kind:'steps', icon:IC.steps,
     title:`Сразу до ${LATEST.v} нельзя — ${steps.length} ${plural(steps.length,'шаг','шага','шагов')}`, sub:'Ставьте строго по порядку.',
-    html:`<ol class="chain">${steps.map((s,i)=>`<li data-n="${i+1}"><p class="to">Шаг ${i+1}: до <b>${s.ver}</b></p>${files(filesFor(s.ver, s.build))}${crosses47&&s.br==='4.7'?note('warn','На 4.7 меняется формат базы данных — перед этим шагом прочитайте <a href="#">инструкцию</a>.'):''}</li>`).join('')}</ol>
+    html:`<ol class="chain">${steps.map((s,i)=>`<li data-n="${i+1}"><p class="to">Шаг ${i+1}: до <b>${s.ver}</b></p>${files(filesFor(s.ver, s.build))}${crosses47&&s.br==='4.7'?note('warn','Перед обновлением до 4.7 ознакомьтесь с <a href="#">информацией</a>.'):''}</li>`).join('')}</ol>
       <p class="alt-l">Или установите ${LATEST.v} заново — тем же файлом, что в последнем шаге.</p>${howLink()}`};
 }
 
@@ -788,7 +819,7 @@ function serialAsk(ask){
   const why = ask.models ? 'Эта сборка стояла на нескольких моделях регистраторов, файлы для них разные.'
     : `${short(ask.model)} выпускался в нескольких исполнениях с разными прошивками.`;
   const demo = Object.keys(SERIALS).filter(k=> ask.models ? ask.models.includes(SERIALS[k].model) : SERIALS[k].model===ask.model);
-  return {kind:'warn', title:'Нужен серийный номер регистратора', sub: why+' По номеру подберём точно.',
+  return {kind:'warn', title:'Дополнительно укажите серийный номер регистратора', sub: why+' По номеру подберём файл для вашей модели.',
     html:`<div class="ask"><label class="lbl" for="bsn">Серийный номер регистратора<span class="qi" tabindex="0" role="img" aria-label="Где найти серийный номер" data-tip="${esc(SN_WHERE)}">${IC.i}</span></label>
       <div class="field"><input class="inp" id="bsn" autocomplete="off" placeholder="Например, ${demo[0]||'A10-421600123'}"><button type="button" class="btn btn-pri" id="bsnGo">Подобрать</button></div>
       <div class="ferr" id="eBsn" hidden></div>
@@ -798,8 +829,8 @@ function tosPlan(v, rec){
   const c = cmp(v, L), model = rec.model ? short(rec.model) : null;
   if(rec.kind==='eol'){
     const [mv,mf,ms] = rec.max;
-    if(cmp(v, parseVer(mv))>=0) return {kind:'ok', title:'Это последняя версия для этой модели', sub:`${model} снят с производства, последняя версия для него — ${mv}.`};
-    return {kind:'info', icon:IC.up, title:`Обновление до ${mv} — последней версии для этой модели`, sub:`${model} снят с производства, версии 4.9 для него не выходят.`,
+    if(cmp(v, parseVer(mv))>=0) return {kind:'ok', title:'Это последняя версия для этой модели', sub:`Для ${model} последняя версия — ${mv}.`};
+    return {kind:'info', icon:IC.up, title:`Обновление до ${mv} — последней версии для этой модели`,
       html: files([{name:mf, meta:`${mv} · 16.09.2026 · ${ms}`}]) + howLink()};
   }
   if(c>=0) return {kind:'ok', title:'Это последняя версия', sub:`${LATEST.v} вышла ${LATEST.date} — обновлять нечего.`};
@@ -807,23 +838,23 @@ function tosPlan(v, rec){
   if(rec.kind==='arm' || rec.kind==='tos2') return {kind:'info', icon:IC.up, title:`Есть обновление до ${LATEST.v}`, html: files([fw]) + howLink()};
   // старая TRASSIR OS → сначала переход на TRASSIR OS 2.0
   const br = `${v[0]}.${v[1]}`, up = TOS_UPGRADE.find(u=>u.from===br);
-  if(!up) return {kind:'warn', failed:true, title:'Обновлением не получится — версия слишком старая', sub:'Переход на TRASSIR OS 2.0 возможен с версий 4.7 и 4.8. Регистратор нужно переустановить.',
+  if(!up) return {kind:'warn', failed:true, title:'Обновлением не получится — версия слишком старая', sub:'Установите последнюю версию заново.',
     html: files([{name:`TrassirOS2.0-${LATEST.v}-install.img`, meta:`${LATEST.v} · ${LATEST.date} · образ для установки с флешки`}]) + howLink('Как переустановить TRASSIR OS')};
-  return {kind:'steps', icon:IC.steps, title:'Сначала переход на TRASSIR OS 2.0 — 2 шага', sub:'Версия 4.9 работает только на TRASSIR OS 2.0. Ставьте строго по порядку.',
+  return {kind:'steps', icon:IC.steps, title:'Сначала переход на TRASSIR OS 2.0 — 2 шага', sub:'Ставьте строго по порядку.',
     html:`<ol class="chain">
-        <li data-n="1"><p class="to">Шаг 1: <b>переход на TRASSIR OS 2.0</b></p>${files([{name:up.file, meta:`${br}.x → OS 2.0 · ${up.size}`}])}${note('warn','Не выключайте регистратор во время перехода — он несколько раз перезагрузится.')}</li>
+        <li data-n="1"><p class="to">Шаг 1: <b>переход на TRASSIR OS 2.0</b></p>${note('warn','Перед переходом ознакомьтесь с <a href="#">инструкцией</a>.')}${files([{name:up.file, meta:`${br}.x → OS 2.0 · ${up.size}`}])}</li>
         <li data-n="2"><p class="to">Шаг 2: до <b>${LATEST.v}</b></p>${files([fw])}</li></ol>${howLink()}`};
 }
 
 /* ---------- помощь ---------- */
 function helpBlock(failed){
   if(FLAGS.help==='none' || (FLAGS.help==='errors' && !failed) || (FLAGS.help==='always' && !failed)) return '';
-  return `<div class="help"><div><h3>Не получается подобрать?</h3><p>Поддержка TRASSIR: 8 (499) 111-25-50, пн–пт 9:00–18:00. Назовите версию и серийный номер — подскажем нужный файл.</p></div>
+  return `<div class="help"><div><h3>Не получается подобрать?</h3><p>Сервис и поддержка: 8 (499) 111-25-50, пн–пт 9:00–18:00.</p></div>
     <div class="acts"><a class="btn btn-sec" href="#" onclick="return false">Написать в поддержку</a></div></div>`;
 }
 function renderHelpAlways(){
   $('#helpAlways').innerHTML = FLAGS.help==='always'
-    ? `<div class="help hot"><div><h3>Нужна помощь с обновлением?</h3><p>Специалист перезвонит в течение 15 минут в рабочее время и проведёт по шагам. Без писем и форм — только телефон.</p></div>
+    ? `<div class="help hot"><div><h3>Нужна помощь с обновлением?</h3><p>Сервис и поддержка: 8 (499) 111-25-50, пн–пт 9:00–18:00.</p></div>
        <div class="acts"><a class="btn btn-pri" href="#" onclick="return false">Связаться со специалистом</a></div></div>` : '';
 }
 function plural(n,a,b,c){ const m=n%10, h=n%100; return m===1&&h!==11?a:(m>=2&&m<=4&&(h<12||h>14)?b:c); }
@@ -897,7 +928,7 @@ $('#utilList').innerHTML = UTILS.map(g=>`<details><summary><h3>${g.g}</h3><small
 /* ================= сценарии ================= */
 const PRESETS = {
   b_latest:{build:'1321840'}, b_single:{build:'1319665'}, b_chain:{build:'1268000'}, b_old:{build:'1205118'},
-  b_linux:{build:'1319671'}, b_arm:{build:'1318402'}, b_serial:{build:'1314884'}, b_serial_up:{build:'1314884', sn:'GT-820032S045'},
+  b_linux:{build:'1319671'}, b_client:{build:'1319666'}, b_arm:{build:'1318402'}, b_serial:{build:'1314884'}, b_serial_up:{build:'1314884', sn:'GT-820032S045'},
   b_version:{build:'4.9.12.0'}, b_notfound:{build:'9999999'}, b_bad:{build:'abc'},
   latest:{plat:'win',prog:'server',ver:LATEST.v},
   single:{plat:'win',prog:'server',ver:'4.9.12.0'},
@@ -920,15 +951,38 @@ function applyPreset(k){
     $('#model').value=p.model||''; $('#ver').value=p.ver; run(false);
   }
   if(p.sn && RC && RC.ask){ RC.rec=SERIALS[p.sn]; drawRC(false); }
-  $('#pick').scrollIntoView({behavior:'smooth'});
+  showPath('pick'); $('#pick').scrollIntoView({behavior:'smooth'});
 }
-function syncFlagUI(){ $('#fModels').value=FLAGS.models; $('#fLinux').value=FLAGS.linux; $('#fHelp').value=FLAGS.help; }
+function syncFlagUI(){ $('#fPaths').value=FLAGS.paths; $('#fModels').value=FLAGS.models; $('#fLinux').value=FLAGS.linux; $('#fHelp').value=FLAGS.help; }
 $('#scnBtn').addEventListener('click', ()=>{ const s=$('#scn'); s.hidden=!s.hidden; $('#scnBtn').setAttribute('aria-expanded', String(!s.hidden)); });
 $('#fRes').addEventListener('change', e=>{ applyPreset(e.target.value); try{ const q=new URLSearchParams(location.search); e.target.value?q.set('res',e.target.value):q.delete('res'); history.replaceState(null,'','?'+q.toString()); }catch(_){} });
-[['fModels','models'],['fLinux','linux'],['fHelp','help']].forEach(([id,k])=>$('#'+id).addEventListener('change', e=>{
-  FLAGS[k]=e.target.value; saveFlags(); renderChips(); renderSoft(); renderHelpAlways();
+[['fPaths','paths'],['fModels','models'],['fLinux','linux'],['fHelp','help']].forEach(([id,k])=>$('#'+id).addEventListener('change', e=>{
+  FLAGS[k]=e.target.value; saveFlags(); renderChips(); renderSoft(); renderHelpAlways(); renderPaths();
   if(RC && !RC.notfound) drawRC(false);
 }));
+
+/* ---------- два пути: обновить установленный TRASSIR или скачать файлы; плюс инструкции ---------- */
+const PATHS = [
+  {id:'pick', t:'Обновить установленный TRASSIR', d:'Подберём файлы и порядок установки по номеру сборки или версии.', a:'Подобрать обновление', tab:'Обновить'},
+  {id:'files', t:'Установить с нуля', d:'Файлы по платформам. Ими же можно и обновиться.', a:'К файлам', tab:'Скачать файлы'},
+  {id:'guides', t:'Инструкции', d:'Как установить с нуля и как обновить.', a:'Открыть', tab:'Инструкции'}
+];
+let curPath='pick';
+function renderPaths(){
+  const box=$('#paths');
+  if(FLAGS.paths==='cards') box.innerHTML = `<div class="paths">${PATHS.map(p=>`<a class="path" href="#${p.id}"><b>${p.t}</b><span>${p.d}</span><i>${p.a} →</i></a>`).join('')}</div>`;
+  else if(FLAGS.paths==='tabs') box.innerHTML = `<div class="ptabs stabs" role="tablist" aria-label="Что нужно">${PATHS.map(p=>`<button type="button" role="tab" data-path="${p.id}" aria-selected="${p.id===curPath}">${p.tab}</button>`).join('')}</div>`;
+  else box.innerHTML='';
+  showPath(curPath);
+}
+// во вкладках виден только выбранный раздел; в остальных вариантах — все
+function showPath(id){
+  curPath=id; const tabs=FLAGS.paths==='tabs';
+  PATHS.forEach(p=>$('#'+p.id).classList.toggle('off', tabs && p.id!==id));
+  document.querySelectorAll('[data-path]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.path===id)));
+}
+$('#paths').addEventListener('click', e=>{ const b=e.target.closest('[data-path]'); if(b) showPath(b.dataset.path); });
+document.addEventListener('click', e=>{ const a=e.target.closest('a[href^="#"]'); if(!a) return; const id=a.getAttribute('href').slice(1); if(PATHS.some(p=>p.id===id)) showPath(id); });
 
 /* ---------- подсказки ⓘ и копирование ссылок ---------- */
 const tip = document.createElement('div'); tip.className='tip'; tip.setAttribute('role','tooltip'); document.body.appendChild(tip);
@@ -956,14 +1010,14 @@ $('#latestV').textContent = LATEST.v;
 $('#latestD').textContent = 'от ' + LATEST.date;
 $('#latestChanges').innerHTML = CHANGES.map(c=>`<li>${c}</li>`).join('');
 document.querySelectorAll('.qi').forEach(q=>{ if(!q.innerHTML) q.innerHTML=IC.i; });
-renderModels(); syncFlagUI(); renderChips(); renderSoft(); renderHelpAlways();
+renderModels(); syncFlagUI(); renderChips(); renderSoft(); renderHelpAlways(); renderPaths();
 try{ const r=new URLSearchParams(location.search).get('res'); if(r&&PRESETS[r]){ $('#fRes').value=r; applyPreset(r); } }catch(e){}
 // ссылки для демо: ?open=tos — раскрыть регистраторы в «Скачать ПО TRASSIR», ?q=4216 — сразу заполнить поиск по файлам
 try{
   const q=new URLSearchParams(location.search), open=q.get('open'), find=q.get('q');
   if(open==='tos') document.querySelectorAll('#softList details[data-plat=tos2],#softList details[data-plat=arm]').forEach(d=>d.open=true);
   if(find){ $('#modelFilter').value=find; filterSoft(find); }
-  if(open||find) setTimeout(()=>$('#files').scrollIntoView({block:'start'}),50);
+  if(open||find){ showPath('files'); setTimeout(()=>$('#files').scrollIntoView({block:'start'}),50); }
 }catch(e){}
 
 </script>

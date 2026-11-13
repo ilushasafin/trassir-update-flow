@@ -278,3 +278,6 @@
 .netupd{padding:10px 2px 2px}
 .nmore{display:flex;align-items:center;gap:8px;padding:6px 2px 0}
 .nmore::before{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #555}
+
+/* кнопки действий в фоновой строке — «Остановить», «Продолжить», «Удалить» */
+.bgp .ba .nbtn.sm{height:22px;padding:0 9px;font-size:12px}
