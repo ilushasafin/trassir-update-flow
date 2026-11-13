@@ -109,7 +109,7 @@ const sh = (k,title,text,tip) => `<div class="sh">${ICO(k)}<div><b>${title}${tip
 const box = (k,html) => `<div class="ubox ${k}">${html}</div>`;
 const ck = (key,label,sub) => `<label class="ck"><button type="button" class="cb" role="checkbox" aria-checked="${!!S[key]}" data-ck="${key}">${ICON.check}</button><span>${label}${sub?hint(sub):''}</span></label>`;
 const lnk = (act,t) => `<a class="lnk" data-act="${act}" tabindex="0">${t}</a>`;
-const bAct = (act,t) => `<button type="button" class="nbtn sm" data-act="${act}">${t}</button>`;
+const bAct = lnk; // действия в фоновой строке — ссылками, как раньше
 const site = () => `<a class="lnk url" href="${SITE}" target="_blank">${SITE_TXT}</a>`;
 const ul = a => `<ul class="chg">${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
 const mb = v => v>=1000 ? (v/1000).toFixed(1).replace('.',',')+' ГБ' : Math.round(v)+' МБ';
