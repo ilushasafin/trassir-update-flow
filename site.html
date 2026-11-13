@@ -79,7 +79,7 @@ section{margin-top:32px;scroll-margin-top:16px}
 main > section{margin-top:40px}
 main > section#soft{margin-top:24px}
 /* «ПО TRASSIR» — белый лист с тонкой рамкой, как карточки на dssl.ru: версия, подбор и файлы читаются одним блоком, остальные разделы — снаружи */
-#soft{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 24px 24px}
+#soft > .sheet{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 24px 24px}
 #soft .card,#soft .acc details{box-shadow:none}
 .sub-s{margin-top:24px}
 h3.t{font-size:17px;margin:0 0 4px}
@@ -282,7 +282,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
   .row .ds ul{columns:1}
 }
 @media (max-width:560px){
-  #soft{padding:16px 12px;margin-left:-4px;margin-right:-4px}
+  #soft > .sheet{padding:16px 12px;margin-left:-4px;margin-right:-4px}
   .rc-h,.rc-b{padding-left:14px;padding-right:14px}
   :root{--pad:16px}
   .rel{grid-template-columns:minmax(0,1fr);gap:12px}
@@ -318,7 +318,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
 
   <main>
     <div class="crumbs"><a href="#">Главная</a> · <a href="#">Программное обеспечение</a> · Актуальные версии</div>
-    <h1>Программное обеспечение TRASSIR</h1>
+    <h1>Программное обеспечение</h1>
 
     <nav class="jump" id="jump" aria-label="На этой странице">
       <a href="#pick">Подобрать обновление</a><a href="#files">Скачать ПО TRASSIR</a><a href="#guides">Инструкции</a><a href="#mobile">Мобильный клиент</a><a href="#drivers">Драйверы</a><a href="#utils">Утилиты</a>
@@ -328,6 +328,8 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
     <section id="soft">
       <h2>ПО TRASSIR</h2>
       <p class="sub">Для серверов, рабочих мест и регистраторов TRASSIR.</p>
+      <!-- заголовок раздела — снаружи, как у разделов ниже; на белом листе — только содержимое -->
+      <div class="sheet">
       <div class="card rel">
         <div class="ver"><small>Актуальная версия TRASSIR</small><b id="latestV"></b><span id="latestD"></span></div>
         <div>
@@ -407,6 +409,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
           <div><h4>Обновление</h4><ul><li><a href="#">Из TRASSIR по сети</a></li><li><a href="#">Из TRASSIR из файла</a></li><li><a href="#">Регистраторы на TRASSIR OS</a></li><li><a href="#">Переход на TRASSIR OS 2.0</a></li></ul></div>
         </div>
       </section>
+      </div>
     </section>
 
     <!-- у этих программ свои версии; заголовки — того же уровня, что «ПО TRASSIR» -->
