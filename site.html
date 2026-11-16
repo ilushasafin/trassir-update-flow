@@ -83,21 +83,24 @@ main > section#soft{margin-top:24px}
 #soft .card,#soft .acc details{box-shadow:none}
 .sub-s{margin-top:24px}
 h3.t{font-size:17px;margin:0 0 4px}
-/* подбор: заголовок слева, три ссылки на инструкции справа */
-.pick-h{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:4px}
-.guides-l{display:grid;gap:3px;flex:none;padding-left:16px;border-left:1px solid var(--line);font-size:13px}
-.guides-l b{font-weight:500;color:var(--muted-2);font-size:12px}
+/* инструкции — строка внизу карточки подбора */
+.guides-l{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:13px}
+.guides-l span{color:var(--muted-2)}
 .pick .steps{margin-top:16px}
 /* список файлов: у программы — пакет для установки и пакет для обновления */
-.pkh{display:grid;grid-template-columns:minmax(160px,1fr) minmax(0,1.25fr) minmax(0,1.25fr);gap:20px;padding:10px 0 6px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
-.row.pk{grid-template-columns:minmax(160px,1fr) minmax(0,1.25fr) minmax(0,1.25fr)}
+.pkh{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr);gap:20px;padding:10px 0 6px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
+.row.pk{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr);align-items:center;padding:12px 0}
 .row.pk .nm{color:var(--text)}
 .row.pk .ds{font-size:12px;margin-top:2px}
-.pkc{min-width:0}
-.pkc .fn{font-weight:500;font-size:13px;word-break:break-all}
-.pkc .fa{margin-top:6px}
-.pkc .btn{height:30px;padding:0 12px;font-size:12px}
-.pkc .btn-cp{width:30px;padding:0}
+/* ячейка: «↓ Скачать», тип и размер, иконка копирования — одной строкой */
+.pkc{display:flex;align-items:center;gap:8px;min-width:0;white-space:nowrap}
+.dl-l{display:inline-flex;align-items:center;gap:6px;font-weight:500;color:var(--link)}
+.dl-l svg{width:15px;height:15px}
+.pkc .mt{font-size:12px;color:var(--muted)}
+.cp-l{display:grid;place-items:center;width:24px;height:24px;border:0;border-radius:var(--r);background:none;color:var(--muted);cursor:pointer;padding:0}
+.cp-l:hover{background:var(--side-bg);color:var(--link)}
+.cp-l svg{width:14px;height:14px}
+.cp-l.done{color:var(--ok)}
 /* инструкции */
 .guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 32px;padding:18px var(--pad)}
 .guides h4{font-size:14px;font-weight:500;margin:0 0 8px}
@@ -295,8 +298,6 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
   .file{grid-template-columns:minmax(0,1fr)}
   .fa{justify-self:start}
   .guides{grid-template-columns:minmax(0,1fr)}
-  .pick-h{flex-direction:column}
-  .guides-l{padding-left:0;border-left:0}
   .pkh{display:none}
   .row.pk{grid-template-columns:minmax(0,1fr)}
   .mhead{display:none}
@@ -350,14 +351,8 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
       <!-- подбор ПО: цель → платформа → программа (у регистраторов — модель) → для обновления ваша версия; одна кнопка «Подобрать» -->
       <section id="pick" class="sub-s">
         <div class="card pick">
-          <div class="pick-h">
-            <div>
-              <h3 class="t">Подобрать ПО TRASSIR</h3>
-              <p class="sub" style="margin:0">Покажем, какие файлы скачать и в каком порядке ставить.</p>
-            </div>
-            <!-- инструкции — три ссылки на онлайн-руководство, рядом с подбором, чтобы их было видно и до, и после выдачи -->
-            <div class="guides-l"><b>Инструкции</b><a href="#">Как установить</a><a href="#">Как обновить</a><a href="#">Если что-то пошло не так</a></div>
-          </div>
+          <h3 class="t">Подобрать ПО TRASSIR</h3>
+          <p class="sub" style="margin:0">Покажем, какие файлы скачать и в каком порядке ставить.</p>
           <form id="pf" novalidate>
             <div class="steps">
               <div class="step" id="sGoal"><div class="num">1</div>
@@ -390,6 +385,8 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
 
           <div class="res" id="res" aria-live="polite"></div>
           <div id="helpAlways"></div>
+          <!-- инструкции — строка внизу карточки: видна и до подбора, и сразу под результатом -->
+          <div class="guides-l"><span>Инструкции:</span><a href="#">Как установить</a><a href="#">Как обновить</a><a href="#">Если что-то пошло не так</a></div>
         </div>
       </section>
 
@@ -839,9 +836,10 @@ function plural(n,a,b,c){ const m=n%10, h=n%100; return m===1&&h!==11?a:(m>=2&&m
 
 /* ================= Скачать ПО TRASSIR: по платформам; у каждой программы — пакет для установки и пакет для обновления ================= */
 function row(name, meta, desc){ return `<div class="row"><div><a class="nm" href="${fileUrl(name)}" onclick="return false">${esc(name)}</a><div class="mt">${meta}</div></div><div class="ds">${desc}</div>${fileActs(name)}</div>`; }
-const pkCell = (name, meta) => `<div class="pkc"><a class="fn" href="${fileUrl(name)}" onclick="return false">${esc(name)}</a><div class="mt">${meta}</div>${fileActs(name)}</div>`;
+const ext = n => (n.match(/\.([a-z0-9]+)$/i)?.[1] || 'файл').toUpperCase();
+const pkCell = (name, size, kind) => `<div class="pkc"><a class="dl-l" href="${fileUrl(name)}" onclick="return false" data-tip="${esc(name)}">${IC.dl}Скачать</a><span class="mt">${kind||ext(name)} · ${size}</span><button type="button" class="cp-l" data-copy="${fileUrl(name)}" data-tip="Копировать ссылку" aria-label="Копировать ссылку">${IC.link}</button></div>`;
 const pkHead = first => `<div class="pkh"><span>${first}</span><span>Для установки с нуля</span><span>Для обновления</span></div>`;
-const pkRow = (title, desc, inst, upd) => `<div class="row pk"><div><div class="nm">${title}</div><div class="ds">${desc}</div></div>${inst}${upd}</div>`;
+const pkRow = (title, desc, inst, upd) => `<div class="row pk"><div><div class="nm">${title}</div>${desc?`<div class="ds">${desc}</div>`:''}</div>${inst}${upd}</div>`;
 // модели регистраторов — строкой под названием семейства; длинный список — первые шесть и «ещё N»
 const modelsLine = f => { const ms=f.models.map(short), head=ms.slice(0,6), rest=ms.slice(6);
   return `<p class="mdl">${esc(head.join(', '))}${rest.length?`<span class="mrest" hidden>, ${esc(rest.join(', '))}</span><button type="button" class="mmore" data-mmore>и ещё ${rest.length}</button>`:''}</p>`; };
@@ -850,8 +848,8 @@ function renderSoft(){
   const plat = (id,title,small,req,body,open) => `<details data-plat="${id}"${open?' open':''}><summary><h3>${title}</h3><small>${small}</small></summary><div class="body">
     <p class="req"><span>${req}</span></p><div class="rows">${body}</div></div></details>`;
   const progs = (id, D) => pkHead('Программа') + D.items.map((it,i)=>{ const prog = id==='win' ? ['client','server'][i] : ['client','server','daemon'][i];
-    return pkRow(it.n, it.d, pkCell(installName(id,prog), meta(it.m)), pkCell(updateName(id,prog,LATEST.v,BRANCH_LAST['4.9'][1]), meta(it.m))); }).join('');
-  const fams = list => pkHead('Регистраторы') + list.map(f=>pkRow(f.title, (f.note?f.note+' ':'')+modelsLine(f), pkCell(tosInstallName(f), meta(f.size)), pkCell(f.file, meta(f.size)))).join('');
+    return pkRow(PROG_NAME[prog], PROGS[prog].s, pkCell(installName(id,prog), it.m), pkCell(updateName(id,prog,LATEST.v,BRANCH_LAST['4.9'][1]), it.m)); }).join('');
+  const fams = list => pkHead('Регистраторы') + list.map(f=>pkRow(f.title, modelsLine(f), pkCell(tosInstallName(f), f.size), pkCell(f.file, f.size, 'Прошивка'))).join('');
   const parts = [plat('win','Windows x64','Client и Server · '+LATEST.v, DIST.win.req, progs('win',DIST.win), true)];
   if(FLAGS.linux==='1'){
     parts.push(plat('astra','Astra Linux 1.8','Client, Server, Daemon · '+LATEST.v, DIST.astra.req, progs('astra',DIST.astra)));
@@ -921,7 +919,7 @@ document.addEventListener('focusout', e=>{ if(e.target.matches('[data-tip]')) hi
 document.addEventListener('click', e=>{
   const b=e.target.closest('[data-copy]'); if(!b) return;
   try{ navigator.clipboard.writeText(b.dataset.copy).catch(()=>{}); }catch(_){}
-  b.classList.add('done'); b.innerHTML=IC.ok; b.dataset.tip='Ссылка скопирована'; showTip(b);
+  b.classList.add('done'); b.innerHTML=IC.ok; b.dataset.tip='Ссылка скопирована'; showTip(b); // и для кнопки, и для иконки в таблице
   setTimeout(()=>{ b.classList.remove('done'); b.innerHTML=IC.link; b.dataset.tip='Копировать ссылку'; }, 1600);
 });
 
