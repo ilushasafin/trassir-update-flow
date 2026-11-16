@@ -32,6 +32,15 @@ const CH = {
   '4.9.10.0':{d:'12.08.2026', b:'1312005', items:['Новый вид журнала событий.','Ускорен запуск сервера с большим архивом.']}
 };
 const VERS = Object.keys(CH);
+// более ранние версии для «Показать более ранние версии» — подгружаются сколько угодно раз (тексты условные)
+const OLD_ITEMS = ['Исправления стабильности сервера.','Поддержка новых моделей IP-камер.','Ускорена работа с архивом.','Исправлены ошибки интерфейса клиента.','Улучшена работа детекторов.','Обновлены драйверы устройств.'];
+const OLD = {};
+(()=>{ const [d0,m0,y0]=CH[VERS[VERS.length-1]].d.split('.').map(Number); let t=new Date(y0,m0-1,d0), k=0;
+  const tops={'4.9':9,'4.8':12,'4.7':20,'4.6':11,'4.5':29};
+  for(const br of Object.keys(tops)) for(let n=tops[br]; n>=0; n--){ const v=`${br}.${n}.0`; if(CH[v]) continue;
+    t=new Date(t.getTime()-14*864e5); OLD[v]={d:t.toLocaleDateString('ru-RU'), items:[OLD_ITEMS[k%6],OLD_ITEMS[(k+3)%6]]}; k++; } })();
+const ALL_VERS = [...VERS, ...Object.keys(OLD)];
+const verInfo = v => CH[v] || OLD[v];
 // версия, которая выходит, пока загруженное обновление ждёт установки (сценарий «вышла версия новее»)
 const NEXT = {v:'4.9.16.0', d:'11.11.2026', b:'1324302', items:['Исправлена остановка записи при переполнении архивного диска.','Быстрее открывается журнал событий.']};
 const BR_LAST = {'4.7':'4.7.9.2','4.8':'4.8.3.5','4.9':LATEST};
@@ -122,7 +131,7 @@ const help = () => `<div class="helpl"><span>Не получается? Техп
 const verList = vers => `<div class="vlist">${vers.map(v=>{
   // «Доступна» — только у последней версии, у промежуточных отметок нет
   const tag = v===S.cur?'<span class="chip">Установлена</span>' : (v===LATEST && newer(v,S.cur))?'<span class="chip ok">Доступна</span>':'';
-  return `<div><div class="ver-h"><b>${v}</b><small>${CH[v].d}</small>${tag}</div>${ul(CH[v].items)}</div>`; }).join('')}</div>`;
+  return `<div><div class="ver-h"><b>${v}</b><small>${verInfo(v).d}</small>${tag}</div>${ul(verInfo(v).items)}</div>`; }).join('')}</div>`;
 // ссылка, которая разворачивает содержимое прямо в этом окне
 const exp = (key,label,html,keep) => `<a class="lnk exp-t${S.exp[key]?' on':''}" data-act="exp" data-k="${key}" role="button" tabindex="0" aria-expanded="${!!S.exp[key]}">${S.exp[key]&&!keep?'Свернуть':label}</a>${S.exp[key]?`<div class="exp-b">${html}</div>`:''}`;
 // галочки окна: бэкап и перезапуск сразу. Автопоиск обновлений — настройка раздела «Сеть», в окнах его нет
@@ -244,10 +253,10 @@ const WIN = {
     if(st==='unchecked') return {t:T,
       body:sh('info','Автоматический поиск обновлений выключен','Список изменений приходит с сервера обновлений. Включите поиск — покажем, что изменилось. Настройка — в разделе «Сеть».'),
       btns:[{t:'Закрыть',act:close},{t:'Включить',pri:1,act:()=>{ setAuto(true); open('changes','list'); }}]};
-    let idx=VERS.indexOf(S.cur); if(idx<0) idx=VERS.length-1;
-    const shown = VERS.slice(0, idx+1+S.moreCh), rest = VERS.length - shown.length;
+    let idx=ALL_VERS.indexOf(S.cur); if(idx<0) idx=VERS.length-1;
+    const shown = ALL_VERS.slice(0, idx+1+S.moreCh), rest = ALL_VERS.length - shown.length;
     return {t:T, wide:1,
-      body:verList(shown)+`<div>${rest>0?lnk('more','Показать более ранние версии'):`<span class="fine">Изменения в версиях до 4.9.10.0 — на сайте ${site()}</span>`}</div>`,
+      body:verList(shown)+(rest>0?`<div>${lnk('more','Показать более ранние версии')}</div>`:''),
       btns:[...(netState()==='avail'?[{t:`Обновить до ${LATEST}`,act:()=>openNet()}]:[]),{t:closeLbl(),pri:1,act:close}]};
   },
 
@@ -489,7 +498,7 @@ const ACT = {
   log:()=>CUR?openSub('log','table'):open('log','table'),
   file:()=>{ clearTimeout(tDl); S.dl=null; openFile(); },
   net:()=>openNet(),
-  more:()=>{ S.moreCh+=10; draw(); }, noop:()=>{},
+  more:()=>{ S.moreCh+=5; draw(); }, noop:()=>{}, // можно жать сколько угодно раз
   browse:()=>{ clearTimeout(tFind); const p=PICKS[S.pickN%PICKS.length]; S.pickN++; S.extra=[p]; S.fileSel=0; CUR.st='found'; draw(); },
   refind:()=>startFind(),
   exp:a=>{ S.exp[a.dataset.k]=!S.exp[a.dataset.k]; draw(); },

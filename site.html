@@ -83,6 +83,21 @@ main > section#soft{margin-top:24px}
 #soft .card,#soft .acc details{box-shadow:none}
 .sub-s{margin-top:24px}
 h3.t{font-size:17px;margin:0 0 4px}
+/* подбор: заголовок слева, три ссылки на инструкции справа */
+.pick-h{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:4px}
+.guides-l{display:grid;gap:3px;flex:none;padding-left:16px;border-left:1px solid var(--line);font-size:13px}
+.guides-l b{font-weight:500;color:var(--muted-2);font-size:12px}
+.pick .steps{margin-top:16px}
+/* список файлов: у программы — пакет для установки и пакет для обновления */
+.pkh{display:grid;grid-template-columns:minmax(160px,1fr) minmax(0,1.25fr) minmax(0,1.25fr);gap:20px;padding:10px 0 6px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
+.row.pk{grid-template-columns:minmax(160px,1fr) minmax(0,1.25fr) minmax(0,1.25fr)}
+.row.pk .nm{color:var(--text)}
+.row.pk .ds{font-size:12px;margin-top:2px}
+.pkc{min-width:0}
+.pkc .fn{font-weight:500;font-size:13px;word-break:break-all}
+.pkc .fa{margin-top:6px}
+.pkc .btn{height:30px;padding:0 12px;font-size:12px}
+.pkc .btn-cp{width:30px;padding:0}
 /* инструкции */
 .guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 32px;padding:18px var(--pad)}
 .guides h4{font-size:14px;font-weight:500;margin:0 0 8px}
@@ -138,7 +153,6 @@ h3.t{font-size:17px;margin:0 0 4px}
 .ptabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:14px 0 18px;overflow-x:auto}
 .ptabs button{border:0;background:none;padding:10px 14px;cursor:pointer;color:var(--muted-2);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap;font-weight:500;font-size:14px}
 .ptabs button[aria-selected=true]{color:var(--navy);border-bottom-color:var(--navy)}
-#bf .lbl{display:block;font-weight:500;margin:0 0 8px}
 select.inp{padding:0 8px;cursor:pointer}
 .msel{width:min(420px,100%)}
 .field.big .inp{width:min(440px,100%);height:44px;font-size:15px}
@@ -281,6 +295,10 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
   .file{grid-template-columns:minmax(0,1fr)}
   .fa{justify-self:start}
   .guides{grid-template-columns:minmax(0,1fr)}
+  .pick-h{flex-direction:column}
+  .guides-l{padding-left:0;border-left:0}
+  .pkh{display:none}
+  .row.pk{grid-template-columns:minmax(0,1fr)}
   .mhead{display:none}
   .help{grid-template-columns:minmax(0,1fr)}
   .chip{flex:1 1 calc(50% - 8px)}
@@ -311,7 +329,7 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
     <h1>Программное обеспечение</h1>
 
     <nav class="jump" id="jump" aria-label="На этой странице">
-      <a href="#pick">Подобрать обновление</a><a href="#files">Скачать ПО TRASSIR</a><a href="#guides">Инструкции</a><a href="#mobile">Мобильный клиент</a><a href="#drivers">Драйверы</a><a href="#utils">Утилиты</a>
+      <a href="#soft">ПО TRASSIR</a><a href="#mobile">Мобильный клиент</a><a href="#drivers">Драйверы</a><a href="#utils">Утилиты</a>
     </nav>
 
     <!-- ===== ПО TRASSIR: актуальная версия, подбор обновления и файлы — в общем стиле сайта, без подложки ===== -->
@@ -329,48 +347,45 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
         </div>
       </div>
 
-      <!-- подбор обновления -->
+      <!-- подбор ПО: цель → платформа → программа (у регистраторов — модель) → для обновления ваша версия; одна кнопка «Подобрать» -->
       <section id="pick" class="sub-s">
         <div class="card pick">
-          <h3 class="t">Подобрать обновление</h3>
-          <p class="sub" style="margin:0">Укажите текущую версию — покажем, какие файлы скачать и в каком порядке ставить.</p>
-          <div class="ptabs" role="tablist" aria-label="Как искать">
-            <button type="button" role="tab" data-mode="build" aria-selected="true">По номеру сборки</button>
-            <button type="button" role="tab" data-mode="steps" aria-selected="false">По шагам</button>
+          <div class="pick-h">
+            <div>
+              <h3 class="t">Подобрать ПО TRASSIR</h3>
+              <p class="sub" style="margin:0">Покажем, какие файлы скачать и в каком порядке ставить.</p>
+            </div>
+            <!-- инструкции — три ссылки на онлайн-руководство, рядом с подбором, чтобы их было видно и до, и после выдачи -->
+            <div class="guides-l"><b>Инструкции</b><a href="#">Как установить</a><a href="#">Как обновить</a><a href="#">Если что-то пошло не так</a></div>
           </div>
-
-          <!-- быстрый поиск: номер сборки (или версия) сразу определяет платформу и версию; серийный номер спросим в результате, только если без него не подобрать -->
-          <form id="bf" novalidate>
-            <label class="lbl" for="bn">Номер сборки<span class="qi" tabindex="0" role="img" aria-label="Где посмотреть номер сборки" data-tip="В TRASSIR: «Настройки» → сервер или клиент в списке слева, строка «Сборка» под версией ПО. У сервера и клиента номера сборки разные — по номеру поймём, что обновлять."></span></label>
-            <div class="field big"><input class="inp" id="bn" inputmode="numeric" autocomplete="off" placeholder="Например, 1319665"><button class="btn btn-pri" type="submit">Найти</button></div>
-            <div class="ferr" id="eBn" hidden></div>
-          </form>
-
-          <!-- поиск по шагам: платформа → программа (для регистраторов — модель) → версия -->
-          <form id="pf" novalidate hidden>
+          <form id="pf" novalidate>
             <div class="steps">
-              <div class="step" id="sPlat"><div class="num">1</div>
+              <div class="step" id="sGoal"><div class="num">1</div>
+                <fieldset><legend>Что нужно</legend><div class="chips" id="goalChips"></div>
+                  <div class="ferr" id="eGoal" hidden>Выберите, что нужно</div></fieldset>
+              </div>
+              <div class="step" id="sPlat"><div class="num">2</div>
                 <fieldset><legend>Платформа</legend><div class="chips" id="platChips"></div>
                   <div class="ferr" id="ePlat" hidden>Выберите платформу</div></fieldset>
               </div>
-              <div class="step" id="sProg"><div class="num">2</div>
+              <div class="step" id="sProg"><div class="num">3</div>
                 <fieldset><legend>Программа</legend><div class="chips" id="progChips"></div>
                   <div class="ferr" id="eProg" hidden>Выберите программу</div></fieldset>
               </div>
-              <div class="step" id="sModel" hidden><div class="num">2</div>
+              <div class="step" id="sModel" hidden><div class="num">3</div>
                 <div><label class="lbl" for="model" style="display:block">Модель регистратора</label>
                   <select class="inp msel" id="model"></select>
                   <div class="ferr" id="eModel" hidden>Выберите модель регистратора</div>
                 </div>
               </div>
-              <div class="step" id="sVer"><div class="num">3</div>
-                <div><label class="lbl" for="ver" style="display:block">Ваша версия ПО<span class="qi" tabindex="0" role="img" aria-label="Где посмотреть версию" id="verQi"></span></label>
-                  <div class="field"><input class="inp" id="ver" inputmode="decimal" autocomplete="off" placeholder="Например, 4.6.9.0"></div>
+              <div class="step" id="sVer" hidden><div class="num">4</div>
+                <div><label class="lbl" for="ver" style="display:block">Ваша версия ПО или номер сборки<span class="qi" tabindex="0" role="img" aria-label="Где посмотреть версию и номер сборки" id="verQi"></span></label>
+                  <div class="field"><input class="inp" id="ver" autocomplete="off" placeholder="Например, 4.6.9.0 или 1268000"></div>
                   <div class="ferr" id="eVer" hidden></div>
                 </div>
               </div>
             </div>
-            <button class="btn btn-pri" type="submit">Подобрать обновление</button>
+            <button class="btn btn-pri" type="submit">Подобрать</button>
           </form>
 
           <div class="res" id="res" aria-live="polite"></div>
@@ -378,23 +393,11 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
         </div>
       </section>
 
-      <!-- один файл на платформу и программу — и для новой установки, и для обновления -->
+      <!-- файлы по платформам: у каждой программы свой пакет для установки с нуля и свой — для обновления -->
       <section id="files" class="sub-s">
         <h3 class="t">Скачать ПО TRASSIR</h3>
-        <p class="sub">Один файл подходит и для новой установки, и для обновления.</p>
-        <div class="filter"><label class="sr" for="modelFilter">Поиск по файлам</label><input class="inp" id="modelFilter" type="search" placeholder="Модель, платформа, программа или файл"></div>
+        <p class="sub">Для установки с нуля и для обновления — разные пакеты.</p>
         <div class="acc" id="softList"></div>
-        <div class="empty" id="modelEmpty" hidden>Ничего не нашли. Проверьте запрос — например, «4216R», «Astra» или «Client». Или <a href="#pick">подберите обновление</a>.</div>
-      </section>
-
-      <!-- инструкции — закреплённый блок: как установить с нуля по платформам и как обновиться -->
-      <section id="guides" class="sub-s">
-        <h3 class="t">Инструкции</h3>
-        <p class="sub">Как установить TRASSIR с нуля и как обновить.</p>
-        <div class="card guides">
-          <div><h4>Установка с нуля</h4><ul><li><a href="#">TRASSIR для Windows</a></li><li><a href="#">TRASSIR для Astra Linux и Debian</a></li><li><a href="#">Регистраторы на TRASSIR OS</a></li></ul></div>
-          <div><h4>Обновление</h4><ul><li><a href="#">Из TRASSIR по сети</a></li><li><a href="#">Из TRASSIR из файла</a></li><li><a href="#">Регистраторы на TRASSIR OS</a></li><li><a href="#">Переход на TRASSIR OS 2.0</a></li></ul></div>
-        </div>
       </section>
       </div>
     </section>
@@ -427,36 +430,28 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
   <label for="fRes">Результат подбора</label>
   <select id="fRes">
     <option value="">— заполнить вручную —</option>
-    <optgroup label="По номеру сборки">
-    <option value="b_latest">1321840 — последняя версия</option>
-    <option value="b_single">1319665 — одно обновление</option>
-    <option value="b_chain">1268000 — 3 шага</option>
-    <option value="b_old">1205118 — слишком старая</option>
-    <option value="b_linux">1319671 — Astra Linux, три программы</option>
-    <option value="b_arm">1318402 — регистратор ARM</option>
-    <option value="b_serial">1314884 — нужен серийный номер</option>
-    <option value="b_serial_up">1314884 + номер — переход на OS 2.0</option>
-    <option value="b_client">1319666 — клиент Windows</option>
-    <option value="b_version">4.9.12.0 — версия вместо номера сборки</option>
-    <option value="b_notfound">9999999 — не найдено</option>
-    <option value="b_bad">abc — неверный формат</option>
+    <optgroup label="Установить с нуля">
+    <option value="i_win">Windows · Server</option>
+    <option value="i_astra">Astra Linux · Daemon</option>
+    <option value="i_arm">TRASSIR OS · MiniNVR 4216R</option>
+    <option value="i_ambig">TRASSIR OS · MiniNVR 3216R — нужен серийный номер</option>
     </optgroup>
-    <optgroup label="По шагам">
-    <option value="latest">Уже последняя версия</option>
-    <option value="single">Одно обновление (4.9.12.0)</option>
-    <option value="chain">Несколько шагов (4.6.9.0)</option>
-    <option value="old">Слишком старая версия (4.3.2.0)</option>
-    <option value="arm">TRASSIR OS · MiniNVR 4216R</option>
-    <option value="tos2">TRASSIR OS · NeuroStation 9400R/32</option>
-    <option value="upgrade">TRASSIR OS · переход на OS 2.0</option>
-    <option value="eol">TRASSIR OS · модель снята с производства</option>
-    <option value="ambig">TRASSIR OS · MiniNVR 3216R — нужен серийный номер</option>
-    <option value="ambig_sn">TRASSIR OS · MiniNVR 3216R + номер</option>
-    <option value="badver">Неверный формат версии</option>
+    <optgroup label="Обновить">
+    <option value="u_latest">Уже последняя версия</option>
+    <option value="u_single">Одно обновление (4.9.12.0)</option>
+    <option value="u_build">Номер сборки вместо версии (1319665)</option>
+    <option value="u_chain">Несколько шагов (4.6.9.0)</option>
+    <option value="u_old">Слишком старая версия (4.3.2.0)</option>
+    <option value="u_arm">TRASSIR OS · MiniNVR 4216R</option>
+    <option value="u_tos2">TRASSIR OS · NeuroStation 9400R/32</option>
+    <option value="u_upgrade">TRASSIR OS · переход на OS 2.0</option>
+    <option value="u_eol">TRASSIR OS · модель снята с производства</option>
+    <option value="u_ambig">TRASSIR OS · MiniNVR 3216R — нужен серийный номер</option>
+    <option value="u_ambig_sn">TRASSIR OS · MiniNVR 3216R + номер</option>
+    <option value="u_nobuild">Сборка не найдена (9999999)</option>
+    <option value="u_badver">Неверный формат версии</option>
     </optgroup>
   </select>
-  <label for="fModels">Модели в «Скачать ПО TRASSIR»</label>
-  <select id="fModels"><option value="inline">Б. Строкой под файлом (предлагаем)</option><option value="table">А. Таблица «модель → файл»</option><option value="pick">В. Выбор модели из списка</option><option value="cols">Было: список в два столбца</option></select>
   <label for="fLinux">Astra Linux и Debian</label>
   <select id="fLinux"><option value="1">Показывать</option><option value="0">Скрыть (как сейчас)</option></select>
   <label for="fHelp">Помощь специалиста</label>
@@ -572,7 +567,7 @@ const UTILS = [
 ];
 
 /* ================= флаги ================= */
-const FLAGS = {models:'inline', linux:'1', help:'errors'};
+const FLAGS = {linux:'1', help:'errors'};
 try{ const q=new URLSearchParams(location.search); for(const k in FLAGS) if(q.get(k)) FLAGS[k]=q.get(k); }catch(e){}
 function saveFlags(){
   try{ const q=new URLSearchParams(location.search); for(const k in FLAGS) q.set(k,FLAGS[k]); history.replaceState(null,'','?'+q.toString()+location.hash); }catch(e){}
@@ -606,10 +601,9 @@ const fileRow = f => `<div class="file"><div><a class="fn" href="${fileUrl(f.nam
 const note = (kind,html) => `<div class="note ${kind}"><p>${html}</p></div>`; // без иконок — по замечанию продукта
 const rhead = (kind,icon,title,text,who) => `<div class="rhead"><div class="ric ${kind}">${icon}</div><div><h3>${title}</h3>${text?`<p>${text}</p>`:''}${who?`<div class="who">${who.map(w=>`<span>${esc(w)}</span>`).join('')}</div>`:''}</div></div>`;
 
-/* ================= подбор обновления: по номеру сборки и по шагам ================= */
-// условная база сборок для демо: номер сборки → версия, платформа (для TRASSIR OS — ещё семейство прошивки)
+/* ================= подбор ПО: что нужно → платформа → программа или модель → (для обновления) ваша версия ================= */
+// условная база сборок для демо: номер сборки → версия, платформа; в поле «Ваша версия» можно вставить и номер сборки
 const BUILDS = {
-  // у сервера и клиента номера сборки разные — номер сам говорит, какую программу обновлять
   '1321840':{v:'4.9.15.0', plat:'win',    prog:'server', date:'28.10.2026'},
   '1319665':{v:'4.9.14.0', plat:'win',    prog:'server', date:'14.10.2026'},
   '1319666':{v:'4.9.14.0', plat:'win',    prog:'client', date:'14.10.2026'},
@@ -618,15 +612,13 @@ const BUILDS = {
   '1268000':{v:'4.6.9.0',  plat:'win',    prog:'server', date:'05.03.2025'},
   '1205118':{v:'4.3.2.0',  plat:'win',    prog:'server', date:'14.02.2024'},
   '1319671':{v:'4.9.14.0', plat:'astra',  prog:'server', date:'14.10.2026'},
-  '1319672':{v:'4.9.14.0', plat:'astra',  prog:'daemon', date:'14.10.2026'},
-  '1319673':{v:'4.9.14.0', plat:'debian', prog:'server', date:'14.10.2026'},
-  '1318402':{v:'4.9.10.0', plat:'tos',    date:'19.08.2026', fam:'a10'},
-  '1317951':{v:'4.9.8.0',  plat:'tos',    date:'22.07.2026', fam:'high'},
-  // старая TRASSIR OS: одна сборка стояла на разных моделях — без серийного номера файл не подобрать
-  '1314884':{v:'4.8.2.0',  plat:'tos',    date:'03.06.2026', many:['TRASSIR NeuroStation 8200R/32-S','TRASSIR DuoStation AnyIP 16-RE','TRASSIR MiniNVR PVR']}
+  '1318402':{v:'4.9.10.0', plat:'tos',    date:'19.08.2026'},
+  '1317951':{v:'4.9.8.0',  plat:'tos',    date:'22.07.2026'},
+  '1314884':{v:'4.8.2.0',  plat:'tos',    date:'03.06.2026'}
 };
 const PROG_NAME = {server:'TRASSIR Server', client:'TRASSIR Client', daemon:'TRASSIR Daemon'};
-// модели для поиска «по шагам»: актуальные — из семейств прошивок; плюс снятые с производства и оставшиеся на старой TRASSIR OS
+const GOALS = [{id:'install', t:'Установить с нуля', s:'Новая установка'}, {id:'update', t:'Обновить', s:'TRASSIR уже установлен'}];
+// модели: актуальные — из семейств прошивок; плюс снятые с производства и оставшиеся на старой TRASSIR OS
 const LEGACY = {
   'TRASSIR NeuroStation 8200R/32-S':{kind:'gentoo', fam:'trt'},
   'TRASSIR DuoStation AnyIP 16-RE':{kind:'eol', max:['4.8.3.5','Trassir-4.8.3.5-1314884','1.5 GB']}
@@ -636,45 +628,41 @@ const famOf = id => TOS.find(f=>f.id===id);
 const short = m => m.replace('TRASSIR ','');
 const SN_WHERE = 'На наклейке на корпусе регистратора.';
 const VER_WHERE = {tos:'В TRASSIR: «Настройки» → имя регистратора, строка «Версия ПО».',
-  other:'В TRASSIR: «Настройки» → имя сервера или «Клиент» в списке слева, строка «Версия ПО».'};
+  other:'В TRASSIR: «Настройки» → имя сервера или «Клиент» в списке слева: строка «Версия ПО», под ней — «Сборка». Подойдёт любое из двух.'};
 
-let mode='build', RC=null; // RC — что сейчас показано в карточке результата
-const st = {plat:null, prog:null};
-function setMode(m){
-  mode=m; document.querySelectorAll('.ptabs [data-mode]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.mode===m)));
-  $('#bf').hidden = m!=='build'; $('#pf').hidden = m!=='steps'; clearRes();
-}
-$('.ptabs').addEventListener('click', e=>{ const b=e.target.closest('[data-mode]'); if(b) setMode(b.dataset.mode); });
+let RC=null; // RC — что сейчас показано в карточке результата
+const st = {goal:null, plat:null, prog:null};
 
-/* ---------- по шагам: платформа → программа или модель регистратора → версия ---------- */
 function renderModels(){
   const g = (label, list) => list.length ? `<optgroup label="${label}">${list.map(m=>`<option value="${esc(m)}">${esc(short(m))}</option>`).join('')}</optgroup>` : '';
   const all = Object.keys(MODELS);
   const tos2 = all.filter(m=>MODELS[m].every(f=>!famOf(f).arm)), arm = all.filter(m=>MODELS[m].some(f=>famOf(f).arm));
   $('#model').innerHTML = '<option value="">Выберите модель</option>' + g('TRASSIR OS 2.0', tos2) + g('TRASSIR OS для ARM', arm) + g('Старая TRASSIR OS и снятые с производства', Object.keys(LEGACY));
 }
+const chip = (name,id,t,s,on) => `<label class="chip"><input type="radio" name="${name}" value="${id}" ${on?'checked':''}><span>${t}<small>${s}</small></span></label>`;
 function renderChips(){
-  $('#platChips').innerHTML = PLATFORMS.filter(p=>FLAGS.linux==='1'||!p.linux).map(p=>
-    `<label class="chip"><input type="radio" name="plat" value="${p.id}" ${st.plat===p.id?'checked':''}><span>${p.t}<small>${p.s}</small></span></label>`).join('');
+  $('#goalChips').innerHTML = GOALS.map(g=>chip('goal',g.id,g.t,g.s,st.goal===g.id)).join('');
+  $('#platChips').innerHTML = PLATFORMS.filter(p=>FLAGS.linux==='1'||!p.linux).map(p=>chip('plat',p.id,p.t,p.s,st.plat===p.id)).join('');
   if(FLAGS.linux!=='1' && PLATFORMS.find(p=>p.id===st.plat)?.linux) st.plat=null;
   renderProg();
 }
 function renderProg(){
   const plat = PLATFORMS.find(p=>p.id===st.plat), isTos = st.plat==='tos';
   $('#sProg').hidden = isTos; $('#sModel').hidden = !isTos;
+  $('#sVer').hidden = st.goal!=='update';            // своя версия нужна только для обновления
   const progs = plat?.linux ? ['client','server','daemon'] : ['client','server'];
   if(st.prog && !progs.includes(st.prog)) st.prog=null;
-  $('#progChips').innerHTML = progs.map(id=>
-    `<label class="chip"><input type="radio" name="prog" value="${id}" ${st.prog===id?'checked':''}><span>${PROGS[id].t}<small>${PROGS[id].s}</small></span></label>`).join('');
+  $('#progChips').innerHTML = progs.map(id=>chip('prog',id,PROGS[id].t,PROGS[id].s,st.prog===id)).join('');
   $('#sProg').classList.toggle('dim', !st.plat);
   $('#verQi').dataset.tip = isTos ? VER_WHERE.tos : VER_WHERE.other;
 }
 document.addEventListener('change', e=>{
+  if(e.target.name==='goal'){ st.goal=e.target.value; $('#eGoal').hidden=true; renderProg(); clearRes(); }
   if(e.target.name==='plat'){ st.plat=e.target.value; $('#ePlat').hidden=true; renderProg(); clearRes(); }
   if(e.target.name==='prog'){ st.prog=e.target.value; $('#eProg').hidden=true; clearRes(); }
   if(e.target.id==='model'){ $('#eModel').hidden=true; $('#model').classList.remove('bad'); clearRes(); }
 });
-['ver','bn'].forEach(id=>$('#'+id).addEventListener('input',()=>{ $('#'+id).classList.remove('bad'); $('#e'+id[0].toUpperCase()+id.slice(1)).hidden=true; }));
+$('#ver').addEventListener('input',()=>{ $('#ver').classList.remove('bad'); $('#eVer').hidden=true; });
 function clearRes(){ $('#res').innerHTML=''; RC=null; }
 
 // модель → что о ней известно; если у модели несколько прошивок (например, MiniNVR 3xxx с eMMC и без), вернёт null — спросим серийный номер
@@ -683,78 +671,67 @@ function modelRec(m){
   const fams = MODELS[m]; if(!fams || fams.length!==1) return null;
   return {model:m, fam:fams[0], kind:famOf(fams[0]).arm?'arm':'tos2'};
 }
+// в поле «Ваша версия» — версия или номер сборки (в том числе «4.9.14.0-1319665», как на портале)
+function readVer(raw){
+  const q=raw.replace(/\s/g,''), pair=q.match(/^\d\.\d{1,2}\.\d{1,3}\.\d{1,3}[-–](\d{6,8})$/), key=pair?pair[1]:q;
+  if(BUILDS[key]) return {v:BUILDS[key].v, build:key, date:BUILDS[key].date};
+  if(/^\d{6,8}$/.test(key)) return {unknownBuild:key};
+  const v=parseVer(q); return v ? {v:fmtVer(v)} : null;
+}
 $('#pf').addEventListener('submit', e=>{ e.preventDefault(); run(true); });
 function run(scroll){
-  let ok = true;
+  let ok = true; $('#eVer').hidden=true; $('#ver').classList.remove('bad');
+  if(!st.goal){ $('#eGoal').hidden=false; ok=false; }
   if(!st.plat){ $('#ePlat').hidden=false; ok=false; }
   if(st.plat && st.plat!=='tos' && !st.prog){ $('#eProg').hidden=false; ok=false; }
   const model = $('#model').value;
   if(st.plat==='tos' && !model){ $('#eModel').hidden=false; $('#model').classList.add('bad'); ok=false; }
-  const vRaw = $('#ver').value.trim(), v = parseVer(vRaw), eVer = $('#eVer');
-  if(!vRaw){ eVer.textContent='Укажите версию'; eVer.hidden=false; $('#ver').classList.add('bad'); ok=false; }
-  else if(!v){ eVer.innerHTML='Не похоже на номер версии. Нужны 3–4 числа через точку, например <b>4.6.9.0</b>'; eVer.hidden=false; $('#ver').classList.add('bad'); ok=false; }
+  let ver=null;
+  if(st.goal==='update'){
+    const raw=$('#ver').value.trim(), eVer=$('#eVer'); ver=readVer(raw);
+    const bad = t => { eVer.innerHTML=t; eVer.hidden=false; $('#ver').classList.add('bad'); ok=false; };
+    if(!raw) bad('Укажите версию или номер сборки');
+    else if(!ver) bad('Не похоже на версию или номер сборки. Например, <b>4.6.9.0</b> или <b>1268000</b>');
+    else if(ver.unknownBuild) bad(`Не нашли сборку ${esc(ver.unknownBuild)}. Проверьте номер или укажите версию, например <b>4.6.9.0</b>`);
+  }
   if(!ok){ clearRes(); return; }
-  const ctx = {v:fmtVer(v), plat:st.plat, build:null, date:null, progs:null};
-  if(st.plat==='tos'){ const rec=modelRec(model); RC={ctx:{...ctx, model}, rec}; if(!rec) RC.ask={model}; }
-  else RC={ctx, prog:st.prog};
+  const ctx = {plat:st.plat, prog:st.prog, model: st.plat==='tos'?model:null, v:ver?.v||null, build:ver?.build||null, date:ver?.date||null};
+  RC = {goal:st.goal, ctx};
+  if(st.plat==='tos'){ RC.rec=modelRec(model); if(!RC.rec) RC.ask={model}; }
   drawRC(scroll);
 }
 
-/* ---------- по номеру сборки ---------- */
-$('#bf').addEventListener('submit', e=>{ e.preventDefault(); runBuild(true); });
-function findBuild(q){
-  q=q.replace(/\s/g,'');
-  const pair=q.match(/^\d\.\d{1,2}\.\d{1,3}\.\d{1,3}[-–](\d{6,8})$/); if(pair) q=pair[1]; // «4.9.14.0-1319665», как на портале
-  return BUILDS[q] ? {build:q, ...BUILDS[q]} : null;
-}
-function runBuild(scroll){
-  const raw=$('#bn').value.trim(), e=$('#eBn');
-  if(!raw){ e.textContent='Введите номер сборки'; e.hidden=false; $('#bn').classList.add('bad'); clearRes(); return; }
-  const r=findBuild(raw);
-  if(!r && parseVer(raw)){ e.innerHTML='Это версия, а нужен номер сборки — 7 цифр, например <b>1319665</b>. По версии можно подобрать во вкладке «По шагам».'; e.hidden=false; $('#bn').classList.add('bad'); clearRes(); return; }
-  if(!r && !/^\d{5,9}$/.test(raw)){ e.innerHTML='Не похоже на номер сборки. Номер сборки — 7 цифр, например <b>1319665</b>'; e.hidden=false; $('#bn').classList.add('bad'); clearRes(); return; }
-  if(!r){ RC={notfound:raw}; drawRC(scroll); return; }
-  // номер сборки определяет и платформу, и программу — в выдаче один пакет
-  RC = {ctx:{...r, progs:null}, prog:r.prog};
-  if(r.plat==='tos'){ if(r.many) RC.ask={models:r.many}; else RC.rec={fam:r.fam, kind:famOf(r.fam).arm?'arm':'tos2', model:null}; }
-  drawRC(scroll);
-}
-
-/* ---------- карточка результата — общая для обоих видов поиска ---------- */
+/* ---------- карточка результата ---------- */
 function drawRC(scroll){
-  $('#res').innerHTML = RC.notfound ? notFoundCard(RC.notfound) : cardHtml(RC);
+  $('#res').innerHTML = cardHtml(RC);
   if(scroll) $('#res').scrollIntoView({behavior:'smooth', block:'start'});
 }
 function platName(c,R){
   if(c.plat!=='tos') return PLATFORMS.find(p=>p.id===c.plat).t;
-  if(R.rec && (R.rec.kind==='gentoo'||R.rec.kind==='eol') || (c.many && !R.rec)) return 'TRASSIR OS до 2.0';
-  const id = R.rec?.fam || c.fam || (c.model && MODELS[c.model] ? MODELS[c.model][0] : null), fam = id && famOf(id);
+  if(R.rec && (R.rec.kind==='gentoo'||R.rec.kind==='eol')) return 'TRASSIR OS до 2.0';
+  const id = R.rec?.fam || (c.model && MODELS[c.model] ? MODELS[c.model][0] : null), fam = id && famOf(id);
   return fam ? (fam.arm ? 'TRASSIR OS для ARM' : 'TRASSIR OS 2.0') : 'TRASSIR OS';
 }
 function cardHtml(R){
-  const c=R.ctx, v=parseVer(c.v);
-  const plan = c.plat==='tos' ? (R.rec ? tosPlan(v, R.rec) : serialAsk(R.ask)) : softPlan(c.plat, c.progs || [R.prog], v);
+  const c=R.ctx, upd=R.goal==='update', v=upd?parseVer(c.v):null;
+  const plan = c.plat==='tos' ? (R.rec ? (upd?tosPlan(v,R.rec):tosInstall(R.rec)) : serialAsk(R.ask)) : (upd?softPlan(c.plat,c.prog,v):softInstall(c.plat,c.prog));
   const meta=[platName(c,R)];
-  if(!c.progs && c.plat!=='tos') meta.push(PROG_NAME[R.prog]);
+  if(c.plat!=='tos') meta.push(PROG_NAME[c.prog]);
   const model = R.rec?.model || c.model; if(model) meta.push(short(model));
-  if(c.date) meta.push('вышла '+c.date);
+  if(upd && c.date) meta.push('вышла '+c.date);
   const ic = {ok:IC.ok, warn:IC.warn, err:IC.err}[plan.kind] || plan.icon || IC.up;
+  const head = upd ? `${c.v}${c.build?` <span>· сборка ${c.build}</span>`:''}` : `Установка с нуля <span>· последняя версия ${LATEST.v}</span>`;
   return `<div class="rc">
-    <div class="rc-h"><div><div class="rc-v">${c.v}${c.build?` <span>· сборка ${c.build}</span>`:''}</div><div class="rc-m">${meta.map(m=>`<span>${esc(m)}</span>`).join('')}</div></div>
-      ${c.v!==LATEST.v?`<a href="#" onclick="return false">Что нового в ${LATEST.v}</a>`:''}</div>
+    <div class="rc-h"><div><div class="rc-v">${head}</div><div class="rc-m">${meta.map(m=>`<span>${esc(m)}</span>`).join('')}</div></div>
+      ${upd && c.v!==LATEST.v?`<a href="#" onclick="return false">Что нового в ${LATEST.v}</a>`:''}</div>
     <div class="rc-b">
       <div class="rc-s"><div class="ric ${plan.kind==='steps'?'info':plan.kind}">${ic}</div><div><b>${plan.title}</b>${plan.sub?`<p>${plan.sub}</p>`:''}</div></div>
       ${plan.html||''}
     </div></div>` + helpBlock(plan.failed);
 }
-function notFoundCard(q){
-  return `<div class="rc"><div class="rc-h"><div><div class="rc-v">Сборка ${esc(q)}</div></div></div>
-    <div class="rc-b"><div class="rc-s"><div class="ric err">${IC.err}</div><div><b>Не нашли такую сборку</b><p>Проверьте номер: в TRASSIR он в строке «Сборка», сразу под версией ПО. Если номер верный — найдите обновление по шагам.</p></div></div>
-      <button type="button" class="btn btn-sec" data-gomode="steps">Искать по шагам</button></div></div>` + helpBlock(true);
-}
 $('#res').addEventListener('click', e=>{
   const t=e.target;
-  const go=t.closest('[data-gomode]'); if(go){ setMode(go.dataset.gomode); $('#pick').scrollIntoView({behavior:'smooth'}); return; }
+  const g=t.closest('[data-goal]'); if(g){ e.preventDefault(); st.goal=g.dataset.goal; renderChips(); run(true); return; }
   const demo=t.closest('[data-bsn]'); if(demo){ $('#bsn').value=demo.dataset.bsn; askSerial(); return; }
   if(t.closest('#bsnGo')) askSerial();
 });
@@ -769,44 +746,57 @@ function askSerial(){
   RC.rec=rec; drawRC(false);
 }
 
-/* ---------- файлы в выдаче ---------- */
+/* ---------- пакеты: для установки с нуля и для обновления — разные (решение разработки) ---------- */
 const files = list => `<div class="files">${list.map(fileRow).join('')}</div>`;
-const howLink = (t='Как установить обновление') => `<p class="howl"><a href="#" onclick="return false">${t}</a></p>`;
-// один файл на программу и платформу — им и ставят с нуля, и обновляются (решение разработки)
-function packName(plat, prog, ver, build){
-  const P = prog[0].toUpperCase()+prog.slice(1);
-  if(plat==='win') return `Trassir-${P}-${ver}-${build}-win64.pack`;
-  return `trassir-${prog}-${ver}-${build}-${plat==='astra'?'astra1.8':'debian12'}.pack`;
+const howLink = (t='Как обновить') => `<p class="howl"><a href="#" onclick="return false">${t}</a></p>`;
+const DISTRO = {astra:'astra1.8', debian:'debian12'};
+const P_ = prog => prog[0].toUpperCase()+prog.slice(1);
+function installName(plat, prog, ver=LATEST.v, build=BRANCH_LAST['4.9'][1]){
+  return plat==='win' ? `TRASSIR-${P_(prog)}-${ver}-${build}-x64-setup.exe` : `trassir-${prog}-${ver}-${build}-${DISTRO[plat]}-setup.run`;
+}
+function updateName(plat, prog, ver, build){
+  return plat==='win' ? `Trassir-sp-${prog}-${ver}-${build}-win64.pack` : `trassir-sp-${prog}-${ver}-${build}-${DISTRO[plat]}.pack`;
 }
 const progItem = (plat,prog) => plat==='win' ? DIST.win.items[prog==='client'?0:1] : DIST[plat].items[{client:0,server:1,daemon:2}[prog]];
-function softPlan(plat, progs, v){
-  const P = PLATFORMS.find(p=>p.id===plat), c = cmp(v, L);
-  const filesFor = (ver, build) => progs.map(p=>({name:packName(plat,p,ver,build), meta:`${progs.length>1?PROG_NAME[p]+' · ':''}${ver} · ${ver===LATEST.v?LATEST.date+' · ':''}${ver===LATEST.v?'':'≈ '}${progItem(plat,p).m}`}));
-  const last = filesFor(LATEST.v, BRANCH_LAST['4.9'][1]);
+const tosInstallName = fam => `${fam.file.replace(/ \((.+)\)$/,'-$1')}-install.img`; // «… (A10eMMC)» → «…-A10eMMC-install.img»
+function softInstall(plat, prog){
+  return {kind:'info', icon:IC.dl, title:'Установочный пакет', sub:'Один файл — сразу последняя версия.',
+    html: files([{name:installName(plat,prog), meta:`${LATEST.v} · ${LATEST.date} · ${progItem(plat,prog).m}`}]) + howLink('Как установить')};
+}
+function tosInstall(rec){
+  if(rec.kind==='eol'){ const [mv]=rec.max;
+    return {kind:'info', icon:IC.dl, title:`Установочный образ ${mv} — последней версии для этой модели`,
+      html: files([{name:`Trassir-${mv}-1314884-install.img`, meta:`${mv} · 16.09.2026 · 1.6 GB`}]) + howLink('Как установить')}; }
+  const fam=famOf(rec.fam);
+  return {kind:'info', icon:IC.dl, title:'Установочный образ', sub:'Записывается на флешку, регистратор загружается с неё.',
+    html: files([{name:tosInstallName(fam), meta:`${LATEST.v} · ${LATEST.date} · ${fam.size}`}]) + howLink('Как установить')};
+}
+const toInstall = `<a href="#" data-goal="install">установите ${LATEST.v} с нуля</a>`;
+function softPlan(plat, prog, v){
+  const P = PLATFORMS.find(p=>p.id===plat), c = cmp(v, L), size = progItem(plat,prog).m;
+  const fileFor = (ver, build) => ({name:updateName(plat,prog,ver,build), meta:`${ver} · ${ver===LATEST.v?LATEST.date+' · '+size:'≈ '+size}`});
   if(c===0) return {kind:'ok', title:'Это последняя версия', sub:`${LATEST.v} вышла ${LATEST.date} — обновлять нечего.`};
   if(c>0) return {kind:'info', icon:IC.i, title:'Версия новее опубликованной', sub:`${fmtVer(v)} — тестовая или специальная сборка. Последняя публичная версия — ${LATEST.v}.`, failed:true};
   const br = `${v[0]}.${v[1]}`, idx = BRANCHES.indexOf(br), minBr = P.linux ? '4.8' : '4.5';
   if(idx<0 || idx < BRANCHES.indexOf(minBr)) return {kind:'warn', failed:true,
-    title:'Обновлением не получится — версия слишком старая',
-    sub:'Установите последнюю версию заново — тем же файлом.',
-    html: files(last) + howLink('Как установить заново')};
+    title:'Обновлением не получится — версия слишком старая', sub:'Установите последнюю версию с нуля.',
+    html: files([{name:installName(plat,prog), meta:`Установочный пакет · ${LATEST.v} · ${LATEST.date} · ${size}`}]) + howLink('Как установить')};
   // шаги: по одной ветке за раз, на каждой — её последняя сборка
   const steps = [];
   for(let i=idx+1;i<BRANCHES.length;i++){ const b=BRANCHES[i], x=BRANCH_LAST[b]; steps.push({ver:x[0], build:x[1], br:b}); }
   if(br==='4.9') steps.push({ver:LATEST.v, build:BRANCH_LAST['4.9'][1], br:'4.9'});
-  if(steps.length===1) return {kind:'info', icon:IC.up, title:`Есть обновление до ${LATEST.v}`, html: files(last) + howLink()};
+  if(steps.length===1) return {kind:'info', icon:IC.up, title:`Есть обновление до ${LATEST.v}`, html: files([fileFor(LATEST.v, BRANCH_LAST['4.9'][1])]) + howLink()};
   const crosses47 = idx < BRANCHES.indexOf('4.7');
   return {kind:'steps', icon:IC.steps,
     title:`Сразу до ${LATEST.v} нельзя — ${steps.length} ${plural(steps.length,'шаг','шага','шагов')}`, sub:'Ставьте строго по порядку.',
-    html:`<ol class="chain">${steps.map((s,i)=>`<li data-n="${i+1}"><p class="to">Шаг ${i+1}: до <b>${s.ver}</b></p>${files(filesFor(s.ver, s.build))}${crosses47&&s.br==='4.7'?note('warn','Перед обновлением до 4.7 ознакомьтесь с <a href="#">информацией</a>.'):''}</li>`).join('')}</ol>
-      <p class="alt-l">Или установите ${LATEST.v} заново — тем же файлом, что в последнем шаге.</p>${howLink()}`};
+    html:`<ol class="chain">${steps.map((s,i)=>`<li data-n="${i+1}"><p class="to">Шаг ${i+1}: до <b>${s.ver}</b></p>${files([fileFor(s.ver, s.build)])}${crosses47&&s.br==='4.7'?note('warn','Перед обновлением до 4.7 ознакомьтесь с <a href="#">информацией</a>.'):''}</li>`).join('')}</ol>
+      <p class="alt-l">Или ${toInstall} — установочным пакетом.</p>${howLink()}`};
 }
 
 /* ---------- TRASSIR OS ---------- */
 function serialAsk(ask){
-  const why = ask.models ? 'Эта сборка стояла на нескольких моделях регистраторов, файлы для них разные.'
-    : `${short(ask.model)} выпускался в нескольких исполнениях с разными прошивками.`;
-  const demo = Object.keys(SERIALS).filter(k=> ask.models ? ask.models.includes(SERIALS[k].model) : SERIALS[k].model===ask.model);
+  const why = `${short(ask.model)} выпускался в нескольких исполнениях с разными прошивками.`;
+  const demo = Object.keys(SERIALS).filter(k=>SERIALS[k].model===ask.model);
   return {kind:'warn', title:'Дополнительно укажите серийный номер регистратора', sub: why+' По номеру подберём файл для вашей модели.',
     html:`<div class="ask"><label class="lbl" for="bsn">Серийный номер регистратора<span class="qi" tabindex="0" role="img" aria-label="Где найти серийный номер" data-tip="${esc(SN_WHERE)}">${IC.i}</span></label>
       <div class="field"><input class="inp" id="bsn" autocomplete="off" placeholder="Например, ${demo[0]||'A10-421600123'}"><button type="button" class="btn btn-pri" id="bsnGo">Подобрать</button></div>
@@ -826,8 +816,8 @@ function tosPlan(v, rec){
   if(rec.kind==='arm' || rec.kind==='tos2') return {kind:'info', icon:IC.up, title:`Есть обновление до ${LATEST.v}`, html: files([fw]) + howLink()};
   // старая TRASSIR OS → сначала переход на TRASSIR OS 2.0
   const br = `${v[0]}.${v[1]}`, up = TOS_UPGRADE.find(u=>u.from===br);
-  if(!up) return {kind:'warn', failed:true, title:'Обновлением не получится — версия слишком старая', sub:'Установите последнюю версию заново.',
-    html: files([{name:`TrassirOS2.0-${LATEST.v}-install.img`, meta:`${LATEST.v} · ${LATEST.date} · образ для установки с флешки`}]) + howLink('Как переустановить TRASSIR OS')};
+  if(!up) return {kind:'warn', failed:true, title:'Обновлением не получится — версия слишком старая', sub:'Установите последнюю версию с нуля.',
+    html: files([{name:tosInstallName(fam), meta:`Установочный образ · ${LATEST.v} · ${LATEST.date} · ${fam.size}`}]) + howLink('Как установить')};
   return {kind:'steps', icon:IC.steps, title:'Сначала переход на TRASSIR OS 2.0 — 2 шага', sub:'Ставьте строго по порядку.',
     html:`<ol class="chain">
         <li data-n="1"><p class="to">Шаг 1: <b>переход на TRASSIR OS 2.0</b></p>${note('warn','Перед переходом ознакомьтесь с <a href="#">инструкцией</a>.')}${files([{name:up.file, meta:`${br}.x → OS 2.0 · ${up.size}`}])}</li>
@@ -847,66 +837,31 @@ function renderHelpAlways(){
 }
 function plural(n,a,b,c){ const m=n%10, h=n%100; return m===1&&h!==11?a:(m>=2&&m<=4&&(h<12||h>14)?b:c); }
 
-/* ================= Скачать ПО TRASSIR: список по платформам, не смешивая ================= */
-// старая TRASSIR OS (Gentoo, 4.7/4.8) и пакеты перехода на OS 2.0 со страницы убраны — по решению с разработкой это legacy
-const lc = s => String(s).replace(/<[^>]+>/g,' ').toLowerCase();
-function row(name, meta, desc, q){ return `<div class="row" data-q="${esc(lc([name,meta,desc,q||''].join(' ')))}"><div><a class="nm hl" href="${fileUrl(name)}" onclick="return false">${esc(name)}</a><div class="mt">${meta}</div></div><div class="ds">${desc}</div>${fileActs(name)}</div>`; }
-// модели регистраторов — в трёх вариантах на выбор (флаг models), см. «Сценарии»
-function tosRows(list){
-  const meta = f => `${LATEST.v} · ${LATEST.date} · ${f.size}`;
-  const q = f => f.title+' '+f.models.join(' ');
-  if(FLAGS.models==='table'){
-    const rows = list.flatMap(f=>f.models.map(m=>({m,f}))).sort((a,b)=>a.m.localeCompare(b.m,'ru',{numeric:true}));
-    return `<div class="mhead"><span>Модель</span><span>Файл</span></div>` + rows.map(({m,f})=>`<div class="row mrow" data-q="${esc(lc(m+' '+f.file+' '+f.title))}"><div class="mm hl">${esc(short(m))}</div>
-      <div><a class="nm hl" href="${fileUrl(f.file)}" onclick="return false">${esc(f.file)}</a><div class="mt">${meta(f)}</div></div>${fileActs(f.file)}</div>`).join('');
-  }
-  if(FLAGS.models==='pick'){
-    const all=[...new Set(list.flatMap(f=>f.models))];
-    return `<div class="mpick"><label class="lbl">Ваша модель</label><select class="inp msel" data-mpick><option value="">Все модели</option>${all.map(m=>`<option value="${esc(m)}">${esc(short(m))}</option>`).join('')}</select></div>`
-      + list.map(f=>row(f.file, meta(f), `<b>${f.title}</b>${f.note?'. '+f.note:''}`, q(f)).replace('class="row"',`class="row" data-models="${esc(f.models.join('|'))}"`)).join('');
-  }
-  if(FLAGS.models==='cols') return list.map(f=>row(f.file, meta(f), `<b>${f.title}</b>${f.note?'. '+f.note:''}<ul>${f.models.map(m=>`<li class="hl">${esc(short(m))}</li>`).join('')}</ul>`, q(f))).join('');
-  // Б: модели строкой; длинный список — первые шесть и «ещё N»
-  return list.map(f=>{ const ms=f.models.map(short), head=ms.slice(0,6), rest=ms.slice(6);
-    return row(f.file, meta(f), `<b>${f.title}</b>${f.note?'. '+f.note:''}<p class="mdl"><span class="hl">${esc(head.join(', '))}</span>${rest.length?`<span class="mrest" hidden>, <span class="hl">${esc(rest.join(', '))}</span></span><button type="button" class="mmore" data-mmore>и ещё ${rest.length}</button>`:''}</p>`, q(f)); }).join('');
-}
+/* ================= Скачать ПО TRASSIR: по платформам; у каждой программы — пакет для установки и пакет для обновления ================= */
+function row(name, meta, desc){ return `<div class="row"><div><a class="nm" href="${fileUrl(name)}" onclick="return false">${esc(name)}</a><div class="mt">${meta}</div></div><div class="ds">${desc}</div>${fileActs(name)}</div>`; }
+const pkCell = (name, meta) => `<div class="pkc"><a class="fn" href="${fileUrl(name)}" onclick="return false">${esc(name)}</a><div class="mt">${meta}</div>${fileActs(name)}</div>`;
+const pkHead = first => `<div class="pkh"><span>${first}</span><span>Для установки с нуля</span><span>Для обновления</span></div>`;
+const pkRow = (title, desc, inst, upd) => `<div class="row pk"><div><div class="nm">${title}</div><div class="ds">${desc}</div></div>${inst}${upd}</div>`;
+// модели регистраторов — строкой под названием семейства; длинный список — первые шесть и «ещё N»
+const modelsLine = f => { const ms=f.models.map(short), head=ms.slice(0,6), rest=ms.slice(6);
+  return `<p class="mdl">${esc(head.join(', '))}${rest.length?`<span class="mrest" hidden>, ${esc(rest.join(', '))}</span><button type="button" class="mmore" data-mmore>и ещё ${rest.length}</button>`:''}</p>`; };
 function renderSoft(){
-  const plat = (id,title,small,req,body,open,q) => `<details data-plat="${id}" data-q="${esc(lc(title+' '+req+' '+(q||'')))}"${open?' open':''}><summary><h3>${title}</h3><small>${small}</small></summary><div class="body">
+  const meta = sz => `${LATEST.v} · ${LATEST.date} · ${sz}`;
+  const plat = (id,title,small,req,body,open) => `<details data-plat="${id}"${open?' open':''}><summary><h3>${title}</h3><small>${small}</small></summary><div class="body">
     <p class="req"><span>${req}</span></p><div class="rows">${body}</div></div></details>`;
-  const prog = (D) => D.items.map(i=>row(i.n, `${LATEST.v} · ${LATEST.date} · ${i.m}`, i.d)).join('');
-  const parts = [plat('win','Windows x64','Client и Server · '+LATEST.v, DIST.win.req, prog(DIST.win), true)];
+  const progs = (id, D) => pkHead('Программа') + D.items.map((it,i)=>{ const prog = id==='win' ? ['client','server'][i] : ['client','server','daemon'][i];
+    return pkRow(it.n, it.d, pkCell(installName(id,prog), meta(it.m)), pkCell(updateName(id,prog,LATEST.v,BRANCH_LAST['4.9'][1]), meta(it.m))); }).join('');
+  const fams = list => pkHead('Регистраторы') + list.map(f=>pkRow(f.title, (f.note?f.note+' ':'')+modelsLine(f), pkCell(tosInstallName(f), meta(f.size)), pkCell(f.file, meta(f.size)))).join('');
+  const parts = [plat('win','Windows x64','Client и Server · '+LATEST.v, DIST.win.req, progs('win',DIST.win), true)];
   if(FLAGS.linux==='1'){
-    parts.push(plat('astra','Astra Linux 1.8','Client, Server, Daemon · '+LATEST.v, DIST.astra.req, prog(DIST.astra), false, 'linux'));
-    parts.push(plat('debian','Debian 12','Client, Server, Daemon · '+LATEST.v, DIST.debian.req, prog(DIST.debian), false, 'linux'));
+    parts.push(plat('astra','Astra Linux 1.8','Client, Server, Daemon · '+LATEST.v, DIST.astra.req, progs('astra',DIST.astra)));
+    parts.push(plat('debian','Debian 12','Client, Server, Daemon · '+LATEST.v, DIST.debian.req, progs('debian',DIST.debian)));
   }
-  parts.push(plat('tos2','TRASSIR OS 2.0','NeuroStation, UltraStation, MiniNVR · '+LATEST.v, 'Регистраторы TRASSIR на TRASSIR OS 2.0', tosRows(TOS.filter(f=>!f.arm)), false, 'регистратор'));
-  parts.push(plat('arm','TRASSIR OS для ARM','MiniNVR и DuoStation серий 3xxx и 4xxx · '+LATEST.v, 'Регистраторы TRASSIR на процессорах ARM', tosRows(TOS.filter(f=>f.arm)), false, 'регистратор'));
+  parts.push(plat('tos2','TRASSIR OS 2.0','NeuroStation, UltraStation, MiniNVR · '+LATEST.v, 'Регистраторы TRASSIR на TRASSIR OS 2.0', fams(TOS.filter(f=>!f.arm))));
+  parts.push(plat('arm','TRASSIR OS для ARM','MiniNVR и DuoStation серий 3xxx и 4xxx · '+LATEST.v, 'Регистраторы TRASSIR на процессорах ARM', fams(TOS.filter(f=>f.arm))));
   $('#softList').innerHTML = parts.join('');
-  $('#modelFilter').value=''; $('#modelEmpty').hidden=true;
 }
-// поиск по всем полям: модель, платформа, программа, имя файла; несколько слов — должны найтись все
-const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-function filterSoft(raw){
-  const terms = raw.trim().toLowerCase().split(/\s+/).filter(Boolean); let n=0;
-  const re = terms.length ? new RegExp(terms.map(reEsc).join('|'),'gi') : null;
-  document.querySelectorAll('#softList details').forEach(d=>{
-    let hits=0;
-    d.querySelectorAll('[data-q]').forEach(r=>{
-      const hay = r.dataset.q+' '+d.dataset.q, hit = terms.every(t=>hay.includes(t));
-      r.hidden=!hit; if(hit) hits++;
-      r.querySelectorAll('.hl').forEach(h=>{ if(h.dataset.t===undefined) h.dataset.t=h.textContent; h.innerHTML = re ? esc(h.dataset.t).replace(re, m=>`<mark>${m}</mark>`) : esc(h.dataset.t); });
-      if(terms.length && hit){ r.querySelectorAll('.mrest').forEach(x=>x.hidden=false); r.querySelectorAll('[data-mmore]').forEach(x=>x.hidden=true); }
-    });
-    d.hidden = !!terms.length && !hits; if(terms.length && hits){ d.open=true; n++; }
-  });
-  $('#modelEmpty').hidden = !terms.length || n>0;
-}
-$('#modelFilter').addEventListener('input', e=>{ if(!e.target.value.trim()) renderSoft(); else filterSoft(e.target.value); });
 $('#softList').addEventListener('click', e=>{ const b=e.target.closest('[data-mmore]'); if(!b) return; b.previousElementSibling.hidden=false; b.hidden=true; });
-$('#softList').addEventListener('change', e=>{
-  const s=e.target.closest('[data-mpick]'); if(!s) return;
-  s.closest('.rows').querySelectorAll('.row[data-models]').forEach(r=>{ r.hidden = !!s.value && !r.dataset.models.split('|').includes(s.value); });
-});
 
 /* ================= остальное ================= */
 $('#mobileRows').innerHTML = MOBILE.map(m=>`<div class="row"><div><div class="nm">${m.n}</div></div><div class="ds">${m.d}</div><a class="btn btn-sec" href="#" onclick="return false">${m.b}</a></div>`).join('');
@@ -915,38 +870,38 @@ $('#utilList').innerHTML = UTILS.map(g=>`<details><summary><h3>${g.g}</h3><small
 
 /* ================= сценарии ================= */
 const PRESETS = {
-  b_latest:{build:'1321840'}, b_single:{build:'1319665'}, b_chain:{build:'1268000'}, b_old:{build:'1205118'},
-  b_linux:{build:'1319671'}, b_client:{build:'1319666'}, b_arm:{build:'1318402'}, b_serial:{build:'1314884'}, b_serial_up:{build:'1314884', sn:'GT-820032S045'},
-  b_version:{build:'4.9.12.0'}, b_notfound:{build:'9999999'}, b_bad:{build:'abc'},
-  latest:{plat:'win',prog:'server',ver:LATEST.v},
-  single:{plat:'win',prog:'server',ver:'4.9.12.0'},
-  chain:{plat:'win',prog:'server',ver:'4.6.9.0'},
-  old:{plat:'win',prog:'server',ver:'4.3.2.0'},
-  arm:{plat:'tos',model:'TRASSIR MiniNVR 4216R',ver:'4.9.10.0'},
-  tos2:{plat:'tos',model:'TRASSIR NeuroStation 9400R/32',ver:'4.9.8.0'},
-  upgrade:{plat:'tos',model:'TRASSIR NeuroStation 8200R/32-S',ver:'4.8.1.0'},
-  eol:{plat:'tos',model:'TRASSIR DuoStation AnyIP 16-RE',ver:'4.8.2.0'},
-  ambig:{plat:'tos',model:'TRASSIR MiniNVR 3216R',ver:'4.9.10.0'},
-  ambig_sn:{plat:'tos',model:'TRASSIR MiniNVR 3216R',ver:'4.9.10.0',sn:'A9E-321600456'},
-  badver:{plat:'win',prog:'client',ver:'4.9'}
+  i_win:{goal:'install',plat:'win',prog:'server'},
+  i_astra:{goal:'install',plat:'astra',prog:'daemon'},
+  i_arm:{goal:'install',plat:'tos',model:'TRASSIR MiniNVR 4216R'},
+  i_ambig:{goal:'install',plat:'tos',model:'TRASSIR MiniNVR 3216R'},
+  u_latest:{goal:'update',plat:'win',prog:'server',ver:LATEST.v},
+  u_single:{goal:'update',plat:'win',prog:'server',ver:'4.9.12.0'},
+  u_build:{goal:'update',plat:'win',prog:'server',ver:'1319665'},
+  u_chain:{goal:'update',plat:'win',prog:'server',ver:'4.6.9.0'},
+  u_old:{goal:'update',plat:'win',prog:'server',ver:'4.3.2.0'},
+  u_arm:{goal:'update',plat:'tos',model:'TRASSIR MiniNVR 4216R',ver:'4.9.10.0'},
+  u_tos2:{goal:'update',plat:'tos',model:'TRASSIR NeuroStation 9400R/32',ver:'4.9.8.0'},
+  u_upgrade:{goal:'update',plat:'tos',model:'TRASSIR NeuroStation 8200R/32-S',ver:'4.8.1.0'},
+  u_eol:{goal:'update',plat:'tos',model:'TRASSIR DuoStation AnyIP 16-RE',ver:'4.8.2.0'},
+  u_ambig:{goal:'update',plat:'tos',model:'TRASSIR MiniNVR 3216R',ver:'4.9.10.0'},
+  u_ambig_sn:{goal:'update',plat:'tos',model:'TRASSIR MiniNVR 3216R',ver:'4.9.10.0',sn:'A9E-321600456'},
+  u_nobuild:{goal:'update',plat:'win',prog:'server',ver:'9999999'},
+  u_badver:{goal:'update',plat:'win',prog:'client',ver:'4.9'}
 };
 function applyPreset(k){
   const p = PRESETS[k]; if(!p) return;
   document.querySelectorAll('.ferr').forEach(e=>e.hidden=true); document.querySelectorAll('.inp.bad').forEach(e=>e.classList.remove('bad'));
-  if(p.build!==undefined){ setMode('build'); $('#bn').value=p.build; runBuild(false); }
-  else {
-    setMode('steps'); st.plat=p.plat; st.prog=p.prog||null; renderChips();
-    $('#model').value=p.model||''; $('#ver').value=p.ver; run(false);
-  }
+  st.goal=p.goal; st.plat=p.plat; st.prog=p.prog||null; renderChips();
+  $('#model').value=p.model||''; $('#ver').value=p.ver||''; run(false);
   if(p.sn && RC && RC.ask){ RC.rec=SERIALS[p.sn]; drawRC(false); }
   $('#pick').scrollIntoView({behavior:'smooth'});
 }
-function syncFlagUI(){ $('#fModels').value=FLAGS.models; $('#fLinux').value=FLAGS.linux; $('#fHelp').value=FLAGS.help; }
+function syncFlagUI(){ $('#fLinux').value=FLAGS.linux; $('#fHelp').value=FLAGS.help; }
 $('#scnBtn').addEventListener('click', ()=>{ const s=$('#scn'); s.hidden=!s.hidden; $('#scnBtn').setAttribute('aria-expanded', String(!s.hidden)); });
 $('#fRes').addEventListener('change', e=>{ applyPreset(e.target.value); try{ const q=new URLSearchParams(location.search); e.target.value?q.set('res',e.target.value):q.delete('res'); history.replaceState(null,'','?'+q.toString()); }catch(_){} });
-[['fModels','models'],['fLinux','linux'],['fHelp','help']].forEach(([id,k])=>$('#'+id).addEventListener('change', e=>{
+[['fLinux','linux'],['fHelp','help']].forEach(([id,k])=>$('#'+id).addEventListener('change', e=>{
   FLAGS[k]=e.target.value; saveFlags(); renderChips(); renderSoft(); renderHelpAlways();
-  if(RC && !RC.notfound) drawRC(false);
+  if(RC) drawRC(false);
 }));
 
 /* ---------- подсказки ⓘ и копирование ссылок ---------- */
@@ -977,12 +932,10 @@ $('#latestChanges').innerHTML = CHANGES.map(c=>`<li>${c}</li>`).join('');
 document.querySelectorAll('.qi').forEach(q=>{ if(!q.innerHTML) q.innerHTML=IC.i; });
 renderModels(); syncFlagUI(); renderChips(); renderSoft(); renderHelpAlways();
 try{ const r=new URLSearchParams(location.search).get('res'); if(r&&PRESETS[r]){ $('#fRes').value=r; applyPreset(r); } }catch(e){}
-// ссылки для демо: ?open=tos — раскрыть регистраторы в «Скачать ПО TRASSIR», ?q=4216 — сразу заполнить поиск по файлам
+// ссылка для демо: ?open=tos — раскрыть регистраторы в «Скачать ПО TRASSIR»
 try{
-  const q=new URLSearchParams(location.search), open=q.get('open'), find=q.get('q');
-  if(open==='tos') document.querySelectorAll('#softList details[data-plat=tos2],#softList details[data-plat=arm]').forEach(d=>d.open=true);
-  if(find){ $('#modelFilter').value=find; filterSoft(find); }
-  if(open||find) setTimeout(()=>$('#files').scrollIntoView({block:'start'}),50);
+  const open=new URLSearchParams(location.search).get('open');
+  if(open==='tos'){ document.querySelectorAll('#softList details[data-plat=tos2],#softList details[data-plat=arm]').forEach(d=>d.open=true); setTimeout(()=>$('#files').scrollIntoView({block:'start'}),50); }
 }catch(e){}
 
 </script>
