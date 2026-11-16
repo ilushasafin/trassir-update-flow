@@ -83,6 +83,7 @@ main > section#soft{margin-top:24px}
 #soft .card,#soft .acc details{box-shadow:none}
 .sub-s{margin-top:24px}
 h3.t{font-size:17px;margin:0 0 4px}
+main > section > h2 + .card, main > section > h2 + .acc{margin-top:16px}
 /* инструкции — строка внизу карточки подбора */
 .guides-l{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:13px}
 .guides-l span{color:var(--muted-2)}
@@ -352,7 +353,6 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
       <section id="pick" class="sub-s">
         <div class="card pick">
           <h3 class="t">Подобрать ПО TRASSIR</h3>
-          <p class="sub" style="margin:0">Покажем, какие файлы скачать и в каком порядке ставить.</p>
           <form id="pf" novalidate>
             <div class="steps">
               <div class="step" id="sGoal"><div class="num">1</div>
@@ -393,7 +393,6 @@ mark{background:#fff0b3;color:inherit;padding:0 1px}
       <!-- файлы по платформам: у каждой программы свой пакет для установки с нуля и свой — для обновления -->
       <section id="files" class="sub-s">
         <h3 class="t">Скачать ПО TRASSIR</h3>
-        <p class="sub">Для установки с нуля и для обновления — разные пакеты.</p>
         <div class="acc" id="softList"></div>
       </section>
       </div>
