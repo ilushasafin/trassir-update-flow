@@ -69,6 +69,7 @@ const PICK_RECS = {
 const TREE = [
   {id:'vms', t:'vms', lvl:0, big:1, icon:'db', open:1},
   {id:'srvset', t:'Настройки сервера', lvl:1, big:1, icon:'gear', open:1},
+  {id:'upd', t:'Обновление ПО', lvl:2, page:1},
   {id:'cloud', t:'Облако TRASSIR', lvl:2, bold:1, closed:1},
   {id:'archive', t:'Архив', lvl:2}, {id:'iscsi', t:'iSCSI', lvl:2}, {id:'netrec', t:'Запись сетевых каналов', lvl:2},
   {id:'sync', t:'Синхронизация архива', lvl:2}, {id:'shots', t:'Скриншоты', lvl:2}, {id:'web', t:'Веб-сервер', lvl:2},
@@ -85,7 +86,8 @@ const TICON = {db:'__ASSET:t-db__', gear:'__ASSET:t-gear__', ext:'__ASSET:t-ext_
 /* ---------- состояние ---------- */
 const S = {
   net:'avail', files:'found', dlOut:'ok', outcome:'ok', newerOut:false,
-  autoCheck:true, backup:true, restartNow:false, sel:'vms'
+  autoCheck:true, backup:true, restartNow:false, sel:'vms',
+  ui:'page' // вид обновления: page — отдельная страница «Обновление ПО» (новый), modal — меню и окна (было)
 };
 let CUR=null, BTNS=[], ONX=null, tDl=null, tRs=null, tChk=null, tFind=null;
 
@@ -106,7 +108,7 @@ function reset(){
   const cur = S.net==='latest'?LATEST : S.net==='old'?'4.6.9.0' : '4.9.13.0';
   Object.assign(S, {cur, build:CH[cur]?.b||'1268000', checked:S.autoCheck, checking:false,
     dl:null, ready:null, busy:null, note:null, extra:[], fileSel:0, pickN:0,
-    failTo:null, moreCh:0, back:[], exp:{}, sel:'vms', log:baseLog()});
+    failTo:null, rbFrom:null, moreCh:0, back:[], exp:{}, sel:'vms', log:baseLog(), pfile:null, upOpen:{ch:false,log:false}});
   CUR=null; resetGeom(DW); draw();
 }
 
@@ -235,13 +237,21 @@ const WIN = {
   // единственное окно после загрузки — если не стояла галочка «перезапустить сразу»
   ready(){
     const v=S.ready.target, nx = S.newerOut && newer(NEXT.v,v);
+    const pg=S.ui==='page';
     return {t:'Обновление загружено',
-      left:`<button type="button" class="btn" data-act="delReady">Удалить загруженное</button>`,
+      left:`<button type="button" class="btn" data-act="delReady">${pg?'Удалить обновление':'Удалить загруженное'}</button>`,
       body:sh('ok',`${v} готово к установке`,'Сервер перезапустится и будет недоступен около 5 минут. Запись архива на это время остановится.',
         S.backup?'Перед установкой сохраним бэкап настроек.':'')
         // пока обновление ждало установки, вышла версия новее — предлагаем её вместо этой
         +(nx?box('info',`<b>Вышла версия новее — ${NEXT.v}</b><span>Можно удалить загруженную ${v} и загрузить ${NEXT.v}.</span><div class="row"><button type="button" class="btn" data-act="swapNewer">Удалить ${v} и загрузить ${NEXT.v}</button></div>`):''),
-      btns:[{t:'Позже',act:close},{t:'Перезапустить сервер и установить',pri:1,act:()=>startRestart('install')}]};
+      btns:[{t:'Позже',act:close},{t:pg?'Установить сейчас':'Перезапустить сервер и установить',pri:1,act:()=>startRestart('install')}]};
+  },
+  // откат на версию, сохранённую перед прошлым обновлением
+  rb(){ const r=S.log[0];
+    return {t:'Вернуть прошлую версию',
+      body:sh('warn',`Вернуть версию ${r.from}?`,`Сейчас установлена ${r.to}.`)
+        +`<ol class="recs"><li>Сервер перезапустится и будет недоступен около 5 минут.</li><li>Настройки восстановятся из бэкапа от ${r.t}.</li><li>Изменения настроек после этой даты пропадут. Архив сохранится.</li></ol>`,
+      btns:[{t:'Отмена',act:close},{t:`Вернуть ${r.from}`,pri:1,act:()=>startRestart('rollback')}]};
   },
 
   changes(st){
@@ -297,6 +307,7 @@ function draw(){
 const CHEV_O='<img src="__ASSET:chev-open__" width="14" height="14" alt="">', CHEV_C='<img src="__ASSET:chev-closed__" width="14" height="14" alt="">';
 // отметка у «vms» в дереве — чтобы ход обновления был виден из любого раздела
 function vmsMark(){
+  if(S.ui==='page') return ''; // в варианте «страница» — красные бейджи на «Настройках сервера» и «Обновлении ПО»
   const st=netState();
   if(st==='busy') return `<span class="vmk busy" data-tip="Сервер перезапускается для установки обновления">${SPIN}обновляется</span>`;
   if(st==='dl'){ const p=Math.floor(S.dl.done/S.dl.total*100);
@@ -309,11 +320,11 @@ function vmsMark(){
   return '';
 }
 function renderTree(){
-  $('tree').innerHTML = TREE.map(n=>{
+  $('tree').innerHTML = TREE.filter(n=>!n.page||S.ui==='page').map(n=>{
     const pad = [6,26,46][n.lvl];
     const cs = n.open?CHEV_O : n.closed?CHEV_C : '';
     const ic = n.icon?`<img class="ic" src="${TICON[n.icon]}" width="26" height="26" alt="">`:'';
-    return `<button type="button" class="ti ${n.big?'big':'sm'}${n.bold?' bold':''}${S.sel===n.id?' on':''}" data-node="${n.id}" style="padding-left:${pad}px"><span class="cs">${cs}</span>${ic}<span class="tl">${n.t}</span>${n.id==='vms'?vmsMark():''}</button>`;
+    return `<button type="button" class="ti ${n.big?'big':'sm'}${n.bold?' bold':''}${S.sel===n.id?' on':''}" data-node="${n.id}" style="padding-left:${pad}px"><span class="cs">${cs}</span>${ic}<span class="tl">${n.t}</span>${n.id==='vms'?vmsMark():S.ui==='page'?pageMark(n.id):''}</button>`;
   }).join('');
 }
 function pathOf(id){
@@ -322,6 +333,7 @@ function pathOf(id){
   return 'vms/'+n.t;
 }
 function updBtnHtml(){
+  if(S.ui==='page') return `<button type="button" class="nbtn uupd" id="updBtn" title="Открыть «Обновление ПО»">Обновление ПО${pageAttn()?BADGE:''}</button>`;
   const st=netState(); let attn=false, title='';
   if(st==='dl'){ if(S.dl.state!=='run'){ attn=true; title=S.dl.state==='stopped'?'Загрузка остановлена':S.dl.state==='paused'?'Загрузка на паузе — нет связи':'Загрузка обновления не удалась'; } else title=`Загружаем ${S.dl.target} в фоне`; }
   else if(st==='ready'){ attn=true; title=`${S.ready.target} загружено и готово к установке`; }
@@ -334,6 +346,7 @@ function updBtnHtml(){
 }
 // фоновая строка: загрузка, передача файла, установка и итог — вместо отдельных окон
 function bgpHtml(){
+  if(S.ui==='page') return ''; // всё про обновление — на странице «Обновление ПО»
   const row = (k,ic,text,meta,acts,bar,spin) => `<div class="bgp ${k}" id="bgp"><span class="bi${spin?' spin':''}">${ic}</span><span class="bt">${text}${meta?` <span class="bm">· ${meta}</span>`:''}</span><span class="ba">${acts||''}</span>${bar||''}</div>`;
   const pbar = (pct,k) => `<div class="pbar ${k||''}"><i style="width:${pct}%"></i></div>`;
   if(S.busy){ const b=S.busy, steps=restartSteps();
@@ -357,6 +370,7 @@ function renderPage(){
   $('pTitle').textContent = `< Владелец лицензии: D1-pool > Настройки - Admin - ${pathOf(S.sel)}`;
   renderTree();
   if(S.sel==='net'){ $('page').innerHTML = netPage(); return; }
+  if(S.sel==='upd'){ $('page').innerHTML = updPage(); return; }
   if(S.sel!=='vms'){
     const n=TREE.find(x=>x.id===S.sel);
     $('page').innerHTML = `<div class="pg-blank"><div><b>${n.t}</b><br>В прототипе этого раздела нет — он нужен, чтобы показать, что обновление идёт в фоне.${S.dl||S.busy?'<br>Ход обновления виден у «vms» в дереве.':''}</div></div>`;
@@ -369,7 +383,7 @@ function renderPage(){
     <div class="pg-top">
       <div class="pg-ver"><span>Версия ПО:</span><b>${busy?'—':S.cur}</b><span class="r">Сборка:</span><span>${busy?'—':S.build}</span></div>
       <div class="pg-acts">
-        <div class="umenu-w">${updBtnHtml()}<div class="umenu" id="menu" role="menu"${menuOpen?'':' hidden'}>${menuHtml()}</div></div>
+        <div class="umenu-w">${updBtnHtml()}${S.ui==='page'?'':`<div class="umenu" id="menu" role="menu"${menuOpen?'':' hidden'}>${menuHtml()}</div>`}</div>
         <button type="button" class="nbtn"><img src="__ASSET:qube__" width="16" height="16" alt="">Журналы &amp; дампы падений...</button>
         <button type="button" class="nbtn">Перезагрузка</button>
       </div>
@@ -404,7 +418,8 @@ function netPage(){
 function drawProgress(){
   const d=S.dl, pct=Math.floor(d.done/d.total*100);
   const b=$('bgp'); if(b&&S.sel==='vms'){ const i=b.querySelector('.pbar i'); if(i) i.style.width=pct+'%'; const m=b.querySelector('.bm'); if(m) m.textContent=`· ${mb(d.done)} из ${mb(d.total)} · осталось ${left(d.total-d.done)}`; }
-  const mk=document.querySelector('.ti[data-node="vms"] .vmk.run'); if(mk) mk.textContent=`↓ ${pct}%`; else renderTree();
+  const ub=$('upbar'); if(ub){ ub.querySelector('i').style.width=pct+'%'; const um=$('upmeta'); if(um) um.textContent=`${mb(d.done)} из ${mb(d.total)} · осталось ${left(d.total-d.done)}`; }
+  const mk=document.querySelector('.ti .vmk.run'); if(mk) mk.textContent=`↓ ${pct}%`; else renderTree();
   const c=document.querySelector('#menu .chip.run'); if(c) c.textContent=`Загрузка ${pct}%`;
 }
 function chipFor(st){
@@ -429,6 +444,110 @@ function menuHtml(){
 }
 function toggleMenu(){ const m=$('menu'); if(!m) return; m.hidden=!m.hidden; $('updBtn').setAttribute('aria-expanded',String(!m.hidden)); }
 function closeMenu(){ const m=$('menu'); if(m&&!m.hidden){ m.hidden=true; $('updBtn')?.setAttribute('aria-expanded','false'); } }
+
+/* ================= страница «Обновление ПО» в «Настройках сервера» — вместо модальных окон (просьба А. Воронцова) ================= */
+// бейдж-уведомление: красный, как остальные счётчики в дереве; подарочков нет
+const BADGE = '<span class="nbadge" aria-label="Есть уведомление">1</span>';
+function pageAttn(){ const st=netState();
+  return st==='avail'||st==='old'||st==='space'||st==='ready'||(st==='dl'&&S.dl.state!=='run'); }
+function pageMark(id){
+  const st=netState();
+  if(id==='upd'){
+    if(st==='busy') return `<span class="vmk busy" data-tip="Сервер перезапускается">${SPIN}</span>`;
+    if(st==='dl'&&S.dl.state==='run') return `<span class="vmk run" data-tip="Загружаем ${S.dl.target}">↓ ${Math.floor(S.dl.done/S.dl.total*100)}%</span>`;
+  }
+  return (id==='upd'||id==='srvset') && pageAttn() ? BADGE : '';
+}
+// QR-код на страницу загрузок — условный рисунок для прототипа (настоящий сгенерирует разработка)
+function qrSvg(txt, px=104){
+  const n=25, cell=px/n; let h=2166136261; for(const ch of txt){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); }
+  const rnd=()=>{ h^=h<<13; h^=h>>>17; h^=h<<5; return (h>>>0)/4294967296; };
+  const finder=(x,y)=>`<rect x="${x*cell}" y="${y*cell}" width="${7*cell}" height="${7*cell}" fill="#1c1c1c"/><rect x="${(x+1)*cell}" y="${(y+1)*cell}" width="${5*cell}" height="${5*cell}" fill="#fff"/><rect x="${(x+2)*cell}" y="${(y+2)*cell}" width="${3*cell}" height="${3*cell}" fill="#1c1c1c"/>`;
+  const inF=(x,y)=>(x<8&&y<8)||(x>=n-8&&y<8)||(x<8&&y>=n-8);
+  let r=''; for(let y=0;y<n;y++) for(let x=0;x<n;x++){ if(inF(x,y)) continue; if(rnd()<.47) r+=`<rect x="${(x*cell).toFixed(2)}" y="${(y*cell).toFixed(2)}" width="${cell.toFixed(2)}" height="${cell.toFixed(2)}"/>`; }
+  return `<svg class="qr" width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" role="img" aria-label="QR-код страницы загрузок"><rect width="${px}" height="${px}" fill="#fff"/><g fill="#1c1c1c">${r}</g>${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}</svg>`;
+}
+const upOpts = () => `<div class="up-opts">${ck('backup','Сохранить бэкап настроек','Перед установкой — на архивный диск. Если после обновления что-то пойдёт не так, к нему можно вернуться')}
+  ${ck('restartNow','Установить сразу после загрузки','Сервер перезапустится и будет недоступен около 5 минут, запись архива на это время остановится')}</div>`;
+const upBtn = (act,t,pri,dis) => `<button type="button" class="btn${pri?' pri':''}" data-act="${act}"${dis?' disabled':''}>${t}</button>`;
+const upCard = (k,ic,title,meta,body) => `<div class="up-card ${k}"><div class="up-st">${ic}<div><b>${title}</b>${meta?`<span>${meta}</span>`:''}</div></div>${body||''}</div>`;
+// главный блок: что сейчас с обновлением по сети
+function upStatus(){
+  const st=netState(), n=S.note;
+  const note = n&&n.k==='fail' ? upCard('err',ICON.err,`${S.failTo} не установилась — сервер сам вернулся на ${S.cur}`,'Подробности — в журнале обновлений ниже','') :
+               n&&n.k==='rolled' ? upCard('ok',ICON.ok,`Возвращена версия ${S.cur}`,`Настройки восстановлены из бэкапа от ${S.rbFrom}`,'') : '';
+  if(st==='busy'){ const b=S.busy, steps=restartSteps(), cur=Math.min(b.step,steps.length-1);
+    return upCard('run',`<span class="up-spin">${ICON.spin}</span>`, b.kind==='rollback'?`Возвращаем версию ${b.to}`:`Устанавливаем ${b.to}`, 'Сервер недоступен около 5 минут',
+      `<ol class="up-steps">${steps.map((s,i)=>`<li class="${i<cur?'done':i===cur?'on':''}">${s.t}</li>`).join('')}</ol>`); }
+  if(st==='dl'){ const d=S.dl, pct=Math.floor(d.done/d.total*100), what=d.src==='net'?'Загружаем':'Передаём на сервер';
+    const bar = k => `<div class="pbar ${k||''}" id="upbar"><i style="width:${pct}%"></i></div>`;
+    const acts = h => `<div class="up-acts">${h}</div>`;
+    if(d.state==='stopped') return upCard('',ICON.info,`Загрузка ${d.target} остановлена`,`загружено ${mb(d.done)} из ${mb(d.total)}`, bar('paused')+acts(lnk('resume','Продолжить')+lnk('delDl','Отменить')));
+    if(d.state==='paused') return upCard('warn',ICON.warn,'Связь прервалась — продолжим, когда она вернётся',`${mb(d.done)} из ${mb(d.total)}`, bar('paused')+acts(lnk('resume','Повторить сейчас')+lnk('delDl','Отменить')));
+    if(d.state==='fail') return upCard('err',ICON.err,'Загрузка не удалась — связь обрывалась слишком часто',`загружено ${mb(d.done)} из ${mb(d.total)}`, bar('fail')+acts(lnk('retry','Повторить')+lnk('delDl','Отменить')));
+    return upCard('run',ICON.info,`${what} ${d.target}`,`<span id="upmeta">${mb(d.done)} из ${mb(d.total)} · осталось ${left(d.total-d.done)}</span>`, bar()+acts(lnk('stopDl','Остановить')+lnk('delDl','Отменить'))); }
+  if(st==='ready'){ const v=S.ready.target, nx=S.newerOut&&newer(NEXT.v,v);
+    return upCard('ok',ICON.ok,`${v} загружено — готово к установке`,'Сервер перезапустится и будет недоступен около 5 минут',
+      (nx?`<p class="up-note">Пока обновление ждало установки, вышла версия ${NEXT.v}. ${lnk('swapNewer',`Удалить ${v} и загрузить ${NEXT.v}`)}</p>`:'')
+      +`<div class="up-acts">${upBtn('installNow','Установить сейчас',1)}${lnk('delReady','Удалить обновление')}</div>`); }
+  if(st==='checking') return upCard('',`<span class="up-spin">${ICON.spin}</span>`,'Проверяем обновления…','Обращаемся к серверу обновлений TRASSIR','');
+  if(st==='unchecked') return upCard('',ICON.info,'Автоматический поиск обновлений выключен','Сервер не проверяет обновления сам',`<div class="up-acts">${lnk('checkNowP','Проверить сейчас')}</div>`);
+  if(st==='offline') return upCard('err',ICON.err,'Нет доступа к сети',`${SRV} не подключён к интернету — проверить обновления нельзя`,
+    `<ul class="up-recs"><li>Проверьте кабель и настройки в «Сетевые интерфейсы»: адрес, шлюз и DNS.</li><li>Или обновите из файла — ниже.</li></ul><div class="up-acts">${lnk('checkNowP','Проверить снова')}</div>`);
+  if(st==='nohost') return upCard('err',ICON.err,'Не удаётся связаться с сервером обновлений','Интернет есть, но адрес updates.cloud.trassir.com не находится',
+    `<ul class="up-recs"><li>В «Сетевые интерфейсы» укажите шлюз и DNS, например <b>77.88.8.8</b>.</li><li>Или обновите из файла — ниже.</li></ul><div class="up-acts">${lnk('checkNowP','Проверить снова')}</div>`);
+  if(st==='latest') return note + upCard('ok',ICON.ok, n&&n.k==='ok'?`Обновление установлено — версия ${S.cur}`:'Установлена последняя версия','Проверено сегодня в 14:32','');
+  // доступно обновление
+  const busy=!!S.busy;
+  if(st==='old'){ const ch=chainFrom(S.cur);
+    return note + upCard('warn',ICON.warn,`Доступно обновление до ${LATEST} — по шагам`,`Установлена ${S.cur}. Обновлять нужно по порядку: ${ch.length} шага`,
+      `<ol class="up-chain">${ch.map((v,i)=>`<li>${i===0?`<b>${v}</b> — сейчас`:v}</li>`).join('')}</ol>${upOpts()}<div class="up-acts">${upBtn('upDl',`Загрузить шаг 1 — ${ch[0]}`,1,busy)}</div>`); }
+  const space = st==='space' ? `<p class="up-note err">Не хватает места на системном диске: нужно 2,6 ГБ, свободно 1,1 ГБ. Удалите старые скриншоты и экспорт видео или ${lnk('toArchiveP','загружайте на архивный диск')}.</p>` : '';
+  return note + upCard('new',ICON.info,`Доступно обновление ${LATEST}`,`${CH[LATEST].d} · ${mb(SIZE)}`,
+    `<div class="up-ch"><b>Что изменилось</b>${ul(CH[LATEST].items)}</div>${space}${upOpts()}<div class="up-acts">${upBtn('upDl','Загрузить обновление',1,st==='space')}</div>`);
+}
+// из файла: QR-код и адрес текстом — где взять файл; «Обзор» без автопоиска; проверка выбранного файла
+function upFile(){
+  const lock = !!(S.dl||S.busy||S.ready), f=S.pfile;
+  let res='';
+  if(f && f.err) res = `<div class="up-pick err"><div class="up-fn">${esc(f.n)}<span>${mb(f.mb)}</span></div><p><b>${f.err}</b></p><ul class="up-recs">${PICK_RECS[f.kind].map(r=>`<li>${r}</li>`).join('')}</ul><div class="up-acts">${lnk('browseP','Выбрать другой файл')}</div></div>`;
+  else if(f) res = `<div class="up-pick ok"><div class="up-fn">${esc(f.n)}<span>${mb(f.mb)}</span></div>
+      <p class="up-flow">${ICON.ok}<span>Подходит: установлена <b>${S.cur}</b> → будет <b>${f.v}</b></span></p>${upOpts()}
+      <div class="up-acts">${upBtn('upFile','Загрузить обновление',1,lock)}${lnk('browseP','Выбрать другой файл')}</div></div>`;
+  return `<div class="up-card plain"><div class="up-sec">Обновление из файла</div>
+    <div class="up-file">${qrSvg(SITE_TXT)}<div>
+      <p>Скачайте файл на сайте TRASSIR: наведите камеру телефона на QR-код или наберите адрес</p>
+      <p class="up-url">${SITE_TXT}</p>
+      ${f?'':upBtn('browseP','Выбрать файл обновления…',0,lock)}</div></div>${res}</div>`;
+}
+// список изменений, журнал и откат — свёрнутыми блоками внизу страницы
+function upHistory(){
+  const o=S.upOpen;
+  let idx=ALL_VERS.indexOf(S.cur); if(idx<0) idx=VERS.length-1;
+  const shown=ALL_VERS.slice(0, idx+1+S.moreCh), rest=ALL_VERS.length-shown.length;
+  const last=S.log[0], canRb = last && last.ok && last.bk && last.a==='Обновление' && !S.busy;
+  const tog = (k,t) => `<button type="button" class="up-tog${o[k]?' on':''}" data-act="upTog" data-k="${k}" aria-expanded="${!!o[k]}">${t}</button>`;
+  return `<div class="up-card plain hist">
+    ${canRb?`<div class="up-rb"><span>Версия до прошлого обновления — <b>${last.from}</b>, бэкап от ${last.t}</span>${upBtn('rbAsk',`Вернуть ${last.from}`)}</div>`:''}
+    ${tog('ch','Список изменений')}${o.ch?`<div class="up-body">${S.checked?verList(shown)+(rest>0?`<div>${lnk('more','Показать более ранние версии')}</div>`:''):'<p class="fine">Список изменений приходит с сервера обновлений — включите автопоиск или проверьте вручную.</p>'}</div>`:''}
+    ${tog('log','Журнал обновлений')}${o.log?`<div class="up-body"><table class="ulog"><thead><tr><th>Дата и время</th><th>Действие</th><th>Версия</th><th>Результат</th><th>Пользователь</th></tr></thead><tbody>
+      ${S.log.map(r=>`<tr><td class="v">${r.t}</td><td>${r.a}</td><td class="v">${r.from?`${r.from} → ${r.to}`:r.to}</td><td><span class="res">${r.ok?ICON.ok:ICON.err}<span>${r.ok?'Успешно':'Ошибка'}${r.why?hint(r.why):''}</span></span></td><td>${r.who}</td></tr>`).join('')}</tbody></table></div>`:''}
+  </div>`;
+}
+function updPage(){
+  const busy=!!S.busy;
+  return `<div class="up">
+    <div class="up-top">
+      <div class="pg-ver"><span>Версия ПО:</span><b>${busy?'—':S.cur}</b><span class="r">Сборка:</span><span>${busy?'—':S.build}</span></div>
+      <div class="up-auto">${ck('autoCheck','Автоматически искать обновления ПО','Сервер сам обращается к серверу обновлений TRASSIR и сообщает о новых версиях. Выключите, если правила безопасности запрещают такие подключения — тогда обновляйте из файла.')}
+        ${S.autoCheck&&!busy&&!S.dl?`<span class="fine">Проверено сегодня в 14:32 · ${lnk('checkNowP','Проверить сейчас')}</span>`:''}</div>
+    </div>
+    ${upStatus()}
+    ${upFile()}
+    ${upHistory()}
+  </div>`;
+}
+function checkNowP(){ S.checked=true; S.checking=true; renderPage(); clearTimeout(tChk); tChk=setTimeout(()=>{ S.checking=false; renderPage(); },1100); }
 
 /* ================= сценарий ================= */
 function check(){ S.checking=true; S.checked=true; open('net','checking'); clearTimeout(tChk);
@@ -467,6 +586,7 @@ function dropConn(){ if(!S.dl||S.dl.state!=='run') return; clearTimeout(tDl); S.
 
 function restartSteps(){
   const b=S.busy;
+  if(b.kind==='rollback') return [{t:'Останавливаем сервер'},{t:`Возвращаем ${b.to}`},{t:'Восстанавливаем настройки из бэкапа'},{t:'Запускаем сервер'}];
   const s=[]; if(S.backup) s.push({t:'Сохраняем бэкап настроек'});
   s.push({t:`Ставим ${b.to}`},{t:'Перезапускаем сервер'});
   s.push({t:b.fail?'Сервер не запустился — возвращаем прошлую версию':'Проверяем камеры и архив'});
@@ -474,8 +594,9 @@ function restartSteps(){
 }
 function startRestart(kind){
   clearTimeout(tRs); S.note=null;
-  const to=S.ready.target; S.ready=null; S.busy={kind, from:S.cur, to, step:0, fail:S.outcome==='fail'};
-  CUR=null; S.back=[]; S.sel==='vms'||(S.sel='vms'); draw(); tickRs();
+  if(kind==='rollback'){ const r=S.log[0]; S.busy={kind, from:r.to, to:r.from, bkt:r.t, step:0}; }
+  else { const to=S.ready.target; S.ready=null; S.busy={kind, from:S.cur, to, step:0, fail:S.outcome==='fail'}; }
+  CUR=null; S.back=[]; if(S.ui!=='page') S.sel='vms'; draw(); tickRs();
 }
 function tickRs(){
   tRs=setTimeout(()=>{
@@ -486,7 +607,8 @@ function tickRs(){
 }
 function finishRs(){
   const b=S.busy; S.busy=null; const now='10.11.2026 '+new Date().toTimeString().slice(0,5);
-  if(b.fail){ S.failTo=b.to; S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:false,who:'admin',why:`Ошибка установки пакета (код 0x2F). Сервер автоматически вернулся на ${b.from}`}); S.note={k:'fail'}; }
+  if(b.kind==='rollback'){ S.cur=b.to; S.rbFrom=b.bkt; S.build=CH[S.cur]?.b||S.build; S.log.unshift({t:now,a:'Возврат',from:b.from,to:b.to,ok:true,who:'admin',bk:false}); S.note={k:'rolled'}; }
+  else if(b.fail){ S.failTo=b.to; S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:false,who:'admin',why:`Ошибка установки пакета (код 0x2F). Сервер автоматически вернулся на ${b.from}`}); S.note={k:'fail'}; }
   else { S.cur=b.to; S.build=CH[S.cur]?.b||(S.cur===NEXT.v?NEXT.b:'1291377'); S.log.unshift({t:now,a:'Обновление',from:b.from,to:b.to,ok:true,who:'admin',bk:S.backup}); S.note={k:'ok'}; }
   renderPage();
 }
@@ -510,12 +632,22 @@ const ACT = {
   // удалить загруженное: место освобождается, обновление снова «доступно»
   delReady:()=>{ S.ready=null; S.note=null; CUR=null; S.back=[]; draw(); },
   swapNewer:()=>{ S.ready=null; startDl('net',NEXT.v,SIZE); },
-  dismiss:()=>{ S.note=null; renderPage(); }
+  dismiss:()=>{ S.note=null; renderPage(); },
+  // страница «Обновление ПО»
+  goUpd:()=>{ S.sel='upd'; renderPage(); },
+  upDl:()=>{ const ch=netState()==='old'?chainFrom(S.cur)[0]:LATEST; startDl('net',ch,SIZE); },
+  browseP:()=>{ const p=PICKS[S.pickN%PICKS.length]; S.pickN++; S.pfile=p; renderPage(); }, // «Обзор»: первым — подходящий файл, дальше ошибки
+  upFile:()=>{ const f=S.pfile; S.pfile=null; startDl('file',f.v,f.mb); },
+  checkNowP:()=>checkNowP(),
+  installNow:()=>startRestart('install'),
+  upTog:a=>{ S.upOpen[a.dataset.k]=!S.upOpen[a.dataset.k]; renderPage(); },
+  rbAsk:()=>open('rb'),
+  toArchiveP:()=>{ S.net='avail'; $('sNet').value='avail'; renderPage(); }
 };
 $('tree').addEventListener('click',e=>{ const b=e.target.closest('[data-node]'); if(!b) return; closeMenu(); S.sel=b.dataset.node; renderPage(); });
 $('page').addEventListener('click',e=>{
   const t=e.target;
-  if(t.closest('#updBtn')){ e.stopPropagation(); toggleMenu(); return; }
+  if(t.closest('#updBtn')){ e.stopPropagation(); if(S.ui==='page') ACT.goUpd(); else toggleMenu(); return; }
   const m=t.closest('[data-m]'); if(m){ if(m.disabled) return; closeMenu();
     ({net:openNet, file:openFile, changes:openChanges, log:()=>open('log','table')})[m.dataset.m](); return; }
   const c=t.closest('[data-ck]'); if(c){ e.preventDefault(); if(c.dataset.ck==='autoCheck') setAuto(!S.autoCheck); else S[c.dataset.ck]=!S[c.dataset.ck]; renderPage(); return; }
@@ -605,6 +737,7 @@ document.addEventListener('focusout',e=>{ if(e.target.matches('[data-tip]')) hid
 /* ---------- панель сценариев ---------- */
 [['sNet','net'],['sFiles','files'],['sDl','dlOut'],['sOut','outcome']].forEach(([id,k])=>$(id).addEventListener('change',e=>{ S[k]=e.target.value; if(k==='net') reset(); }));
 $('sNewer').addEventListener('change',e=>{ S.newerOut=e.target.value==='yes'; draw(); });
+$('sUi').addEventListener('change',e=>{ S.ui=e.target.value; if(S.ui!=='page'&&S.sel==='upd') S.sel='vms'; if(S.ui==='page') S.sel='upd'; closeMenu(); CUR=null; draw(); });
 $('sReset').addEventListener('click',reset);
 $('sDrop').addEventListener('click',dropConn);
 $('scnTog').addEventListener('click',()=>{ const b=$('scnBody'); b.hidden=!b.hidden; $('scnTog').setAttribute('aria-expanded',String(!b.hidden)); });
@@ -613,13 +746,40 @@ $('galShow').addEventListener('click',()=>{ document.body.classList.add('gal-on'
 setInterval(()=>{ $('sDrop').disabled=!(S.dl&&S.dl.state==='run'); },300);
 
 /* ================= раскадровка ================= */
-function scen(net,extra){ S.net=net; $('sNet').value=net; S.files='found'; $('sFiles').value='found'; S.dlOut='ok'; $('sDl').value='ok'; S.outcome='ok'; $('sOut').value='ok';
+function scenP(net,extra){ S.ui='page'; $('sUi').value='page'; S.net=net; $('sNet').value=net; S.files='found'; $('sFiles').value='found'; S.dlOut='ok'; $('sDl').value='ok'; S.outcome='ok'; $('sOut').value='ok';
+  S.newerOut=false; $('sNewer').value='no'; S.autoCheck=true; reset(); S.sel='upd'; if(extra) extra(); renderPage(); }
+function scen(net,extra){ S.ui='modal'; $('sUi').value='modal'; S.net=net; $('sNet').value=net; S.files='found'; $('sFiles').value='found'; S.dlOut='ok'; $('sDl').value='ok'; S.outcome='ok'; $('sOut').value='ok';
   S.newerOut=false; $('sNewer').value='no'; S.autoCheck=true; reset(); if(extra) extra(); renderPage(); }
 const frozenDl = (src,pct,state) => { S.dl={src,target:LATEST,total:SIZE,done:SIZE*pct,state,frozen:true}; };
 const doneOk = () => { S.cur=LATEST; S.build=CH[LATEST].b; S.log.unshift({t:'10.11.2026 14:41',a:'Обновление',from:'4.9.13.0',to:LATEST,ok:true,who:'admin',bk:true}); S.note={k:'ok'}; };
 const autoOff = () => { S.autoCheck=false; S.checked=false; };
 const GAL = [
-  {g:'Обновление по сети', items:[
+  {g:'Страница «Обновление ПО» — по сети', items:[
+    {t:'1. Уведомление в настройках', s:'Красный бейдж на «Настройках сервера»', run:()=>scenP('avail',()=>{ S.sel='vms'; })},
+    {t:'2. Доступно обновление', s:'Версия, что изменилось, «Загрузить»', run:()=>scenP('avail')},
+    {t:'3. Загрузка', s:'Прогресс: остановить, отменить', run:()=>scenP('avail',()=>frozenDl('net',.42,'run'))},
+    {t:'4. Загрузка остановлена', s:'Продолжить или отменить', run:()=>scenP('avail',()=>frozenDl('net',.42,'stopped'))},
+    {t:'5. Окно после загрузки', s:'Установить сейчас, позже, удалить', run:()=>{ scenP('avail',()=>{ S.ready={target:LATEST}; }); open('ready'); }},
+    {t:'6. Установить позже', s:'Загружено — ждёт на странице', run:()=>scenP('avail',()=>{ S.ready={target:LATEST}; })},
+    {t:'7. Установка', s:'Шаги, сервер недоступен', run:()=>scenP('avail',()=>{ S.busy={kind:'install',from:S.cur,to:LATEST,step:1,frozen:true}; })},
+    {t:'8. Готово', s:'Новая версия', run:()=>scenP('avail',doneOk)},
+    {t:'Пока ждали — вышла версия новее', s:'', run:()=>{ scenP('avail',()=>{ S.ready={target:LATEST}; S.newerOut=true; $('sNewer').value='yes'; }); }}]},
+  {g:'Страница — автопоиск и сеть', items:[
+    {t:'Автопоиск выключен', s:'Включить галочкой или проверить вручную', run:()=>scenP('avail',autoOff)},
+    {t:'Нет доступа к сети', s:'Рекомендации и обновление из файла', run:()=>scenP('offline')},
+    {t:'Сервер обновлений недоступен', s:'', run:()=>scenP('nohost')},
+    {t:'Уже последняя версия', s:'', run:()=>scenP('latest')}]},
+  {g:'Страница — из файла', items:[
+    {t:'1. QR-код и адрес сайта', s:'Где взять файл, «Выбрать файл…»', run:()=>scenP('offline')},
+    {t:'2. Файл подходит', s:'Версия, бэкап, «Загрузить»', run:()=>scenP('offline',()=>{ S.pfile=PICKS[0]; S.pickN=1; })},
+    {t:'3. Файл не подходит', s:'Почему и что делать', run:()=>scenP('offline',()=>{ S.pfile=PICKS[2]; S.pickN=3; })},
+    {t:'4. Передача на сервер', s:'Тот же прогресс', run:()=>scenP('offline',()=>frozenDl('file',.18,'run'))}]},
+  {g:'Страница — изменения, журнал, откат', items:[
+    {t:'Список изменений', s:'Подгружается сколько угодно раз', run:()=>scenP('avail',()=>{ S.upOpen.ch=true; })},
+    {t:'Журнал обновлений', s:'И откат на прошлую версию', run:()=>scenP('avail',()=>{ S.upOpen.log=true; })},
+    {t:'Вернуть прошлую версию?', s:'Подтверждение', run:()=>{ scenP('avail'); open('rb'); }},
+    {t:'Возврат прошлой версии', s:'', run:()=>scenP('avail',()=>{ const r=S.log[0]; S.busy={kind:'rollback',from:r.to,to:r.from,bkt:r.t,step:1,frozen:true}; })}]},
+  {g:'Окна (было): обновление по сети', items:[
     {t:'1. Пришло обновление', s:'Подарочек на кнопке и у «vms»', run:()=>scen('avail')},
     {t:'2. Меню «Обновление ПО»', s:'«Доступна 4.9.15.0»', run:()=>{ scen('avail'); toggleMenu(); }},
     {t:'3. Окно «Обновление по сети»', s:'«Что изменилось» свёрнуто, бэкап, перезапуск', run:()=>{ scen('avail'); openNet(); }},
@@ -631,21 +791,21 @@ const GAL = [
     {t:'9. Установка в фоне', s:'«обновляется» у «vms» в дереве', run:()=>scen('avail',()=>{ S.busy={kind:'install',from:S.cur,to:LATEST,step:1,frozen:true}; })},
     {t:'10. Готово', s:'Новая версия и «Что нового»', run:()=>scen('avail',doneOk)},
     {t:'Загрузка остановлена', s:'Продолжить или удалить загруженное', run:()=>scen('avail',()=>frozenDl('net',.42,'stopped'))}]},
-  {g:'Обновление из файла', items:[
+  {g:'Окна (было): из файла', items:[
     {t:'1. Поиск файлов', s:'Долго — можно выбрать вручную', run:()=>{ scen('avail'); open('file','search'); }},
     {t:'2. Найдены файлы', s:'Подходящий отмечен', run:()=>{ scen('avail'); open('file','found'); }},
     {t:'3. Выбран вручную', s:'В списке только он', run:()=>{ scen('avail'); open('file','found'); S.pickN=0; ACT.browse(); }},
     {t:'4. Ничего не нашлось', s:'Адрес сайта, искать снова', run:()=>{ scen('avail'); S.files='none'; $('sFiles').value='none'; open('file','none'); }},
     {t:'5. Передача на сервер в фоне', s:'Та же строка под кнопками', run:()=>scen('avail',()=>frozenDl('file',.18,'run'))}]},
-  {g:'Автопоиск обновлений', items:[
+  {g:'Окна (было): автопоиск', items:[
     {t:'Настройка в разделе «Сеть»', s:'Под «Шифрованием портов»', run:()=>scen('avail',()=>{ S.sel='net'; })},
     {t:'Выключен — окно «по сети»', s:'Включить или обновить из файла', run:()=>{ scen('avail',autoOff); openNet(); }},
     {t:'Выключен — список изменений', s:'Просьба включить', run:()=>{ scen('avail',autoOff); openChanges(); }}]},
-  {g:'Справка', items:[
+  {g:'Окна (было): справка', items:[
     {t:'Список изменений', s:'«Доступна» — только у последней', run:()=>{ scen('avail'); open('changes','list'); }},
     {t:'Журнал обновлений', s:'Весь список сразу', run:()=>{ scen('avail'); open('log','table'); }},
     {t:'Уже последняя версия', s:'', run:()=>{ scen('latest'); openNet(); }}]},
-  {g:'Проблемные сценарии — позже', items:[
+  {g:'Окна (было): проблемные — позже', items:[
     {t:'Нет доступа к сети', s:'', run:()=>{ scen('offline'); openNet(); }},
     {t:'Сервер обновлений недоступен', s:'', run:()=>{ scen('nohost'); openNet(); }},
     {t:'Версия слишком старая', s:'', run:()=>{ scen('old'); openNet(); }},
