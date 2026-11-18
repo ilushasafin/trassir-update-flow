@@ -843,6 +843,7 @@ body.ux #uxBtn,body.ux #dlgBtn{display:none}
 .uw-f{flex:none;display:flex;align-items:center;gap:8px;padding:8px 6px}
 .uw-f .l{margin-right:auto;display:flex;align-items:center;min-width:0}
 .uw-f .btn{min-width:80px}
+.uw-f .nbtn{min-width:80px;justify-content:center}
 .uw .btn.pri:disabled{background:var(--btn-grad);border-color:#c9cacc;color:#9a9ca2} /* базовый .btn.pri перекрывает :disabled */
 
 .sh{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start}
@@ -1003,53 +1004,42 @@ body.ux #uxBtn,body.ux #dlgBtn{display:none}
 .ti .nbadge{margin-left:auto}
 .nbadge{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;border-radius:3px;background:var(--neg);color:#fff;font-size:11px;font-weight:700;line-height:1;flex:none}
 .uupd .nbadge{margin-left:2px}
-.up{display:grid;gap:14px;max-width:900px}
-.up-top{display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center}
-.up-auto{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.up-card{border:1px solid var(--n-bd);background:#fff;padding:12px 14px;display:grid;gap:10px}
-.up-card.new{border-color:var(--n-bd)}
-.up-card.ok{border-left:3px solid var(--pos)}
-.up-card.err{border-left:3px solid var(--neg)}
-.up-card.warn{border-left:3px solid var(--amber)}
-.up-card.run{border-left:3px solid var(--pri)}
-.up-st{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start}
-.up-st>svg,.up-st .up-spin{width:18px;height:18px;margin-top:1px}
-.up-st b{display:block;font-size:14px;font-weight:600}
-.up-st span{color:var(--grey);font-size:12px}
-.up-spin svg{width:18px;height:18px;animation:spin 1s linear infinite}
-.up-ch b{font-weight:600}
-.up-ch ul{margin:4px 0 0;padding-left:18px}
-.up-opts{display:grid;gap:6px}
-.up-acts{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.up-note{margin:0;color:#4b5060}
-.up-note.err{color:var(--neg)}
-.up-recs{margin:0;padding-left:18px;color:#4b5060}
-.up-steps{margin:0;padding-left:18px;color:var(--grey)}
-.up-steps li.done{color:#4b5060}
-.up-steps li.on{color:var(--n-ink);font-weight:600}
-.up-chain{margin:0;padding-left:18px}
-.up-card .pbar{margin:0}
-.up-sec{font-weight:600}
-.up-file{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
-.up-file p{margin:0 0 6px}
-.up-file .qr{display:block;border:1px solid var(--n-bd)}
-.up-url{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--n-ink);user-select:all}
-.up-pick{border-top:1px solid var(--cell-bd);padding-top:10px;display:grid;gap:8px}
-.up-pick p{margin:0}
-.up-pick.err b{color:var(--neg)}
-.up-fn{font-weight:600;word-break:break-all}
-.up-fn span{font-weight:400;color:var(--grey);margin-left:8px}
-.up-flow{display:flex;align-items:center;gap:8px}
-.up-flow svg{width:16px;height:16px;flex:none}
-.up-card.hist{gap:0;padding:0}
-.up-rb{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--cell-bd)}
-.up-tog{display:flex;align-items:center;gap:8px;width:100%;padding:10px 14px;border:0;border-bottom:1px solid var(--cell-bd);background:none;font:inherit;font-weight:600;text-align:left;cursor:pointer}
-.up-tog:last-of-type{border-bottom:0}
-.up-tog::before{content:"";width:5px;height:5px;border-right:1.4px solid currentColor;border-bottom:1.4px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
-.up-tog.on::before{transform:rotate(45deg)}
-.up-tog:hover{background:#f7f8fa}
-.up-body{padding:10px 14px;border-bottom:1px solid var(--cell-bd)}
-.up-body:last-child{border-bottom:0}
+/* страница: одна колонка ~760 px, отступы 16 px, строки 40 px; разделители внутри блоков — чуть темнее (--n-grid), чтобы читались рядом с рамкой */
+.up2{max-width:760px;display:grid}
+.u2-hero{display:grid;grid-template-columns:20px minmax(0,1fr) auto;column-gap:12px;row-gap:12px;align-items:center;padding:16px;border:1px solid var(--n-bd);background:#fff}
+.u2-hero.ok{border-left:3px solid var(--pos)} .u2-hero.err{border-left:3px solid var(--neg)} .u2-hero.warn{border-left:3px solid var(--amber)} .u2-hero.run,.u2-hero.new{border-left:3px solid var(--pri)}
+.u2-ic{display:grid;place-items:center;width:20px;height:20px}
+.u2-ic svg{width:18px;height:18px}
+.u2-spin svg{width:18px;height:18px;animation:spin 1s linear infinite}
+.u2-t{min-width:0;display:grid;gap:2px}
+.u2-t b{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.u2-t span{font-size:12px;color:var(--grey)}
+.u2-a{display:flex;align-items:center;gap:16px;white-space:nowrap}
+.u2-body{grid-column:2/-1;display:grid;gap:8px}
+.u2-body ul{margin:0;padding-left:18px}
+.u2-body .pbar{margin:0}
+.u2-more{justify-self:start;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;font:inherit;color:var(--pri);cursor:pointer}
+.u2-more::after{content:"";width:5px;height:5px;border-right:1.3px solid currentColor;border-bottom:1.3px solid currentColor;transform:rotate(45deg);margin-bottom:3px}
+.u2-more.on::after{transform:rotate(-135deg);margin:3px 0 0}
+.u2-note{margin:0;color:#4b5060} .u2-note.err{color:var(--neg)}
+.u2-h{margin:20px 0 6px;font-weight:600}
+.u2-list{border:1px solid var(--n-bd);background:#fff}
+.u2-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.u2-row{display:flex;align-items:center;gap:12px;min-height:40px;padding:8px 16px;width:100%;border:0;border-bottom:1px solid var(--n-grid);background:none;font:inherit;color:inherit;text-align:left}
+.u2-row:last-child{border-bottom:0}
+.u2-row>span:first-child{flex:1;min-width:0}
+label.u2-row{cursor:pointer}
+.u2-row.go{cursor:pointer}
+.u2-row.go:hover{background:#f7f8fa}
+.u2-row i{font-style:normal;color:var(--grey);font-size:16px;line-height:1;transition:transform .15s}
+.u2-row.go.on i{transform:rotate(90deg)}
+.u2-val{color:var(--grey)}
+.u2-list .u2-body{padding:10px 16px 14px;border-bottom:1px solid var(--n-grid)}
+.u2-list .u2-body:last-child{border-bottom:0}
+.u2-file,.u2-pick{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:center;padding:12px 16px}
+.u2-pick{grid-template-columns:20px minmax(0,1fr) auto;column-gap:12px;border-top:1px solid var(--n-grid)}
+.u2-file .qr{display:block}
+.u2-url{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--n-ink)!important;user-select:all}
 
 </style>
 </head>
@@ -1187,14 +1177,14 @@ const FILES = [
 // «Обзор…»: первый выбор — подходящий файл, дальше по кругу сценарии ошибок
 const PICKS = [
   {n:'Trassir-Server-4.9.15.0-1321840-win64.pack', v:'4.9.15.0', mb:1300, where:'Выбран вручную', ok:true, tag:'Подходит: последняя версия'},
-  {n:'trassir_4.9.15.zip', mb:1240, where:'Выбран вручную', err:'Это не файл обновления TRASSIR', kind:'format'},
-  {n:'Trassir-Server-4.9.15.0-1321840-win64.pack', mb:910, where:'Выбран вручную', err:'Файл повреждён — не прошёл проверку подписи', kind:'sign'},
+  {n:'trassir_4.9.15.zip', mb:1240, where:'Выбран вручную', err:'Некорректное расширение файла', kind:'format'},
+  {n:'Trassir-Server-4.9.15.0-1321840-win64.pack', mb:910, where:'Выбран вручную', err:'Файл повреждён', kind:'sign'},
   {n:'Trassir-Server-4.9.12.0-1316200-win64.pack', v:'4.9.12.0', mb:1280, where:'Выбран вручную', err:'Версия 4.9.12.0 старше установленной', kind:'older'}
 ];
 const PICK_RECS = {
-  format:['Нужен файл с расширением .pack со страницы загрузок dssl.ru. Архивы .zip для обновления не подходят.','Если скачивали архив — распакуйте его и выберите файл .pack внутри.'],
-  sign:['Скачайте файл заново — скорее всего, загрузка прервалась.','Если переносили файл на флешке — запишите его ещё раз.','Антивирус или брандмауэр могут портить скачанные файлы — проверьте их настройки.'],
-  older:['Обновлением нельзя вернуться на прошлую версию — выберите файл новее установленной.']
+  format:['Нужен файл .pack с сайта TRASSIR.','Если скачали архив, распакуйте его.'],
+  sign:['Скачайте файл заново.','Если переносили на флешке, запишите его ещё раз.','Проверьте, не мешает ли антивирус.'],
+  older:['Нужен файл с более новой версией.']
 };
 // дерево разделов — как в макете окна настроек
 const TREE = [
@@ -1239,7 +1229,7 @@ function reset(){
   const cur = S.net==='latest'?LATEST : S.net==='old'?'4.6.9.0' : '4.9.13.0';
   Object.assign(S, {cur, build:CH[cur]?.b||'1268000', checked:S.autoCheck, checking:false,
     dl:null, ready:null, busy:null, note:null, extra:[], fileSel:0, pickN:0,
-    failTo:null, rbFrom:null, moreCh:0, back:[], exp:{}, sel:'vms', log:baseLog(), pfile:null, upOpen:{ch:false,log:false}});
+    failTo:null, rbFrom:null, moreCh:0, back:[], exp:{}, sel:'vms', log:baseLog(), pfile:null, upOpen:{ch:false,log:false,wn:false}});
   CUR=null; resetGeom(DW); draw();
 }
 
@@ -1370,7 +1360,7 @@ const WIN = {
     const v=S.ready.target, nx = S.newerOut && newer(NEXT.v,v);
     const pg=S.ui==='page';
     return {t:'Обновление загружено',
-      left:`<button type="button" class="btn" data-act="delReady">${pg?'Удалить обновление':'Удалить загруженное'}</button>`,
+      left:`<button type="button" class="nbtn" data-act="delReady">${pg?'Удалить обновление':'Удалить загруженное'}</button>`,
       body:sh('ok',`${v} готово к установке`,'Сервер перезапустится и будет недоступен около 5 минут. Запись архива на это время остановится.',
         S.backup?'Перед установкой сохраним бэкап настроек.':'')
         // пока обновление ждало установки, вышла версия новее — предлагаем её вместо этой
@@ -1398,7 +1388,7 @@ const WIN = {
     const shown = ALL_VERS.slice(0, idx+1+S.moreCh), rest = ALL_VERS.length - shown.length;
     return {t:T, wide:1,
       body:verList(shown)+(rest>0?`<div>${lnk('more','Показать более ранние версии')}</div>`:''),
-      btns:[...(netState()==='avail'?[{t:`Обновить до ${LATEST}`,act:()=>openNet()}]:[]),{t:closeLbl(),pri:1,act:close}]};
+      btns:[...(netState()==='avail'&&S.ui!=='page'?[{t:`Обновить до ${LATEST}`,act:()=>openNet()}]:[]),{t:closeLbl(),pri:1,act:close}]};
   },
 
   // журнал: весь список сразу; откат и «Сохранить для техподдержки» по решению продукта убраны
@@ -1428,7 +1418,7 @@ function draw(){
   bg.innerHTML=`<div class="uw${w.wide?' wide':''}" role="dialog" aria-modal="true" aria-labelledby="uwT">
     <div class="tbar"><div class="ttl" id="uwT">${w.t}</div><div class="wctl"><button class="wbtn close" type="button" data-x aria-label="Закрыть">${XSVG}</button></div></div>
     <div class="uw-b">${w.body}</div>
-    <div class="uw-f"><div class="l">${w.left||''}</div>${w.btns.map((b,i)=>`<button type="button" class="btn${b.pri?' pri':''}" data-b="${i}"${b.dis?' disabled':''}>${b.t}</button>`).join('')}</div></div>`;
+    <div class="uw-f"><div class="l">${w.left||''}</div>${w.btns.map((b,i)=>`<button type="button" class="nbtn" data-b="${i}"${b.dis?' disabled':''}>${b.t}</button>`).join('')}</div></div>`; // кнопки окон — стандартные, без синих акцентных
   bg.classList.add('show');
   makeWin(bg.querySelector('.uw'), DW, DLG_MIN);
   renderPage();
@@ -1576,7 +1566,8 @@ function menuHtml(){
 function toggleMenu(){ const m=$('menu'); if(!m) return; m.hidden=!m.hidden; $('updBtn').setAttribute('aria-expanded',String(!m.hidden)); }
 function closeMenu(){ const m=$('menu'); if(m&&!m.hidden){ m.hidden=true; $('updBtn')?.setAttribute('aria-expanded','false'); } }
 
-/* ================= страница «Обновление ПО» в «Настройках сервера» — вместо модальных окон (просьба А. Воронцова) ================= */
+/* ================= страница «Обновление ПО» в «Настройках сервера» — вместо модальных окон (просьба А. Воронцова) =================
+   Порядок, как в «Центре обновления Windows»: статус и одна главная кнопка → параметры → из файла → история. Одна колонка, строки одной высоты. */
 // бейдж-уведомление: красный, как остальные счётчики в дереве; подарочков нет
 const BADGE = '<span class="nbadge" aria-label="Есть уведомление">1</span>';
 function pageAttn(){ const st=netState();
@@ -1590,7 +1581,7 @@ function pageMark(id){
   return (id==='upd'||id==='srvset') && pageAttn() ? BADGE : '';
 }
 // QR-код на страницу загрузок — условный рисунок для прототипа (настоящий сгенерирует разработка)
-function qrSvg(txt, px=104){
+function qrSvg(txt, px=64){
   const n=25, cell=px/n; let h=2166136261; for(const ch of txt){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); }
   const rnd=()=>{ h^=h<<13; h^=h>>>17; h^=h<<5; return (h>>>0)/4294967296; };
   const finder=(x,y)=>`<rect x="${x*cell}" y="${y*cell}" width="${7*cell}" height="${7*cell}" fill="#1c1c1c"/><rect x="${(x+1)*cell}" y="${(y+1)*cell}" width="${5*cell}" height="${5*cell}" fill="#fff"/><rect x="${(x+2)*cell}" y="${(y+2)*cell}" width="${3*cell}" height="${3*cell}" fill="#1c1c1c"/>`;
@@ -1598,85 +1589,64 @@ function qrSvg(txt, px=104){
   let r=''; for(let y=0;y<n;y++) for(let x=0;x<n;x++){ if(inF(x,y)) continue; if(rnd()<.47) r+=`<rect x="${(x*cell).toFixed(2)}" y="${(y*cell).toFixed(2)}" width="${cell.toFixed(2)}" height="${cell.toFixed(2)}"/>`; }
   return `<svg class="qr" width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" role="img" aria-label="QR-код страницы загрузок"><rect width="${px}" height="${px}" fill="#fff"/><g fill="#1c1c1c">${r}</g>${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}</svg>`;
 }
-const upOpts = () => `<div class="up-opts">${ck('backup','Сохранить бэкап настроек','Перед установкой — на архивный диск. Если после обновления что-то пойдёт не так, к нему можно вернуться')}
-  ${ck('restartNow','Установить сразу после загрузки','Сервер перезапустится и будет недоступен около 5 минут, запись архива на это время остановится')}</div>`;
-const upBtn = (act,t,pri,dis) => `<button type="button" class="btn${pri?' pri':''}" data-act="${act}"${dis?' disabled':''}>${t}</button>`;
-const upCard = (k,ic,title,meta,body) => `<div class="up-card ${k}"><div class="up-st">${ic}<div><b>${title}</b>${meta?`<span>${meta}</span>`:''}</div></div>${body||''}</div>`;
-// главный блок: что сейчас с обновлением по сети
-function upStatus(){
-  const st=netState(), n=S.note;
-  const note = n&&n.k==='fail' ? upCard('err',ICON.err,`${S.failTo} не установилась — сервер сам вернулся на ${S.cur}`,'Подробности — в журнале обновлений ниже','') :
-               n&&n.k==='rolled' ? upCard('ok',ICON.ok,`Возвращена версия ${S.cur}`,`Настройки восстановлены из бэкапа от ${S.rbFrom}`,'') : '';
+// на странице — стандартные кнопки интерфейса TRASSIR (как «Перезагрузка» на странице сервера), без синих
+const upBtn = (act,t,pri,dis) => `<button type="button" class="nbtn" data-act="${act}"${dis?' disabled':''}>${t}</button>`;
+const SPIN_IC = `<span class="u2-spin">${ICON.spin}</span>`;
+// статус-блок: значок, заголовок, одна серая строка, справа действие; под ними — прогресс или «Что изменилось»
+const hero = (k,ic,title,meta,act,body) => `<div class="u2-hero ${k||''}"><span class="u2-ic">${ic}</span><div class="u2-t"><b>${title}</b>${meta?`<span>${meta}</span>`:''}</div><div class="u2-a">${act||''}</div>${body?`<div class="u2-body">${body}</div>`:''}</div>`;
+const pbar = (k,pct) => `<div class="pbar ${k||''}" id="upbar"><i style="width:${pct}%"></i></div>`;
+function upHero(){
+  const st=netState(), n=S.note, checked='проверено в 14:32';
   if(st==='busy'){ const b=S.busy, steps=restartSteps(), cur=Math.min(b.step,steps.length-1);
-    return upCard('run',`<span class="up-spin">${ICON.spin}</span>`, b.kind==='rollback'?`Возвращаем версию ${b.to}`:`Устанавливаем ${b.to}`, 'Сервер недоступен около 5 минут',
-      `<ol class="up-steps">${steps.map((s,i)=>`<li class="${i<cur?'done':i===cur?'on':''}">${s.t}</li>`).join('')}</ol>`); }
-  if(st==='dl'){ const d=S.dl, pct=Math.floor(d.done/d.total*100), what=d.src==='net'?'Загружаем':'Передаём на сервер';
-    const bar = k => `<div class="pbar ${k||''}" id="upbar"><i style="width:${pct}%"></i></div>`;
-    const acts = h => `<div class="up-acts">${h}</div>`;
-    if(d.state==='stopped') return upCard('',ICON.info,`Загрузка ${d.target} остановлена`,`загружено ${mb(d.done)} из ${mb(d.total)}`, bar('paused')+acts(lnk('resume','Продолжить')+lnk('delDl','Отменить')));
-    if(d.state==='paused') return upCard('warn',ICON.warn,'Связь прервалась — продолжим, когда она вернётся',`${mb(d.done)} из ${mb(d.total)}`, bar('paused')+acts(lnk('resume','Повторить сейчас')+lnk('delDl','Отменить')));
-    if(d.state==='fail') return upCard('err',ICON.err,'Загрузка не удалась — связь обрывалась слишком часто',`загружено ${mb(d.done)} из ${mb(d.total)}`, bar('fail')+acts(lnk('retry','Повторить')+lnk('delDl','Отменить')));
-    return upCard('run',ICON.info,`${what} ${d.target}`,`<span id="upmeta">${mb(d.done)} из ${mb(d.total)} · осталось ${left(d.total-d.done)}</span>`, bar()+acts(lnk('stopDl','Остановить')+lnk('delDl','Отменить'))); }
+    return hero('run',SPIN_IC, b.kind==='rollback'?`Возвращаем версию ${b.to}`:`Устанавливаем ${b.to}`, `Шаг ${cur+1} из ${steps.length}: ${steps[cur].t.toLowerCase()} · сервер недоступен около 5 минут`,'', pbar('',Math.round((cur+1)/steps.length*100))); }
+  if(st==='dl'){ const d=S.dl, pct=Math.floor(d.done/d.total*100), what=d.src==='net'?'Загружаем':'Передаём на сервер', got=`${mb(d.done)} из ${mb(d.total)}`;
+    if(d.state==='stopped') return hero('',ICON.info,`Загрузка ${d.target} остановлена`,`Загружено ${got}`, upBtn('resume','Продолжить',1)+lnk('delDl','Отменить'), pbar('paused',pct));
+    if(d.state==='paused') return hero('warn',ICON.warn,'Связь прервалась',`Продолжим, когда она вернётся · ${got}`, lnk('resume','Повторить')+lnk('delDl','Отменить'), pbar('paused',pct));
+    if(d.state==='fail') return hero('err',ICON.err,'Загрузка не удалась',`Связь обрывалась слишком часто · загружено ${got}`, upBtn('retry','Повторить',1)+lnk('delDl','Отменить'), pbar('fail',pct));
+    return hero('run',ICON.info,`${what} ${d.target}`,`<span id="upmeta">${got} · осталось ${left(d.total-d.done)}</span>`, lnk('stopDl','Остановить')+lnk('delDl','Отменить'), pbar('',pct)); }
   if(st==='ready'){ const v=S.ready.target, nx=S.newerOut&&newer(NEXT.v,v);
-    return upCard('ok',ICON.ok,`${v} загружено — готово к установке`,'Сервер перезапустится и будет недоступен около 5 минут',
-      (nx?`<p class="up-note">Пока обновление ждало установки, вышла версия ${NEXT.v}. ${lnk('swapNewer',`Удалить ${v} и загрузить ${NEXT.v}`)}</p>`:'')
-      +`<div class="up-acts">${upBtn('installNow','Установить сейчас',1)}${lnk('delReady','Удалить обновление')}</div>`); }
-  if(st==='checking') return upCard('',`<span class="up-spin">${ICON.spin}</span>`,'Проверяем обновления…','Обращаемся к серверу обновлений TRASSIR','');
-  if(st==='unchecked') return upCard('',ICON.info,'Автоматический поиск обновлений выключен','Сервер не проверяет обновления сам',`<div class="up-acts">${lnk('checkNowP','Проверить сейчас')}</div>`);
-  if(st==='offline') return upCard('err',ICON.err,'Нет доступа к сети',`${SRV} не подключён к интернету — проверить обновления нельзя`,
-    `<ul class="up-recs"><li>Проверьте кабель и настройки в «Сетевые интерфейсы»: адрес, шлюз и DNS.</li><li>Или обновите из файла — ниже.</li></ul><div class="up-acts">${lnk('checkNowP','Проверить снова')}</div>`);
-  if(st==='nohost') return upCard('err',ICON.err,'Не удаётся связаться с сервером обновлений','Интернет есть, но адрес updates.cloud.trassir.com не находится',
-    `<ul class="up-recs"><li>В «Сетевые интерфейсы» укажите шлюз и DNS, например <b>77.88.8.8</b>.</li><li>Или обновите из файла — ниже.</li></ul><div class="up-acts">${lnk('checkNowP','Проверить снова')}</div>`);
-  if(st==='latest') return note + upCard('ok',ICON.ok, n&&n.k==='ok'?`Обновление установлено — версия ${S.cur}`:'Установлена последняя версия','Проверено сегодня в 14:32','');
-  // доступно обновление
-  const busy=!!S.busy;
+    return hero('ok',ICON.ok,`${v} загружено`,'Сервер перезапустится и будет недоступен около 5 минут', upBtn('installNow','Установить сейчас',1)+lnk('delReady','Удалить'),
+      nx?`<p class="u2-note">Вышла версия ${NEXT.v} · ${lnk('swapNewer',`загрузить её вместо ${v}`)}</p>`:''); }
+  if(st==='checking') return hero('',SPIN_IC,'Проверяем обновления…',`Установлена ${S.cur}`,'');
+  if(st==='unchecked') return hero('',ICON.info,'Автоматический поиск выключен',`Установлена ${S.cur}`, upBtn('checkNowP','Проверить сейчас'));
+  if(st==='offline') return hero('err',ICON.err,'Нет доступа к сети','Проверьте подключение в «Сетевые интерфейсы» или обновите из файла', upBtn('checkNowP','Проверить снова'));
+  if(st==='nohost') return hero('err',ICON.err,'Сервер обновлений недоступен','Укажите шлюз и DNS в «Сетевые интерфейсы», например 77.88.8.8', upBtn('checkNowP','Проверить снова'));
+  if(n&&n.k==='fail') return hero('err',ICON.err,`${S.failTo} не установилась`,`Сервер вернулся на ${S.cur} · подробности в журнале`, upBtn('upDl','Повторить',1));
+  if(n&&n.k==='rolled') return hero('ok',ICON.ok,`Возвращена версия ${S.cur}`,`Настройки восстановлены из бэкапа от ${S.rbFrom}`, '');
+  if(st==='latest') return hero('ok',ICON.ok, n&&n.k==='ok'?`Установлена версия ${S.cur}`:'Установлена последняя версия', `${S.cur} · ${checked}`, lnk('checkNowP','Проверить снова'));
+  // доступно обновление; «Что изменилось» — свёрнуто
+  const wn = `<button type="button" class="u2-more${S.upOpen.wn?' on':''}" data-act="upTog" data-k="wn" aria-expanded="${!!S.upOpen.wn}">Что изменилось</button>${S.upOpen.wn?ul(CH[LATEST].items):''}`;
   if(st==='old'){ const ch=chainFrom(S.cur);
-    return note + upCard('warn',ICON.warn,`Доступно обновление до ${LATEST} — по шагам`,`Установлена ${S.cur}. Обновлять нужно по порядку: ${ch.length} шага`,
-      `<ol class="up-chain">${ch.map((v,i)=>`<li>${i===0?`<b>${v}</b> — сейчас`:v}</li>`).join('')}</ol>${upOpts()}<div class="up-acts">${upBtn('upDl',`Загрузить шаг 1 — ${ch[0]}`,1,busy)}</div>`); }
-  const space = st==='space' ? `<p class="up-note err">Не хватает места на системном диске: нужно 2,6 ГБ, свободно 1,1 ГБ. Удалите старые скриншоты и экспорт видео или ${lnk('toArchiveP','загружайте на архивный диск')}.</p>` : '';
-  return note + upCard('new',ICON.info,`Доступно обновление ${LATEST}`,`${CH[LATEST].d} · ${mb(SIZE)}`,
-    `<div class="up-ch"><b>Что изменилось</b>${ul(CH[LATEST].items)}</div>${space}${upOpts()}<div class="up-acts">${upBtn('upDl','Загрузить обновление',1,st==='space')}</div>`);
+    return hero('warn',ICON.warn,`Доступно обновление ${LATEST} в ${ch.length} шага`,`Установлена ${S.cur} · сначала ${ch[0]}`, upBtn('upDl',`Загрузить ${ch[0]}`,1), wn); }
+  const space = st==='space' ? `<p class="u2-note err">Не хватает места на системном диске: нужно 2,6 ГБ, свободно 1,1 ГБ · ${lnk('toArchiveP','загружать на архивный диск')}</p>` : '';
+  return hero('new',ICON.info,`Доступно обновление ${LATEST}`,`Установлена ${S.cur} · ${mb(SIZE)} · ${checked}`, upBtn('upDl','Загрузить',1,st==='space'), space+wn);
 }
-// из файла: QR-код и адрес текстом — где взять файл; «Обзор» без автопоиска; проверка выбранного файла
-function upFile(){
-  const lock = !!(S.dl||S.busy||S.ready), f=S.pfile;
-  let res='';
-  if(f && f.err) res = `<div class="up-pick err"><div class="up-fn">${esc(f.n)}<span>${mb(f.mb)}</span></div><p><b>${f.err}</b></p><ul class="up-recs">${PICK_RECS[f.kind].map(r=>`<li>${r}</li>`).join('')}</ul><div class="up-acts">${lnk('browseP','Выбрать другой файл')}</div></div>`;
-  else if(f) res = `<div class="up-pick ok"><div class="up-fn">${esc(f.n)}<span>${mb(f.mb)}</span></div>
-      <p class="up-flow">${ICON.ok}<span>Подходит: установлена <b>${S.cur}</b> → будет <b>${f.v}</b></span></p>${upOpts()}
-      <div class="up-acts">${upBtn('upFile','Загрузить обновление',1,lock)}${lnk('browseP','Выбрать другой файл')}</div></div>`;
-  return `<div class="up-card plain"><div class="up-sec">Обновление из файла</div>
-    <div class="up-file">${qrSvg(SITE_TXT)}<div>
-      <p>Скачайте файл на сайте TRASSIR: наведите камеру телефона на QR-код или наберите адрес</p>
-      <p class="up-url">${SITE_TXT}</p>
-      ${f?'':upBtn('browseP','Выбрать файл обновления…',0,lock)}</div></div>${res}</div>`;
-}
-// список изменений, журнал и откат — свёрнутыми блоками внизу страницы
-function upHistory(){
-  const o=S.upOpen;
-  let idx=ALL_VERS.indexOf(S.cur); if(idx<0) idx=VERS.length-1;
-  const shown=ALL_VERS.slice(0, idx+1+S.moreCh), rest=ALL_VERS.length-shown.length;
-  const last=S.log[0], canRb = last && last.ok && last.bk && last.a==='Обновление' && !S.busy;
-  const tog = (k,t) => `<button type="button" class="up-tog${o[k]?' on':''}" data-act="upTog" data-k="${k}" aria-expanded="${!!o[k]}">${t}</button>`;
-  return `<div class="up-card plain hist">
-    ${canRb?`<div class="up-rb"><span>Версия до прошлого обновления — <b>${last.from}</b>, бэкап от ${last.t}</span>${upBtn('rbAsk',`Вернуть ${last.from}`)}</div>`:''}
-    ${tog('ch','Список изменений')}${o.ch?`<div class="up-body">${S.checked?verList(shown)+(rest>0?`<div>${lnk('more','Показать более ранние версии')}</div>`:''):'<p class="fine">Список изменений приходит с сервера обновлений — включите автопоиск или проверьте вручную.</p>'}</div>`:''}
-    ${tog('log','Журнал обновлений')}${o.log?`<div class="up-body"><table class="ulog"><thead><tr><th>Дата и время</th><th>Действие</th><th>Версия</th><th>Результат</th><th>Пользователь</th></tr></thead><tbody>
-      ${S.log.map(r=>`<tr><td class="v">${r.t}</td><td>${r.a}</td><td class="v">${r.from?`${r.from} → ${r.to}`:r.to}</td><td><span class="res">${r.ok?ICON.ok:ICON.err}<span>${r.ok?'Успешно':'Ошибка'}${r.why?hint(r.why):''}</span></span></td><td>${r.who}</td></tr>`).join('')}</tbody></table></div>`:''}
+// параметр: подпись слева, галочка справа
+const opt = (key,label,tip) => `<label class="u2-row"><span>${label}${tip?hint(tip):''}</span><button type="button" class="cb" role="checkbox" aria-checked="${!!S[key]}" data-ck="${key}">${ICON.check}</button></label>`;
+function upParams(){
+  return `<p class="u2-h">Параметры</p><div class="u2-list">
+    ${opt('autoCheck','Автоматически искать обновления','Сервер сам обращается к серверу обновлений TRASSIR. Выключите, если правила безопасности запрещают такие подключения, — тогда обновляйте из файла.')}
+    ${opt('backup','Сохранять бэкап перед установкой')}
+    ${opt('restartNow','Устанавливать сразу после загрузки')}
   </div>`;
+}
+// из файла: маленький QR-код и адрес текстом — где взять файл; «Выбрать файл…» — сразу «Обзор», без автопоиска
+function upFile(){
+  const lock=!!(S.dl||S.busy||S.ready), f=S.pfile;
+  let res='';
+  if(f && f.err) res = `<div class="u2-pick err"><span class="u2-ic">${ICON.err}</span><div class="u2-t"><b>${esc(f.n)}</b><span>${f.err}. ${f.kind==='format'?'Нужен файл .pack':PICK_RECS[f.kind][0]}</span></div><div class="u2-a">${lnk('browseP','Другой файл')}</div></div>`;
+  else if(f) res = `<div class="u2-pick ok"><span class="u2-ic">${ICON.ok}</span><div class="u2-t"><b>${esc(f.n)}</b><span>Подходит · ${S.cur} → ${f.v} · ${mb(f.mb)}</span></div><div class="u2-a">${upBtn('upFile','Загрузить',1,lock)}${lnk('browseP','Другой файл')}</div></div>`;
+  return `<p class="u2-h">Обновление из файла</p><div class="u2-list">
+    <div class="u2-file">${qrSvg(SITE_TXT)}<div class="u2-t"><b>Скачайте файл на сайте TRASSIR</b><span class="u2-url">${SITE_TXT}</span></div><div class="u2-a">${upBtn('browseP','Выбрать файл…',0,lock)}</div></div>
+    ${res}</div>`;
+}
+// история — кнопками внизу, как «Сохранить бэкап / Восстановить бэкап» на странице сервера; каждая открывает своё окно
+function upHistory(){
+  const last=S.log[0], canRb = last && last.ok && last.bk && last.a==='Обновление' && !S.busy;
+  return `<div class="u2-btns">${upBtn('changes','Список изменений…')}${upBtn('log','Журнал обновлений…')}${canRb?upBtn('rbAsk',`Вернуть ${last.from}…`):''}</div>`;
 }
 function updPage(){
-  const busy=!!S.busy;
-  return `<div class="up">
-    <div class="up-top">
-      <div class="pg-ver"><span>Версия ПО:</span><b>${busy?'—':S.cur}</b><span class="r">Сборка:</span><span>${busy?'—':S.build}</span></div>
-      <div class="up-auto">${ck('autoCheck','Автоматически искать обновления ПО','Сервер сам обращается к серверу обновлений TRASSIR и сообщает о новых версиях. Выключите, если правила безопасности запрещают такие подключения — тогда обновляйте из файла.')}
-        ${S.autoCheck&&!busy&&!S.dl?`<span class="fine">Проверено сегодня в 14:32 · ${lnk('checkNowP','Проверить сейчас')}</span>`:''}</div>
-    </div>
-    ${upStatus()}
-    ${upFile()}
-    ${upHistory()}
-  </div>`;
+  return `<div class="up2">${upHero()}${upParams()}${upFile()}${upHistory()}</div>`;
 }
 function checkNowP(){ S.checked=true; S.checking=true; renderPage(); clearTimeout(tChk); tChk=setTimeout(()=>{ S.checking=false; renderPage(); },1100); }
 
@@ -1905,9 +1875,9 @@ const GAL = [
     {t:'2. Файл подходит', s:'Версия, бэкап, «Загрузить»', run:()=>scenP('offline',()=>{ S.pfile=PICKS[0]; S.pickN=1; })},
     {t:'3. Файл не подходит', s:'Почему и что делать', run:()=>scenP('offline',()=>{ S.pfile=PICKS[2]; S.pickN=3; })},
     {t:'4. Передача на сервер', s:'Тот же прогресс', run:()=>scenP('offline',()=>frozenDl('file',.18,'run'))}]},
-  {g:'Страница — изменения, журнал, откат', items:[
-    {t:'Список изменений', s:'Подгружается сколько угодно раз', run:()=>scenP('avail',()=>{ S.upOpen.ch=true; })},
-    {t:'Журнал обновлений', s:'И откат на прошлую версию', run:()=>scenP('avail',()=>{ S.upOpen.log=true; })},
+  {g:'Страница — кнопки внизу: изменения, журнал, откат', items:[
+    {t:'Список изменений', s:'Окно, подгружается сколько угодно раз', run:()=>{ scenP('avail'); openChanges(); }},
+    {t:'Журнал обновлений', s:'Окно', run:()=>{ scenP('avail'); open('log','table'); }},
     {t:'Вернуть прошлую версию?', s:'Подтверждение', run:()=>{ scenP('avail'); open('rb'); }},
     {t:'Возврат прошлой версии', s:'', run:()=>scenP('avail',()=>{ const r=S.log[0]; S.busy={kind:'rollback',from:r.to,to:r.from,bkt:r.t,step:1,frozen:true}; })}]},
   {g:'Окна (было): обновление по сети', items:[

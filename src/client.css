@@ -123,6 +123,7 @@
 .uw-f{flex:none;display:flex;align-items:center;gap:8px;padding:8px 6px}
 .uw-f .l{margin-right:auto;display:flex;align-items:center;min-width:0}
 .uw-f .btn{min-width:80px}
+.uw-f .nbtn{min-width:80px;justify-content:center}
 .uw .btn.pri:disabled{background:var(--btn-grad);border-color:#c9cacc;color:#9a9ca2} /* базовый .btn.pri перекрывает :disabled */
 
 .sh{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start}
@@ -283,50 +284,39 @@
 .ti .nbadge{margin-left:auto}
 .nbadge{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;border-radius:3px;background:var(--neg);color:#fff;font-size:11px;font-weight:700;line-height:1;flex:none}
 .uupd .nbadge{margin-left:2px}
-.up{display:grid;gap:14px;max-width:900px}
-.up-top{display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center}
-.up-auto{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.up-card{border:1px solid var(--n-bd);background:#fff;padding:12px 14px;display:grid;gap:10px}
-.up-card.new{border-color:var(--n-bd)}
-.up-card.ok{border-left:3px solid var(--pos)}
-.up-card.err{border-left:3px solid var(--neg)}
-.up-card.warn{border-left:3px solid var(--amber)}
-.up-card.run{border-left:3px solid var(--pri)}
-.up-st{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start}
-.up-st>svg,.up-st .up-spin{width:18px;height:18px;margin-top:1px}
-.up-st b{display:block;font-size:14px;font-weight:600}
-.up-st span{color:var(--grey);font-size:12px}
-.up-spin svg{width:18px;height:18px;animation:spin 1s linear infinite}
-.up-ch b{font-weight:600}
-.up-ch ul{margin:4px 0 0;padding-left:18px}
-.up-opts{display:grid;gap:6px}
-.up-acts{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.up-note{margin:0;color:#4b5060}
-.up-note.err{color:var(--neg)}
-.up-recs{margin:0;padding-left:18px;color:#4b5060}
-.up-steps{margin:0;padding-left:18px;color:var(--grey)}
-.up-steps li.done{color:#4b5060}
-.up-steps li.on{color:var(--n-ink);font-weight:600}
-.up-chain{margin:0;padding-left:18px}
-.up-card .pbar{margin:0}
-.up-sec{font-weight:600}
-.up-file{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
-.up-file p{margin:0 0 6px}
-.up-file .qr{display:block;border:1px solid var(--n-bd)}
-.up-url{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--n-ink);user-select:all}
-.up-pick{border-top:1px solid var(--cell-bd);padding-top:10px;display:grid;gap:8px}
-.up-pick p{margin:0}
-.up-pick.err b{color:var(--neg)}
-.up-fn{font-weight:600;word-break:break-all}
-.up-fn span{font-weight:400;color:var(--grey);margin-left:8px}
-.up-flow{display:flex;align-items:center;gap:8px}
-.up-flow svg{width:16px;height:16px;flex:none}
-.up-card.hist{gap:0;padding:0}
-.up-rb{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--cell-bd)}
-.up-tog{display:flex;align-items:center;gap:8px;width:100%;padding:10px 14px;border:0;border-bottom:1px solid var(--cell-bd);background:none;font:inherit;font-weight:600;text-align:left;cursor:pointer}
-.up-tog:last-of-type{border-bottom:0}
-.up-tog::before{content:"";width:5px;height:5px;border-right:1.4px solid currentColor;border-bottom:1.4px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
-.up-tog.on::before{transform:rotate(45deg)}
-.up-tog:hover{background:#f7f8fa}
-.up-body{padding:10px 14px;border-bottom:1px solid var(--cell-bd)}
-.up-body:last-child{border-bottom:0}
+/* страница: одна колонка ~760 px, отступы 16 px, строки 40 px; разделители внутри блоков — чуть темнее (--n-grid), чтобы читались рядом с рамкой */
+.up2{max-width:760px;display:grid}
+.u2-hero{display:grid;grid-template-columns:20px minmax(0,1fr) auto;column-gap:12px;row-gap:12px;align-items:center;padding:16px;border:1px solid var(--n-bd);background:#fff}
+.u2-hero.ok{border-left:3px solid var(--pos)} .u2-hero.err{border-left:3px solid var(--neg)} .u2-hero.warn{border-left:3px solid var(--amber)} .u2-hero.run,.u2-hero.new{border-left:3px solid var(--pri)}
+.u2-ic{display:grid;place-items:center;width:20px;height:20px}
+.u2-ic svg{width:18px;height:18px}
+.u2-spin svg{width:18px;height:18px;animation:spin 1s linear infinite}
+.u2-t{min-width:0;display:grid;gap:2px}
+.u2-t b{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.u2-t span{font-size:12px;color:var(--grey)}
+.u2-a{display:flex;align-items:center;gap:16px;white-space:nowrap}
+.u2-body{grid-column:2/-1;display:grid;gap:8px}
+.u2-body ul{margin:0;padding-left:18px}
+.u2-body .pbar{margin:0}
+.u2-more{justify-self:start;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;font:inherit;color:var(--pri);cursor:pointer}
+.u2-more::after{content:"";width:5px;height:5px;border-right:1.3px solid currentColor;border-bottom:1.3px solid currentColor;transform:rotate(45deg);margin-bottom:3px}
+.u2-more.on::after{transform:rotate(-135deg);margin:3px 0 0}
+.u2-note{margin:0;color:#4b5060} .u2-note.err{color:var(--neg)}
+.u2-h{margin:20px 0 6px;font-weight:600}
+.u2-list{border:1px solid var(--n-bd);background:#fff}
+.u2-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.u2-row{display:flex;align-items:center;gap:12px;min-height:40px;padding:8px 16px;width:100%;border:0;border-bottom:1px solid var(--n-grid);background:none;font:inherit;color:inherit;text-align:left}
+.u2-row:last-child{border-bottom:0}
+.u2-row>span:first-child{flex:1;min-width:0}
+label.u2-row{cursor:pointer}
+.u2-row.go{cursor:pointer}
+.u2-row.go:hover{background:#f7f8fa}
+.u2-row i{font-style:normal;color:var(--grey);font-size:16px;line-height:1;transition:transform .15s}
+.u2-row.go.on i{transform:rotate(90deg)}
+.u2-val{color:var(--grey)}
+.u2-list .u2-body{padding:10px 16px 14px;border-bottom:1px solid var(--n-grid)}
+.u2-list .u2-body:last-child{border-bottom:0}
+.u2-file,.u2-pick{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:center;padding:12px 16px}
+.u2-pick{grid-template-columns:20px minmax(0,1fr) auto;column-gap:12px;border-top:1px solid var(--n-grid)}
+.u2-file .qr{display:block}
+.u2-url{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--n-ink)!important;user-select:all}
