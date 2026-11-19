@@ -1639,9 +1639,9 @@ function upSource(){
     else if(d.state==='fail'){ lockBody=sta(ICON.err,'Загрузка не удалась',`Связь обрывалась слишком часто · загружено ${got}`)+pbar('fail',pct); L.push(lnk('delDl','Отменить')); R.push(upBtn('retry','Повторить')); }
     else { lockBody=sta('',`${what} ${d.target}`,`<span id="upmeta">${got} · осталось ${left(d.total-d.done)}</span>`)+pbar('',pct); L.push(lnk('delDl','Отменить')); R.push(upBtn('stopDl','Остановить')); }
   } else if(S.ready){ const v=S.ready.target, nx=S.newerOut&&newer(NEXT.v,v);
-    lockBody=sta(ICON.ok,`${v} загружено`,'Сервер перезапустится и будет недоступен около 5 минут')
+    lockBody=sta('',`${v} загружено`,'Сервер перезапустится и будет недоступен около 5 минут')
       +(nx?`<p class="u2-note">Вышла версия ${NEXT.v} · ${lnk('swapNewer',`загрузить её вместо ${v}`)}</p>`:'');
-    L.push(lnk('delReady','Удалить обновление')); R.push(upBtn('installNow','Установить сейчас'));
+    L.push(lnk('delReady','Удалить')); R.push(upBtn('installNow','Установить сейчас'));
   }
   // по сети: короткая сводка в строке варианта и подробности, когда он выбран
   const prev = n&&n.k==='fail' ? `<p class="u2-note err">Прошлая попытка: ${S.failTo} не установилась, сервер вернулся на ${S.cur}</p>` : n&&n.k==='rolled' ? `<p class="u2-note">Восстановлена версия ${S.cur} из бэкапа от ${S.rbFrom}</p>` : '';
@@ -1650,7 +1650,7 @@ function upSource(){
   else if(st==='unchecked'){ netSum='Автопоиск выключен'; netBody=sta('','Автоматический поиск выключен','Включите его в параметрах или проверьте вручную'); }
   else if(st==='offline'){ netSum='Нет доступа к сети'; netBad=true; netBody=sta(ICON.err,'Нет доступа к сети','Проверьте подключение в «Сетевые интерфейсы» или обновите из файла'); }
   else if(st==='nohost'){ netSum='Сервер обновлений недоступен'; netBad=true; netBody=sta(ICON.err,'Сервер обновлений недоступен','Укажите шлюз и DNS в «Сетевые интерфейсы», например 77.88.8.8'); }
-  else if(st==='latest'){ netSum='Последняя версия'; netBody=prev+sta(ICON.ok, n&&n.k==='ok'?`Установлена версия ${S.cur}`:'Установлена последняя версия','Проверено сегодня в 14:32'); }
+  else if(st==='latest'){ netSum='Последняя версия'; netBody=prev+sta('', n&&n.k==='ok'?`Установлена версия ${S.cur}`:'Установлена последняя версия','Проверено сегодня в 14:32'); }
   else if(st==='old'){ const ch=chainFrom(S.cur); canNet=true; netSum=`Доступна ${LATEST} в ${ch.length} шага`;
     netBody=prev+sta('',`Доступно обновление ${LATEST} в ${ch.length} шага`,`Сначала ${ch[0]} · ${mb(SIZE)}`); }
   else if(st==='avail'||st==='space'){ canNet=st==='avail'; netSum=`Доступна ${LATEST} · ${mb(SIZE)}`;
@@ -1663,7 +1663,7 @@ function upSource(){
   // файл выбран — ссылка и QR уже не нужны, на их месте строка файла
   fileBody = !f ? `<div class="u2-dl">${qrSvg(SITE_TXT)}<div class="u2-t"><b>Ссылка на скачивание</b><span class="u2-url">${SITE_TXT}</span></div>%ACT%</div>`
     : f.err ? sta(ICON.err,esc(f.n),`${f.err}. ${f.kind==='format'?'Нужен файл .pack':PICK_RECS[f.kind][0]}`)
-    : sta(ICON.ok,esc(f.n),`Подходит · ${S.cur} → ${f.v} · ${mb(f.mb)}`);
+    : sta('',esc(f.n),`Подходит · ${S.cur} → ${f.v} · ${mb(f.mb)}`);
   // кнопки выбранного варианта, когда ничего не загружается
   if(!lock){
     // одна главная кнопка на месте — справа внизу выбранного варианта; меняется только надпись, неактивных кнопок нет
