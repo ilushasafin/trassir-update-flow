@@ -320,3 +320,27 @@ label.u2-row{cursor:pointer}
 .u2-pick{grid-template-columns:20px minmax(0,1fr) auto;column-gap:12px;border-top:1px solid var(--n-grid)}
 .u2-file .qr{display:block}
 .u2-url{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--n-ink)!important;user-select:all}
+
+/* страница: версия в заголовке; «По сети / Из файла» — один блок с переключателем и общей кнопкой */
+.u2-src .u2-opt{border-bottom:1px solid var(--n-grid)}
+.u2-oh{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 16px;cursor:pointer}
+.u2-oh b{font-weight:600}
+.u2-sum{margin-left:auto;color:var(--grey);font-size:12px;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.u2-sum.err{color:var(--neg)}
+.u2-opt.dim .u2-oh{cursor:default;opacity:.55}
+.u2-rd{flex:none;width:14px;height:14px;padding:0;border:1px solid var(--btn-bd);border-radius:50%;background:#fff;display:grid;place-items:center;cursor:pointer}
+.u2-rd[aria-checked=true]::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--pri)}
+.u2-rd:disabled{cursor:default}
+.u2-ob{display:grid;gap:10px;padding:0 16px 14px 40px}
+.u2-ob.solo{padding:14px 16px}
+.u2-ob .pbar{margin:0}
+.u2-stat{display:flex;gap:10px;align-items:flex-start}
+.u2-stat .u2-t{flex:1;min-width:0}
+.u2-stat .u2-ic{width:18px;height:18px;margin-top:1px}
+.u2-dl{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:14px;align-items:center}
+.u2-dl .qr{display:block}
+.u2-cur{display:flex;gap:24px;align-items:baseline;margin-bottom:12px}
+.u2-cur b{font-weight:600}
+.u2-src .u2-opt:last-child{border-bottom:0}
+.u2-act{flex:none;align-self:center;display:flex;align-items:center;gap:16px}
+.u2-act .nbtn+.nbtn{margin-left:-8px} /* две кнопки рядом — обычный шаг 8px */
